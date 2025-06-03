@@ -3,33 +3,21 @@
 android-compileSdk = "35"
 android-minSdk = "24"
 android-targetSdk = "35"
-
-# Kotlin & Tools
 kotlin = "2.1.21"
 ksp = "2.1.21-2.0.1"
 agp = "8.10.1"
-
-# Compose
 composeMultiplatform = "1.8.1"
-
-# AndroidX Core
 androidx-core = "1.16.0"
 androidx-activity = "1.10.1"
 androidx-appcompat = "1.7.0"
 androidx-constraintlayout = "2.2.1"
 androidx-lifecycle = "2.9.0"
-
-# AndroidX Testing
 androidx-testExt = "1.2.1"
 androidx-espresso = "3.6.1"
-
-# Koin
 koin = "4.0.4"
 koinKsp = "2.0.0"
 koinAnnotations = "2.0.1-RC1"
 koinComposeMultiplatform = "4.0.4"
-
-# Other Libraries
 kotlinxSerializationJson = "1.8.1"
 navigationCompose = "2.9.0-beta01"
 dataStore = "1.1.7"
