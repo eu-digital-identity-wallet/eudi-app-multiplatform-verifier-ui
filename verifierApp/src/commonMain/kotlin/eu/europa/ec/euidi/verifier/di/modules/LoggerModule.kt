@@ -14,12 +14,16 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier
+package eu.europa.ec.euidi.verifier.di.modules
 
-import platform.UIKit.UIDevice
+import eu.europa.ec.euidi.verifier.logger.AppLogger
+import eu.europa.ec.euidi.verifier.logger.AppLoggerImpl
+import org.koin.core.annotation.Module
+import org.koin.core.annotation.Single
 
-class IOSPlatform: Platform {
-    override val name: String = UIDevice.currentDevice.systemName() + " " + UIDevice.currentDevice.systemVersion
+@Module
+class LoggerModule {
+
+    @Single
+    fun provideLogger(): AppLogger = AppLoggerImpl()
 }
-
-actual fun getPlatform(): Platform = IOSPlatform()

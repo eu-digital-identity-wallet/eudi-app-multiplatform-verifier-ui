@@ -14,18 +14,8 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier
+package eu.europa.ec.euidi.verifier.preferences
 
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
-import eu.europa.ec.euidi.verifier.ui.HomeScreen
-import org.koin.compose.KoinContext
-
-@Composable
-fun App() {
-    MaterialTheme {
-        KoinContext {
-            HomeScreen()
-        }
-    }
+object PreferencesKey {
+    const val FOO = "FOO"
 }

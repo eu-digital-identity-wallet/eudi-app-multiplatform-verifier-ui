@@ -14,18 +14,17 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier
+package eu.europa.ec.euidi.verifier.util
 
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
-import eu.europa.ec.euidi.verifier.ui.HomeScreen
-import org.koin.compose.KoinContext
+import kotlin.io.encoding.Base64
+import kotlin.io.encoding.ExperimentalEncodingApi
 
-@Composable
-fun App() {
-    MaterialTheme {
-        KoinContext {
-            HomeScreen()
-        }
-    }
+@OptIn(ExperimentalEncodingApi::class)
+fun ByteArray.toBase64(): ByteArray {
+    return Base64.encodeToByteArray(this)
+}
+
+@OptIn(ExperimentalEncodingApi::class)
+fun ByteArray.fromBase64(): ByteArray {
+    return Base64.decode(this)
 }

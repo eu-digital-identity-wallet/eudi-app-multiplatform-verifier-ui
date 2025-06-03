@@ -14,12 +14,15 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier
+package eu.europa.ec.euidi.verifier.ui
 
-class Greeting {
-    private val platform = getPlatform()
+import androidx.compose.runtime.Composable
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.koin.compose.viewmodel.koinViewModel
 
-    fun greet(): String {
-        return "Hello, ${platform.name}!"
-    }
+@Composable
+fun HomeScreen(
+    viewModel: HomeViewModel = koinViewModel()
+) {
+    val state = viewModel.uiState.collectAsStateWithLifecycle()
 }

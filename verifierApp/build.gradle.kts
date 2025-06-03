@@ -22,6 +22,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.ksp)
 }
 
 kotlin {
@@ -46,6 +47,11 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+            implementation(libs.koin.android)
+            implementation(libs.koin.androidx.compose)
+        }
+        iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -54,14 +60,50 @@ kotlin {
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
-            implementation(libs.androidx.lifecycle.viewmodel)
+            implementation(libs.androidx.lifecycle.viewmodel.compose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+            implementation(libs.navigation.compose)
+            implementation(libs.kotlinx.serialization.json)
+
+            api(libs.koin.core)
+            implementation(project.dependencies.platform(libs.koin.bom))
+            implementation(libs.koin.compose)
+            implementation(libs.koin.compose.viewmodel)
+            implementation(libs.koin.annotations)
+
+            api(libs.androidx.datastore.preferences.core)
+            api(libs.androidx.datastore.core.okio)
+            implementation(libs.okio)
+
+            implementation(libs.ktor.client.core)
+            implementation(libs.kermit)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation(libs.koin.test)
         }
     }
+
+    sourceSets.named("commonMain").configure {
+        kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
+    }
+
+    compilerOptions {
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
+
+    ksp {
+        arg("KOIN_USE_COMPOSE_VIEWMODEL","true")
+    }
 }
+
+kotlin.sourceSets.all {
+    languageSettings.optIn("kotlinx.cinterop.ExperimentalForeignApi")
+    languageSettings.optIn("kotlin.experimental.ExperimentalObjCName")
+}
+
+kotlin.sourceSets.getByName("commonMain")
+    .kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
 
 android {
 
@@ -115,10 +157,27 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+    dependencies {
+        implementation(libs.ktor.client.okhttp)
+    }
 }
 
 dependencies {
     debugImplementation(compose.uiTooling)
+    add("kspIosSimulatorArm64", libs.koin.ksp.compiler)
+    add("kspIosX64", libs.koin.ksp.compiler)
+    add("kspIosArm64", libs.koin.ksp.compiler)
+    add("kspCommonMainMetadata", libs.koin.ksp.compiler)
+}
+
+afterEvaluate {
+    tasks.matching { it.name.startsWith("kspKotlin") }.configureEach {
+        dependsOn(tasks.named("kspCommonMainKotlinMetadata"))
+    }
+
+    tasks.matching { it.name.startsWith("compile") }.configureEach {
+        dependsOn(tasks.named("kspCommonMainKotlinMetadata"))
+    }
 }
 
 @Suppress("UNCHECKED_CAST")

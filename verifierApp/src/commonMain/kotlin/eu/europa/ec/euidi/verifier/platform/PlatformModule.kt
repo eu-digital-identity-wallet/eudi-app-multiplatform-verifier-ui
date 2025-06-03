@@ -14,18 +14,8 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier
+package eu.europa.ec.euidi.verifier.platform
 
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
-import eu.europa.ec.euidi.verifier.ui.HomeScreen
-import org.koin.compose.KoinContext
+import org.koin.core.module.Module
 
-@Composable
-fun App() {
-    MaterialTheme {
-        KoinContext {
-            HomeScreen()
-        }
-    }
-}
+expect fun platformModule(): Module

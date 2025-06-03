@@ -14,12 +14,15 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier
+package eu.europa.ec.euidi.verifier.preferences
 
-import android.os.Build
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.Preferences
+import okio.Path.Companion.toPath
 
-class AndroidPlatform : Platform {
-    override val name: String = "Android ${Build.VERSION.SDK_INT}"
+const val dataStoreFileName = "verifier.preferences_pb"
+
+fun createDataStore(producePath: () -> String): DataStore<Preferences> {
+    return PreferenceDataStoreFactory.createWithPath { producePath().toPath() }
 }
-
-actual fun getPlatform(): Platform = AndroidPlatform()

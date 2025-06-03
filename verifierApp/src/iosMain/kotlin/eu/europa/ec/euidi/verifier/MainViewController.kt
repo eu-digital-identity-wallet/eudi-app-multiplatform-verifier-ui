@@ -17,5 +17,10 @@
 package eu.europa.ec.euidi.verifier
 
 import androidx.compose.ui.window.ComposeUIViewController
+import eu.europa.ec.euidi.verifier.di.initKoin
 
-fun MainViewController() = ComposeUIViewController { App() }
+fun MainViewController() = ComposeUIViewController(
+    configure = {
+        initKoin()
+    }
+) { App() }
