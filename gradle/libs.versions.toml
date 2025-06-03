@@ -7,7 +7,7 @@ android-targetSdk = "35"
 # Kotlin & Tools
 kotlin = "2.1.21"
 ksp = "2.1.21-2.0.1"
-agp = "8.10.0"
+agp = "8.10.1"
 
 # Compose
 composeMultiplatform = "1.8.1"
