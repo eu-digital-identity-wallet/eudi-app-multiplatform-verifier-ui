@@ -14,12 +14,15 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier
+package eu.europa.ec.euidi.verifier.preferences
 
-class Greeting {
-    private val platform = getPlatform()
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.Preferences
+import okio.Path.Companion.toPath
 
-    fun greet(): String {
-        return "Hello, ${platform.name}!"
-    }
+const val dataStoreFileName = "verifier.preferences_pb"
+
+fun createDataStore(producePath: () -> String): DataStore<Preferences> {
+    return PreferenceDataStoreFactory.createWithPath { producePath().toPath() }
 }

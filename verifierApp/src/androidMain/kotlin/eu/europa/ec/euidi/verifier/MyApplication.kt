@@ -16,16 +16,16 @@
 
 package eu.europa.ec.euidi.verifier
 
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
-import eu.europa.ec.euidi.verifier.ui.HomeScreen
-import org.koin.compose.KoinContext
+import android.app.Application
+import eu.europa.ec.euidi.verifier.di.initKoin
+import org.koin.android.ext.koin.androidContext
 
-@Composable
-fun App() {
-    MaterialTheme {
-        KoinContext {
-            HomeScreen()
+class MyApplication: Application() {
+    override fun onCreate() {
+        super.onCreate()
+
+        initKoin {
+            androidContext(this@MyApplication)
         }
     }
 }

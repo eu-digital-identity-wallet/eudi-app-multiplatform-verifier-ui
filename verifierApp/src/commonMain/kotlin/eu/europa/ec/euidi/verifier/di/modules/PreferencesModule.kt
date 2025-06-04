@@ -14,18 +14,19 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier
+package eu.europa.ec.euidi.verifier.di.modules
 
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
-import eu.europa.ec.euidi.verifier.ui.HomeScreen
-import org.koin.compose.KoinContext
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import eu.europa.ec.euidi.verifier.preferences.PreferencesController
+import org.koin.core.annotation.Module
+import org.koin.core.annotation.Single
 
-@Composable
-fun App() {
-    MaterialTheme {
-        KoinContext {
-            HomeScreen()
-        }
-    }
+@Module
+class PreferencesModule {
+
+    @Single
+    fun providePreferencesController(
+        dataStore: DataStore<Preferences>
+    ): PreferencesController = PreferencesController(dataStore)
 }

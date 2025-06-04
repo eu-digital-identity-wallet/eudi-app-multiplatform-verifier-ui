@@ -14,12 +14,20 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier
+package eu.europa.ec.euidi.verifier.platform
 
-import android.os.Build
+import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import eu.europa.ec.euidi.verifier.preferences.createDataStore
+import eu.europa.ec.euidi.verifier.preferences.dataStoreFileName
+import org.koin.dsl.module
 
-class AndroidPlatform : Platform {
-    override val name: String = "Android ${Build.VERSION.SDK_INT}"
+actual fun platformModule() = module {
+    single<DataStore<Preferences>> {
+        val context = get<Context>()
+        createDataStore {
+            context.filesDir.resolve(dataStoreFileName).absolutePath
+        }
+    }
 }
-
-actual fun getPlatform(): Platform = AndroidPlatform()

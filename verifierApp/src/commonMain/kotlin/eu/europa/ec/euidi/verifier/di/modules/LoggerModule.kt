@@ -14,10 +14,16 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier
+package eu.europa.ec.euidi.verifier.di.modules
 
-interface Platform {
-    val name: String
+import eu.europa.ec.euidi.verifier.logger.AppLogger
+import eu.europa.ec.euidi.verifier.logger.AppLoggerImpl
+import org.koin.core.annotation.Module
+import org.koin.core.annotation.Single
+
+@Module
+class LoggerModule {
+
+    @Single
+    fun provideLogger(): AppLogger = AppLoggerImpl()
 }
-
-expect fun getPlatform(): Platform
