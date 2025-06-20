@@ -14,18 +14,17 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier
+package eu.europa.ec.euidi.verifier.navigation
 
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
-import eu.europa.ec.euidi.verifier.navigation.VerifierNavHost
-import org.koin.compose.KoinContext
+import kotlinx.serialization.Serializable
 
-@Composable
-fun App() {
-    MaterialTheme {
-        KoinContext {
-            VerifierNavHost()
-        }
-    }
+@Serializable
+sealed interface NavItem {
+    @Serializable data object Home : NavItem
+    @Serializable data object DocToRequest : NavItem
+    @Serializable data object CustomRequest : NavItem
+    @Serializable data object TransferStatus : NavItem
+    @Serializable data object ShowDocuments : NavItem
+    @Serializable data object ReverseEngagement : NavItem
+    @Serializable data object Settings : NavItem
 }

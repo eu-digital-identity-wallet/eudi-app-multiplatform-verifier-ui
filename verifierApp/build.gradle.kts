@@ -14,6 +14,7 @@
  * governing permissions and limitations under the Licence.
  */
 
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Properties
 
@@ -23,12 +24,21 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlinParcelize)
+    alias(libs.plugins.serialization)
 }
 
 kotlin {
+    val basePackage = "eu.europa.ec.euidi.verifier"
+
     androidTarget {
+        @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_17)
+            freeCompilerArgs.addAll(
+                "-P",
+                "plugin:org.jetbrains.kotlin.parcelize:additionalAnnotation=$basePackage.utils.CommonParcelize"
+            )
         }
     }
 

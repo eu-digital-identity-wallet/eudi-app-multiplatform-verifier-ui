@@ -14,18 +14,7 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier
+package eu.europa.ec.euidi.verifier.mvi
 
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
-import eu.europa.ec.euidi.verifier.navigation.VerifierNavHost
-import org.koin.compose.KoinContext
-
-@Composable
-fun App() {
-    MaterialTheme {
-        KoinContext {
-            VerifierNavHost()
-        }
-    }
+interface UiEffect {
 }

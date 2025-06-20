@@ -14,18 +14,16 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier
+package eu.europa.ec.euidi.verifier.presentation.ui.showDocument
 
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
-import eu.europa.ec.euidi.verifier.navigation.VerifierNavHost
-import org.koin.compose.KoinContext
+import androidx.navigation.NavController
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.compose.composable
+import eu.europa.ec.euidi.verifier.navigation.NavItem
 
-@Composable
-fun App() {
-    MaterialTheme {
-        KoinContext {
-            VerifierNavHost()
-        }
+fun NavGraphBuilder.showDocumentScreen(navController: NavController) =
+    composable<NavItem.ShowDocuments> {
+        ShowDocumentScreen(
+            navController = navController
+        )
     }
-}
