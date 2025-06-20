@@ -14,18 +14,25 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier
+package eu.europa.ec.euidi.verifier.presentation.model
 
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
-import eu.europa.ec.euidi.verifier.navigation.VerifierNavHost
-import org.koin.compose.KoinContext
+data class SupportedDocument(
+    val documentType: AttestationType,
+    val modes: List<Mode> = listOf(Mode.FULL, Mode.CUSTOM)
+) {
+    enum class Mode(val displayName: String) {
+        FULL(displayName = "Full"),
+        CUSTOM(displayName = "Custom")
+    }
 
-@Composable
-fun App() {
-    MaterialTheme {
-        KoinContext {
-            VerifierNavHost()
-        }
+    enum class AttestationType(val displayName: String) {
+        PID("PID"),
+        MDL("Mdl"),
+        AGE_VERIFICATION("Age Verification")
+    }
+
+    enum class DocumentFormat(val displayName: String) {
+        MsoMdocFormat("MsoMdoc"),
+        SdJwtVcFormat("SdJwt")
     }
 }

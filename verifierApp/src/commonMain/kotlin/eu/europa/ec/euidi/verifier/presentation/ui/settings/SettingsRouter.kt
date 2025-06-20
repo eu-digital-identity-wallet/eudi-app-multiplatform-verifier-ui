@@ -14,17 +14,14 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier.util
+package eu.europa.ec.euidi.verifier.presentation.ui.settings
 
-import kotlin.io.encoding.Base64
-import kotlin.io.encoding.ExperimentalEncodingApi
+import androidx.navigation.NavController
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.compose.composable
+import eu.europa.ec.euidi.verifier.navigation.NavItem
 
-@OptIn(ExperimentalEncodingApi::class)
-fun ByteArray.toBase64(): ByteArray {
-    return Base64.encodeToByteArray(this)
-}
-
-@OptIn(ExperimentalEncodingApi::class)
-fun ByteArray.fromBase64(): ByteArray {
-    return Base64.decode(this)
-}
+fun NavGraphBuilder.settingsScreen(navController: NavController) =
+    composable<NavItem.Settings> {
+        SettingsScreen(navController)
+    }

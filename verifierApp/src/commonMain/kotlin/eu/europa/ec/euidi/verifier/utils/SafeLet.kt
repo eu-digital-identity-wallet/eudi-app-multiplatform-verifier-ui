@@ -14,18 +14,8 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier
+package eu.europa.ec.euidi.verifier.utils
 
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
-import eu.europa.ec.euidi.verifier.navigation.VerifierNavHost
-import org.koin.compose.KoinContext
-
-@Composable
-fun App() {
-    MaterialTheme {
-        KoinContext {
-            VerifierNavHost()
-        }
-    }
+inline fun <T1 : Any, T2 : Any, R : Any> safeLet(p1: T1?, p2: T2?, block: (T1, T2) -> R?): R? {
+    return if (p1 != null && p2 != null) block(p1, p2) else null
 }

@@ -14,27 +14,17 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier.di
+package eu.europa.ec.euidi.verifier.presentation.ui.customRequest
 
-import eu.europa.ec.euidi.verifier.di.modules.LoggerModule
-import eu.europa.ec.euidi.verifier.di.modules.PreferencesModule
-import eu.europa.ec.euidi.verifier.platform.platformModule
-import org.koin.core.context.startKoin
-import org.koin.dsl.KoinAppDeclaration
-import org.koin.ksp.generated.defaultModule
-import org.koin.ksp.generated.module
+import androidx.navigation.NavController
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.compose.composable
+import eu.europa.ec.euidi.verifier.navigation.NavItem
 
-
-fun initKoin(appDeclaration: KoinAppDeclaration = {}) =
-    startKoin {
-        appDeclaration()
-
-        modules(
-            platformModule(),
-            PreferencesModule().module,
-            LoggerModule().module,
-            defaultModule // needed for generated viewModels
+fun NavGraphBuilder.customRequestScreen(navController: NavController) {
+    composable<NavItem.CustomRequest> {
+        CustomRequestScreen(
+            navController = navController
         )
     }
-
-fun initKoin() = initKoin {} // called by iOS
+}

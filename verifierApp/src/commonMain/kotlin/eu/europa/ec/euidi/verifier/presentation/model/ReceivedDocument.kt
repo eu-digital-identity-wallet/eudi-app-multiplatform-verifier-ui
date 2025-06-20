@@ -14,18 +14,14 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier
+package eu.europa.ec.euidi.verifier.presentation.model
 
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
-import eu.europa.ec.euidi.verifier.navigation.VerifierNavHost
-import org.koin.compose.KoinContext
+import eu.europa.ec.euidi.verifier.presentation.model.SupportedDocument.AttestationType
+import eu.europa.ec.euidi.verifier.utils.CommonParcelable
+import eu.europa.ec.euidi.verifier.utils.CommonParcelize
 
-@Composable
-fun App() {
-    MaterialTheme {
-        KoinContext {
-            VerifierNavHost()
-        }
-    }
-}
+@CommonParcelize
+data class ReceivedDocument(
+    val documentType: AttestationType,
+    val claims: List<String>
+) : CommonParcelable

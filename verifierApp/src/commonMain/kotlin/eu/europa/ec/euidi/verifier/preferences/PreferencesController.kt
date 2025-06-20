@@ -4,8 +4,8 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.byteArrayPreferencesKey
 import androidx.datastore.preferences.core.edit
-import eu.europa.ec.euidi.verifier.util.fromBase64
-import eu.europa.ec.euidi.verifier.util.toBase64
+import eu.europa.ec.euidi.verifier.utils.fromBase64
+import eu.europa.ec.euidi.verifier.utils.toBase64
 import io.ktor.utils.io.core.toByteArray
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
