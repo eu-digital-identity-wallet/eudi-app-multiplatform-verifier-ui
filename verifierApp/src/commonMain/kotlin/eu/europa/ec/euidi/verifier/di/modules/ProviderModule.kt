@@ -14,24 +14,16 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier
+package eu.europa.ec.euidi.verifier.di.modules
 
-import android.app.Application
-import eu.europa.ec.euidi.verifier.di.initKoin
-import org.koin.android.ext.koin.androidContext
+import eu.europa.ec.euidi.verifier.provider.UuidProvider
+import eu.europa.ec.euidi.verifier.provider.UuidProviderImpl
+import org.koin.core.annotation.Module
+import org.koin.core.annotation.Single
 
-class MyApplication: Application() {
-    override fun onCreate() {
-        super.onCreate()
-        instance = this
+@Module
+class ProviderModule {
 
-        initKoin {
-            androidContext(this@MyApplication)
-        }
-    }
-
-    companion object {
-        lateinit var instance: MyApplication
-            private set
-    }
+    @Single
+    fun provideUuidProvider(): UuidProvider = UuidProviderImpl()
 }

@@ -14,24 +14,14 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier
+package eu.europa.ec.euidi.verifier.utils
 
-import android.app.Application
-import eu.europa.ec.euidi.verifier.di.initKoin
-import org.koin.android.ext.koin.androidContext
+import android.widget.Toast
+import eu.europa.ec.euidi.verifier.MyApplication
 
-class MyApplication: Application() {
-    override fun onCreate() {
-        super.onCreate()
-        instance = this
-
-        initKoin {
-            androidContext(this@MyApplication)
-        }
-    }
-
-    companion object {
-        lateinit var instance: MyApplication
-            private set
+actual open class ToastManager actual constructor() {
+    actual fun showToast(message: String) {
+        val context = MyApplication.instance.baseContext
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 }

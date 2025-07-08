@@ -17,8 +17,10 @@
 package eu.europa.ec.euidi.verifier.presentation.model
 
 data class SupportedDocument(
+    val id: String,
     val documentType: AttestationType,
-    val modes: List<Mode> = listOf(Mode.FULL, Mode.CUSTOM)
+    val modes: List<Mode> = listOf(Mode.FULL, Mode.CUSTOM),
+    val formats: List<DocumentFormat> = listOf(DocumentFormat.MsoMdocFormat, DocumentFormat.SdJwtVcFormat)
 ) {
     enum class Mode(val displayName: String) {
         FULL(displayName = "Full"),

@@ -16,6 +16,7 @@
 
 package eu.europa.ec.euidi.verifier.presentation.ui.docToRequest
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,6 +30,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -39,9 +41,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import eu.europa.ec.euidi.verifier.navigation.NavItem
-import eu.europa.ec.euidi.verifier.navigation.getFromPreviousBackStack
+import eu.europa.ec.euidi.verifier.navigation.getFromCurrentBackStack
+import eu.europa.ec.euidi.verifier.navigation.popToAndSave
 import eu.europa.ec.euidi.verifier.navigation.saveToCurrentBackStack
-import eu.europa.ec.euidi.verifier.navigation.saveToPreviousBackStack
+import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocsHolder
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
 import eu.europa.ec.euidi.verifier.utils.Constants
 import org.koin.compose.viewmodel.koinViewModel
@@ -49,14 +52,15 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun DocumentsToRequestScreen(
     navController: NavController,
-    viewModel: DocToRequestViewModel = koinViewModel()
+    viewModel: DocumentsToRequestViewModel = koinViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
+        val doc = navController.getFromCurrentBackStack<RequestedDocumentUi>(Constants.REQUESTED_DOCUMENT)
         viewModel.setEvent(
-            DocToRequestViewModelContract.Event.Init(
-                doc = navController.getFromPreviousBackStack<RequestedDocumentUi>(Constants.REQUESTED_DOCUMENT)
+            DocToRequestContract.Event.Init(
+                doc = doc
             )
         )
     }
@@ -64,20 +68,17 @@ fun DocumentsToRequestScreen(
     LaunchedEffect(viewModel.effect) {
         viewModel.effect.collect { effect ->
             when (effect) {
-                is DocToRequestViewModelContract.Effect.Navigation.NavigateToHomeScreen -> {
-                    effect.requestedDocument?.let {
-                        navController.saveToPreviousBackStack<RequestedDocumentUi>(
-                            key = Constants.REQUESTED_DOCUMENT,
-                            value = effect.requestedDocument
-                        )
-                    }
-
-                    navController.popBackStack()
+                is DocToRequestContract.Effect.Navigation.NavigateToHomeScreen -> {
+                    navController.popToAndSave<RequestedDocsHolder>(
+                        destination = NavItem.Home,
+                        key = Constants.REQUESTED_DOCUMENT,
+                        value = RequestedDocsHolder(items = effect.requestedDocument)
+                    )
                 }
-                is DocToRequestViewModelContract.Effect.Navigation.NavigateToCustomRequestScreen -> {
+                is DocToRequestContract.Effect.Navigation.NavigateToCustomRequestScreen -> {
                     navController.saveToCurrentBackStack<RequestedDocumentUi>(
                         key = Constants.REQUESTED_DOCUMENT,
-                        value = effect.requestedDocument
+                        value = effect.requestedDocuments
                     ).let {
                         navController.navigate(route = NavItem.CustomRequest)
                     }
@@ -94,7 +95,7 @@ fun DocumentsToRequestScreen(
         IconButton(
             modifier = Modifier.align(Alignment.TopStart),
             onClick = {
-                viewModel.setEvent(DocToRequestViewModelContract.Event.OnBackClick)
+                viewModel.setEvent(DocToRequestContract.Event.OnBackClick)
             }
         ) {
             Text("Back")
@@ -114,14 +115,16 @@ fun DocumentsToRequestScreen(
 
                 Spacer(Modifier.height(12.dp))
 
-
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     supportedDoc.modes.forEach { mode ->
                         FilterChip(
-                            selected = state.selectedMode == mode && state.selectedDocType == supportedDoc.documentType,
+                            selected = state.requestedDocuments.any {
+                                it.documentType == supportedDoc.documentType && it.mode == mode
+                            },
                             onClick = {
                                 viewModel.setEvent(
-                                    DocToRequestViewModelContract.Event.OnOptionSelected(
+                                    DocToRequestContract.Event.OnDocOptionSelected(
+                                        docId = supportedDoc.id,
                                         docType = supportedDoc.documentType,
                                         mode = mode
                                     )
@@ -135,15 +138,44 @@ fun DocumentsToRequestScreen(
                 }
 
                 Spacer(Modifier.height(24.dp))
+
+                AnimatedVisibility(
+                    visible = state.requestedDocuments.any { requestedDoc ->
+                        requestedDoc.documentType == supportedDoc.documentType
+                    }
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        supportedDoc.formats.forEach { format ->
+                            Row(
+                                modifier = Modifier.weight(1f),
+                            ) {
+                                RadioButton(
+                                    selected = state.requestedDocuments.any { requestedDoc ->
+                                        requestedDoc.id == supportedDoc.id && requestedDoc.format == format
+                                    },
+                                    onClick = {
+                                        viewModel.setEvent(
+                                            DocToRequestContract.Event.OnDocFormatSelected( supportedDoc.id, format)
+                                        )
+                                    }
+                                )
+
+                                Text(text = format.displayName)
+                            }
+                        }
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
                 onClick = {
-                    viewModel.setEvent(DocToRequestViewModelContract.Event.OnDoneClick)
+                    viewModel.setEvent(DocToRequestContract.Event.OnDoneClick)
                 },
-                enabled = state.selectedMode != null,
+                enabled = state.requestedDocuments.isNotEmpty(),
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             ) {
                 Text("Done")

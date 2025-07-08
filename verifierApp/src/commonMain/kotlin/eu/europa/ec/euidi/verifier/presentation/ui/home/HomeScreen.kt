@@ -35,7 +35,7 @@ import eu.europa.ec.euidi.verifier.navigation.NavItem
 import org.koin.compose.viewmodel.koinViewModel
 import androidx.compose.runtime.getValue
 import eu.europa.ec.euidi.verifier.navigation.getFromCurrentBackStack
-import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
+import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocsHolder
 import eu.europa.ec.euidi.verifier.utils.Constants
 
 @Composable
@@ -46,8 +46,10 @@ fun HomeScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        val value = navController.getFromCurrentBackStack<RequestedDocumentUi>(Constants.REQUESTED_DOCUMENT)
-        viewModel.setEvent(HomeViewModelContract.Event.Init(value))
+        val documents = navController.getFromCurrentBackStack<RequestedDocsHolder>(Constants.REQUESTED_DOCUMENT)
+        documents?.let {
+            viewModel.setEvent(HomeViewModelContract.Event.Init(it.items))
+        }
     }
 
     LaunchedEffect(Unit) {

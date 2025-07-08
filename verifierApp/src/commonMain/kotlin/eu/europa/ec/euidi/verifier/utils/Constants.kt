@@ -19,4 +19,5 @@ package eu.europa.ec.euidi.verifier.utils
 object Constants {
     const val REQUESTED_DOCUMENT = "requestedDocument"
     const val SAVED_STATE_REQUESTED_DOCUMENT = "savedStateRequestedDocument"
+    const val SAVED_STATE_REQUESTED_DOCUMENTS = "savedStateRequestedDocuments"
 }

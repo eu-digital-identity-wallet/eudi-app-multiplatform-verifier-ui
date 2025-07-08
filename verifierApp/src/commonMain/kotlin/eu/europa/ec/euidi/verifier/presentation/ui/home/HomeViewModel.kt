@@ -16,25 +16,30 @@
 
 package eu.europa.ec.euidi.verifier.presentation.ui.home
 
-import androidx.lifecycle.SavedStateHandle
+import eu.europa.ec.euidi.verifier.logger.AppLogger
 import eu.europa.ec.euidi.verifier.mvi.BaseViewModel
 import eu.europa.ec.euidi.verifier.mvi.UiEffect
 import eu.europa.ec.euidi.verifier.mvi.UiEvent
 import eu.europa.ec.euidi.verifier.mvi.UiState
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
 import org.koin.android.annotation.KoinViewModel
+import org.koin.core.component.inject
 
 @KoinViewModel
 class HomeViewModel() : BaseViewModel<HomeViewModelContract.Event, HomeViewModelContract.State, HomeViewModelContract.Effect>() {
+
+    private val appLogger: AppLogger by inject()
 
     override fun createInitialState(): HomeViewModelContract.State = HomeViewModelContract.State()
 
     override fun handleEvent(event: HomeViewModelContract.Event) {
         when (event) {
             is HomeViewModelContract.Event.Init -> {
+
+                appLogger.d("loukas:: docs: ${event.docs}")
                setState {
                    copy(
-                       doc = event.doc
+                       requesteddocs = event.docs.orEmpty()
                    )
                }
             }
@@ -68,7 +73,7 @@ class HomeViewModel() : BaseViewModel<HomeViewModelContract.Event, HomeViewModel
 
 interface HomeViewModelContract {
     sealed interface Event : UiEvent {
-        data class Init(val doc: RequestedDocumentUi? = null) : Event
+        data class Init(val docs: List<RequestedDocumentUi>?) : Event
         data object OnSelectDocumentClick : Event
         data object OnScanQrCodeClick : Event
         data object OnSettingsClick : Event
@@ -76,7 +81,7 @@ interface HomeViewModelContract {
     }
 
     data class State(
-        val doc: RequestedDocumentUi? = null
+        val requesteddocs: List<RequestedDocumentUi> = emptyList()
     ) : UiState
 
     sealed interface Effect : UiEffect {

@@ -31,39 +31,52 @@ import org.koin.android.annotation.KoinViewModel
 class CustomRequestViewModel(
     private val savedStateHandle: SavedStateHandle
 )
-    : BaseViewModel<CustomRequestViewModelContract.Event, CustomRequestViewModelContract.State, CustomRequestViewModelContract.Effect>() {
-    override fun createInitialState(): CustomRequestViewModelContract.State = CustomRequestViewModelContract.State()
+    : BaseViewModel<CustomRequestContract.Event, CustomRequestContract.State, CustomRequestContract.Effect>() {
+    override fun createInitialState(): CustomRequestContract.State = CustomRequestContract.State()
 
-    override fun handleEvent(event: CustomRequestViewModelContract.Event) {
+    override fun handleEvent(event: CustomRequestContract.Event) {
         when (event) {
-            is CustomRequestViewModelContract.Event.Init -> {
+            is CustomRequestContract.Event.Init -> {
                 val doc = savedStateHandle.get<RequestedDocumentUi>(Constants.SAVED_STATE_REQUESTED_DOCUMENT) ?: event.doc
 
                 setState {
                     copy(
-                        fields = doc?.claims.orEmpty()
+                        requestedDoc = doc,
+                        fields = SelectableClaimUi.forType(doc?.documentType ?: AttestationType.PID)
                     )
                 }
             }
 
-            is CustomRequestViewModelContract.Event.OnDoneClick -> {
-                val doc = RequestedDocumentUi(
-                    documentType = AttestationType.PID,
-                    claims = currentState.fields
-                )
-
+            is CustomRequestContract.Event.OnDoneClick -> {
+//                currentState.requestedDoc?.let {
+//                    val reqDoc = it.copy(
+//                        documentType = it.documentType,
+//                        mode = it.mode,
+//                        claims = currentState.fields
+//                    )
+//
+//                    setState {
+//                        copy(
+//                            requestedDoc = reqDoc
+//                        )
+//                    }
+//
+//                    setEffect {
+//                        CustomRequestContract.Effect.Navigation.GoBack(reqDoc)
+//                    }
+//                } ?:
                 setEffect {
-                    CustomRequestViewModelContract.Effect.Navigation.NavigateToHomeScreen(doc)
+                    CustomRequestContract.Effect.ShowToast("Something went wrong")
                 }
             }
 
-            is CustomRequestViewModelContract.Event.OnCancelClick -> {
+            is CustomRequestContract.Event.OnCancelClick -> {
                 setEffect {
-                    CustomRequestViewModelContract.Effect.Navigation.GoBack
+                    CustomRequestContract.Effect.Navigation.GoBack(null)
                 }
             }
 
-            is CustomRequestViewModelContract.Event.OnItemChecked -> {
+            is CustomRequestContract.Event.OnItemChecked -> {
                 setState {
                     copy(
                         fields = fields.map {
@@ -73,8 +86,6 @@ class CustomRequestViewModel(
                         }
                     )
                 }
-
-                println(uiState.value.fields)
             }
         }
     }
@@ -82,17 +93,21 @@ class CustomRequestViewModel(
     override fun onCleared() {
         super.onCleared()
 
-        savedStateHandle.set(
-            key = Constants.SAVED_STATE_REQUESTED_DOCUMENT,
-            value = RequestedDocumentUi(
-                documentType = currentState.docType,
-                claims = currentState.fields
+        currentState.requestedDoc?.let {
+            savedStateHandle.set(
+                key = Constants.SAVED_STATE_REQUESTED_DOCUMENT,
+                value = RequestedDocumentUi(
+                    id = it.id,
+                    documentType = it.documentType,
+                    mode = it.mode,
+                    claims = currentState.fields
+                )
             )
-        )
+        }
     }
 }
 
-sealed interface CustomRequestViewModelContract {
+sealed interface CustomRequestContract {
     sealed interface Event : UiEvent {
         data class Init(val doc: RequestedDocumentUi? = null) : Event
         data class OnItemChecked(val identifier: String, val checked: Boolean) : Event
@@ -100,13 +115,14 @@ sealed interface CustomRequestViewModelContract {
         data object OnCancelClick : Event
     }
     data class State(
+        val requestedDoc: RequestedDocumentUi? = null,
         val fields: List<SelectableClaimUi> = emptyList(),
         val docType: AttestationType = AttestationType.PID
     ) : UiState
     sealed interface Effect : UiEffect {
+        data class ShowToast(val message: String) : Effect
         sealed interface Navigation : Effect {
-            data class NavigateToHomeScreen(val requestedDocument: RequestedDocumentUi) : Navigation
-            data object GoBack : Navigation
+            data class GoBack(val requestedDocument: RequestedDocumentUi?) : Navigation
         }
     }
 }

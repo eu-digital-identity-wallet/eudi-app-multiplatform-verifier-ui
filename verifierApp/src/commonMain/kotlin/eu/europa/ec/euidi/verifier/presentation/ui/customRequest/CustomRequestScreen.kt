@@ -38,11 +38,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import eu.europa.ec.euidi.verifier.navigation.NavItem
 import eu.europa.ec.euidi.verifier.navigation.getFromPreviousBackStack
-import eu.europa.ec.euidi.verifier.navigation.popToAndSave
+import eu.europa.ec.euidi.verifier.navigation.saveToPreviousBackStack
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
 import eu.europa.ec.euidi.verifier.utils.Constants
+import eu.europa.ec.euidi.verifier.utils.ToastManager
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -54,7 +54,7 @@ fun CustomRequestScreen(
 
     LaunchedEffect(Unit) {
         viewModel.setEvent(
-            CustomRequestViewModelContract.Event.Init(
+            CustomRequestContract.Event.Init(
                 doc = navController.getFromPreviousBackStack<RequestedDocumentUi>(Constants.REQUESTED_DOCUMENT)
             )
         )
@@ -63,20 +63,20 @@ fun CustomRequestScreen(
     LaunchedEffect(viewModel.effect) {
         viewModel.effect.collect { effect ->
             when (effect) {
-                CustomRequestViewModelContract.Effect.Navigation.GoBack -> {
-                    navController.popBackStack()
+                is CustomRequestContract.Effect.ShowToast -> {
+                    ToastManager().showToast(effect.message)
                 }
-
-                is CustomRequestViewModelContract.Effect.Navigation.NavigateToHomeScreen -> {
-                    navController.popToAndSave(
-                        destination = NavItem.Home,
-                        key = Constants.REQUESTED_DOCUMENT,
-                        value = effect.requestedDocument
-                    )
+                is CustomRequestContract.Effect.Navigation.GoBack -> {
+                    effect.requestedDocument?.let {
+                        navController.saveToPreviousBackStack(
+                            key = Constants.REQUESTED_DOCUMENT,
+                            value = effect.requestedDocument
+                        )
+                    }
+                    navController.popBackStack()
                 }
             }
         }
-
     }
 
     Column(
@@ -113,7 +113,7 @@ fun CustomRequestScreen(
                             checked = item.isSelected,
                             onCheckedChange = { checked ->
                                 viewModel.setEvent(
-                                    CustomRequestViewModelContract.Event.OnItemChecked(item.claim.identifier, checked)
+                                    CustomRequestContract.Event.OnItemChecked(item.claim.identifier, checked)
                                 )
                             }
                         )
@@ -128,7 +128,7 @@ fun CustomRequestScreen(
             Button(
                 onClick = {
                     viewModel.setEvent(
-                        CustomRequestViewModelContract.Event.OnDoneClick
+                        CustomRequestContract.Event.OnDoneClick
                     )
                 }
             ) {

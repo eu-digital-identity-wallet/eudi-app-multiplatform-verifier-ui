@@ -19,8 +19,6 @@ package eu.europa.ec.euidi.verifier.presentation.model
 import eu.europa.ec.euidi.verifier.utils.CommonParcelable
 import eu.europa.ec.euidi.verifier.utils.CommonParcelize
 
-
-
 @CommonParcelize
 sealed class ClaimUi(
     open val identifier: String,
@@ -150,7 +148,7 @@ sealed class ClaimUi(
     }
 
     companion object {
-        /** just the shared ones */
+
         val common: List<ClaimUi> = Common.allClaims
 
         val pidClaims: List<ClaimUi> = common + PidClaim.allClaims

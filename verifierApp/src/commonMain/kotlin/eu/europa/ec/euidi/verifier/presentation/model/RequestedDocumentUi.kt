@@ -21,8 +21,16 @@ import eu.europa.ec.euidi.verifier.utils.CommonParcelable
 import eu.europa.ec.euidi.verifier.utils.CommonParcelize
 
 @CommonParcelize
+data class RequestedDocsHolder(
+    val items: List<RequestedDocumentUi>
+) : CommonParcelable
+
+@CommonParcelize
 data class RequestedDocumentUi(
+    val id: String,
     val documentType: AttestationType,
+    val mode: SupportedDocument.Mode,
+    val format: SupportedDocument.DocumentFormat? = null,
     val claims: List<SelectableClaimUi> = emptyList()
 ) : CommonParcelable
 

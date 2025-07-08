@@ -14,24 +14,8 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier
+package eu.europa.ec.euidi.verifier.utils
 
-import android.app.Application
-import eu.europa.ec.euidi.verifier.di.initKoin
-import org.koin.android.ext.koin.androidContext
-
-class MyApplication: Application() {
-    override fun onCreate() {
-        super.onCreate()
-        instance = this
-
-        initKoin {
-            androidContext(this@MyApplication)
-        }
-    }
-
-    companion object {
-        lateinit var instance: MyApplication
-            private set
-    }
+expect open class ToastManager() {
+    fun showToast(message: String)
 }
