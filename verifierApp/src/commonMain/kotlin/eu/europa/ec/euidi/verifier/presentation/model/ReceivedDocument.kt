@@ -16,12 +16,23 @@
 
 package eu.europa.ec.euidi.verifier.presentation.model
 
-import eu.europa.ec.euidi.verifier.presentation.model.SupportedDocument.AttestationType
 import eu.europa.ec.euidi.verifier.utils.CommonParcelable
 import eu.europa.ec.euidi.verifier.utils.CommonParcelize
 
 @CommonParcelize
-data class ReceivedDocument(
-    val documentType: AttestationType,
-    val claims: List<String>
+data class ReceivedDocsHolder(
+    val items: List<ReceivedDocumentUi>
 ) : CommonParcelable
+
+@CommonParcelize
+data class ReceivedDocumentUi(
+    val id: String,
+    val documentType: DocumentType,
+    val claims: List<ClaimUi> = emptyList()
+) : CommonParcelable
+
+enum class DocumentType(val displayName: String) {
+    PID("PID"),
+    MDL("org.iso.18013.5.1.mDL"),
+    AGE_VERIFICATION("Age Verification")
+}

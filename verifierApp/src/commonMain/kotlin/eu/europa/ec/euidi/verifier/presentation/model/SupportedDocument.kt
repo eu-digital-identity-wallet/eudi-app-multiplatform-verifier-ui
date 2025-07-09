@@ -20,7 +20,7 @@ data class SupportedDocument(
     val id: String,
     val documentType: AttestationType,
     val modes: List<Mode> = listOf(Mode.FULL, Mode.CUSTOM),
-    val formats: List<DocumentFormat> = listOf(DocumentFormat.MsoMdocFormat, DocumentFormat.SdJwtVcFormat)
+    val formats: List<DocumentFormat>
 ) {
     enum class Mode(val displayName: String) {
         FULL(displayName = "Full"),
@@ -36,5 +36,15 @@ data class SupportedDocument(
     enum class DocumentFormat(val displayName: String) {
         MsoMdocFormat("MsoMdoc"),
         SdJwtVcFormat("SdJwt")
+    }
+
+    companion object {
+        fun formatForType(type: AttestationType): List<DocumentFormat> = when (type) {
+            AttestationType.PID -> listOf(DocumentFormat.MsoMdocFormat,
+                DocumentFormat.SdJwtVcFormat
+            )
+            AttestationType.MDL -> listOf(DocumentFormat.MsoMdocFormat)
+            AttestationType.AGE_VERIFICATION -> listOf(DocumentFormat.MsoMdocFormat, DocumentFormat.SdJwtVcFormat)
+        }
     }
 }

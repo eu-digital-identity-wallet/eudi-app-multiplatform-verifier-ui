@@ -39,9 +39,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun ShowDocumentScreen(
+fun ShowDocumentsScreen(
     navController: NavController,
-    viewModel: ShowDocumentViewModel = koinViewModel()
+    viewModel: ShowDocumentsViewModel = koinViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 

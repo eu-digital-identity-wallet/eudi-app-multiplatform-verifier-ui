@@ -35,6 +35,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -60,7 +61,7 @@ fun DocumentsToRequestScreen(
         val doc = navController.getFromCurrentBackStack<RequestedDocumentUi>(Constants.REQUESTED_DOCUMENT)
         viewModel.setEvent(
             DocToRequestContract.Event.Init(
-                doc = doc
+                requestedDoc = doc
             )
         )
     }
@@ -72,7 +73,7 @@ fun DocumentsToRequestScreen(
                     navController.popToAndSave<RequestedDocsHolder>(
                         destination = NavItem.Home,
                         key = Constants.REQUESTED_DOCUMENT,
-                        value = RequestedDocsHolder(items = effect.requestedDocument)
+                        value = RequestedDocsHolder(items = effect.requestedDocuments)
                     )
                 }
                 is DocToRequestContract.Effect.Navigation.NavigateToCustomRequestScreen -> {
@@ -108,6 +109,10 @@ fun DocumentsToRequestScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             state.supportedDocuments.forEach { supportedDoc ->
+                val isSelected = remember(state.requestedDocuments) {
+                    state.requestedDocuments.any { it.documentType == supportedDoc.documentType }
+                }
+
                 Text(
                     text = "Request ${supportedDoc.documentType.displayName}",
                     style = MaterialTheme.typography.titleMedium
@@ -117,10 +122,14 @@ fun DocumentsToRequestScreen(
 
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     supportedDoc.modes.forEach { mode ->
-                        FilterChip(
-                            selected = state.requestedDocuments.any {
+                        val isModeSelected = remember(state.requestedDocuments) {
+                            state.requestedDocuments.any {
                                 it.documentType == supportedDoc.documentType && it.mode == mode
-                            },
+                            }
+                        }
+
+                        FilterChip(
+                            selected = isModeSelected,
                             onClick = {
                                 viewModel.setEvent(
                                     DocToRequestContract.Event.OnDocOptionSelected(
@@ -130,52 +139,48 @@ fun DocumentsToRequestScreen(
                                     )
                                 )
                             },
-                            label = {
-                                Text(mode.displayName)
-                            }
+                            label = { Text(mode.displayName) }
                         )
                     }
                 }
 
                 Spacer(Modifier.height(24.dp))
 
-                AnimatedVisibility(
-                    visible = state.requestedDocuments.any { requestedDoc ->
-                        requestedDoc.documentType == supportedDoc.documentType
-                    }
-                ) {
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
+                AnimatedVisibility(visible = isSelected) {
+                    Row(horizontalArrangement = Arrangement.SpaceBetween) {
                         supportedDoc.formats.forEach { format ->
-                            Row(
-                                modifier = Modifier.weight(1f),
-                            ) {
+                            val isFormatSelected = remember(state.requestedDocuments) {
+                                state.requestedDocuments.any {
+                                    it.id == supportedDoc.id && it.format == format
+                                }
+                            }
+
+                            Row(modifier = Modifier.weight(1f)) {
                                 RadioButton(
-                                    selected = state.requestedDocuments.any { requestedDoc ->
-                                        requestedDoc.id == supportedDoc.id && requestedDoc.format == format
-                                    },
+                                    selected = isFormatSelected,
                                     onClick = {
                                         viewModel.setEvent(
-                                            DocToRequestContract.Event.OnDocFormatSelected( supportedDoc.id, format)
+                                            DocToRequestContract.Event.OnDocFormatSelected(
+                                                docId = supportedDoc.id,
+                                                format = format
+                                            )
                                         )
                                     }
                                 )
-
                                 Text(text = format.displayName)
                             }
                         }
                     }
                 }
-            }
 
-            Spacer(modifier = Modifier.height(24.dp))
+                Spacer(Modifier.height(32.dp))
+            }
 
             Button(
                 onClick = {
                     viewModel.setEvent(DocToRequestContract.Event.OnDoneClick)
                 },
-                enabled = state.requestedDocuments.isNotEmpty(),
+                enabled = state.isButtonEnabled,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             ) {
                 Text("Done")

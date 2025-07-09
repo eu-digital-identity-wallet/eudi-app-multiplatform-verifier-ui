@@ -21,9 +21,9 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import eu.europa.ec.euidi.verifier.navigation.NavItem
 
-fun NavGraphBuilder.showDocumentScreen(navController: NavController) =
+fun NavGraphBuilder.showDocumentsScreen(navController: NavController) =
     composable<NavItem.ShowDocuments> {
-        ShowDocumentScreen(
+        ShowDocumentsScreen(
             navController = navController
         )
     }

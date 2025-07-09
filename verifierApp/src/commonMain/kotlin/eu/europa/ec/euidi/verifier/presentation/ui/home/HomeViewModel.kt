@@ -16,27 +16,21 @@
 
 package eu.europa.ec.euidi.verifier.presentation.ui.home
 
-import eu.europa.ec.euidi.verifier.logger.AppLogger
 import eu.europa.ec.euidi.verifier.mvi.BaseViewModel
 import eu.europa.ec.euidi.verifier.mvi.UiEffect
 import eu.europa.ec.euidi.verifier.mvi.UiEvent
 import eu.europa.ec.euidi.verifier.mvi.UiState
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
 import org.koin.android.annotation.KoinViewModel
-import org.koin.core.component.inject
 
 @KoinViewModel
 class HomeViewModel() : BaseViewModel<HomeViewModelContract.Event, HomeViewModelContract.State, HomeViewModelContract.Effect>() {
-
-    private val appLogger: AppLogger by inject()
 
     override fun createInitialState(): HomeViewModelContract.State = HomeViewModelContract.State()
 
     override fun handleEvent(event: HomeViewModelContract.Event) {
         when (event) {
             is HomeViewModelContract.Event.Init -> {
-
-                appLogger.d("loukas:: docs: ${event.docs}")
                setState {
                    copy(
                        requesteddocs = event.docs.orEmpty()

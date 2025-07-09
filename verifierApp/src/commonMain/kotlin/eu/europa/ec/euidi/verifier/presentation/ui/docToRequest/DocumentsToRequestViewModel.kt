@@ -35,93 +35,90 @@ class DocumentsToRequestViewModel(
     private val uuidProvider: UuidProvider
 ) : BaseViewModel<DocToRequestContract.Event, DocToRequestContract.State, DocToRequestContract.Effect>() {
 
-    override fun createInitialState(): DocToRequestContract.State = DocToRequestContract.State()
+    override fun createInitialState(): DocToRequestContract.State = DocToRequestContract.State(
+        supportedDocuments = AttestationType.entries.map { attestationType ->
+            SupportedDocument(
+                id = uuidProvider.provideUuid(),
+                documentType = attestationType,
+                formats = SupportedDocument.formatForType(attestationType)
+            )
+        }
+    )
 
     override fun handleEvent(event: DocToRequestContract.Event) {
         when (event) {
             is DocToRequestContract.Event.Init -> {
-                val requestedDocs = event.doc?.let {
-                    currentState.requestedDocuments.toMutableList().apply {
-                        add(it)
-                    }
-                }.orEmpty()
+                val requestedDocs = event.requestedDoc
+                    ?.let { uiState.value.requestedDocuments + it }
+                    ?: uiState.value.requestedDocuments
 
                 setState {
-                    copy(
-                        supportedDocuments = AttestationType.entries.map { attestationType ->
-                            SupportedDocument(
-                                id = uuidProvider.provideUuid(),
-                                documentType = attestationType,
-                            )
-                        },
-                        requestedDocuments = requestedDocs
-                    )
+                    copy(requestedDocuments = requestedDocs)
                 }
             }
 
             is DocToRequestContract.Event.OnDocOptionSelected -> {
-                val currentDocs = uiState.value.requestedDocuments.toMutableList()
-                val alreadySelected = currentDocs.any {
-                    it.documentType == event.docType && it.mode == event.mode
+                val currentDocs = uiState.value.requestedDocuments
+                val isAlreadySelected = currentDocs.any {
+                    it.id == event.docId && it.mode == event.mode
                 }
 
-                if (alreadySelected) {
-                    // Remove it
-                    setState {
-                        copy(
-                            requestedDocuments = currentDocs.apply {
-                                removeAll { it.documentType == event.docType && it.mode == event.mode }
-                            }
-                        )
+                when {
+                    isAlreadySelected -> {
+                        val updatedDocs = currentDocs.filterNot {
+                            it.documentType == event.docType && it.mode == event.mode
+                        }
+                        setState { copy(requestedDocuments = updatedDocs) }
                     }
-                } else {
-                    if (event.mode == SupportedDocument.Mode.CUSTOM) {
-                        // Navigate to custom screen — do not add yet
-                        val customRequestedDocument = RequestedDocumentUi(
+
+                    event.mode == SupportedDocument.Mode.CUSTOM -> {
+                        val updatedDocs = if (currentDocs.any { it.id == event.docId && it.mode == SupportedDocument.Mode.FULL }) {
+                            currentDocs.filterNot { it.id == event.docId }
+                        } else {
+                            currentDocs
+                        }
+
+                        setState { copy(requestedDocuments = updatedDocs) }
+
+                        val customDoc = RequestedDocumentUi(
                             id = event.docId,
                             documentType = event.docType,
                             mode = event.mode,
                             claims = SelectableClaimUi.forType(event.docType)
                         )
+
                         setEffect {
-                            DocToRequestContract.Effect.Navigation.NavigateToCustomRequestScreen(customRequestedDocument)
+                            DocToRequestContract.Effect.Navigation.NavigateToCustomRequestScreen(customDoc)
                         }
-                    } else {
+                    }
+
+                    else -> {
                         // Add FULL doc directly
+                        val newDoc = RequestedDocumentUi(
+                            id = event.docId,
+                            documentType = event.docType,
+                            mode = event.mode,
+                            claims = SelectableClaimUi.forType(event.docType)
+                        )
                         setState {
-                            copy(
-                                requestedDocuments = currentDocs.apply {
-                                    add(
-                                        RequestedDocumentUi(
-                                            id = event.docId,
-                                            documentType = event.docType,
-                                            mode = event.mode,
-                                            claims = SelectableClaimUi.forType(event.docType)
-                                        )
-                                    )
-                                }
-                            )
+                            copy(requestedDocuments = currentDocs + newDoc)
                         }
                     }
                 }
             }
 
             is DocToRequestContract.Event.OnDocFormatSelected -> {
-                val doc = currentState.requestedDocuments.firstOrNull { it.id == event.docId }
+                val updatedList = uiState.value.requestedDocuments.map { doc ->
+                    if (doc.id == event.docId) doc.copy(format = event.format) else doc
+                }
 
-                doc?.copy(
-                    format = event.format
-                )?.let {
-                    setState {
-                        copy(
-                            requestedDocuments = currentState.requestedDocuments.toMutableList().apply {
-                                set(
-                                    index = indexOfFirst { doc -> doc.id == event.docId },
-                                    element = it
-                                )
-                            }
-                        )
-                    }
+                val isAnyFormatSelected = updatedList.any { it.format != null }
+
+                setState {
+                    copy(
+                        requestedDocuments = updatedList,
+                        isButtonEnabled = isAnyFormatSelected
+                    )
                 }
             }
 
@@ -131,7 +128,9 @@ class DocumentsToRequestViewModel(
 
             DocToRequestContract.Event.OnDoneClick -> {
                 setEffect {
-                    DocToRequestContract.Effect.Navigation.NavigateToHomeScreen(currentState.requestedDocuments)
+                    DocToRequestContract.Effect.Navigation.NavigateToHomeScreen(
+                        requestedDocuments = uiState.value.requestedDocuments
+                    )
                 }
             }
         }
@@ -140,18 +139,18 @@ class DocumentsToRequestViewModel(
     override fun onCleared() {
         super.onCleared()
 
-        currentState.requestedDocuments.takeIf { it.isNotEmpty() }?.let {
+        uiState.value.requestedDocuments.takeIf { it.isNotEmpty() }?.let {
             savedStateHandle.set(
                 key = Constants.SAVED_STATE_REQUESTED_DOCUMENTS,
-                value = currentState.requestedDocuments
+                value = uiState.value.requestedDocuments
             )
         }
     }
 }
 
-interface DocToRequestContract {
+sealed interface DocToRequestContract {
     sealed interface Event : UiEvent {
-        data class Init(val doc: RequestedDocumentUi?) : Event
+        data class Init(val requestedDoc: RequestedDocumentUi?) : Event
         data class OnDocOptionSelected(val docId: String, val docType: AttestationType, val mode: SupportedDocument.Mode) : Event
         data class OnDocFormatSelected(
             val docId: String,
@@ -163,12 +162,13 @@ interface DocToRequestContract {
 
     data class State(
         val requestedDocuments: List<RequestedDocumentUi> = emptyList(),
-        val supportedDocuments: List<SupportedDocument> = emptyList()
+        val supportedDocuments: List<SupportedDocument> = emptyList(),
+        val isButtonEnabled: Boolean = false
     ) : UiState
 
     sealed interface Effect : UiEffect {
         sealed interface Navigation : Effect {
-            data class NavigateToHomeScreen(val requestedDocument: List<RequestedDocumentUi> = emptyList()) : Navigation
+            data class NavigateToHomeScreen(val requestedDocuments: List<RequestedDocumentUi> = emptyList()) : Navigation
             data class NavigateToCustomRequestScreen(val requestedDocuments: RequestedDocumentUi) : Navigation
         }
     }

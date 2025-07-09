@@ -148,6 +148,51 @@ sealed class ClaimUi(
     }
 
     companion object {
+        fun String.toClaim(): ClaimUi? = when (this) {
+            "family_name" -> Common.FamilyName
+            "given_name" -> Common.GivenName
+            "birth_date" -> Common.BirthDate
+            "expiry_date" -> Common.ExpiryDate
+            "issuing_country" -> Common.IssuingCountry
+            "issuing_authority" -> Common.IssuingAuthority
+            "document_number" -> Common.DocumentNumber
+            "portrait" -> Common.Portrait
+            "sex" -> Common.Sex
+            "nationality" -> Common.Nationality
+            "issuing_jurisdiction" -> Common.IssuingJurisdiction
+            "resident_address" -> Common.ResidentAddress
+            "resident_country" -> Common.ResidentCountry
+            "resident_state" -> Common.ResidentState
+            "resident_city" -> Common.ResidentCity
+            "resident_postal_code" -> Common.ResidentPostalCode
+            "age_in_years" -> Common.AgeInYears
+            "age_birth_year" -> Common.AgeBirthYear
+            "age_over_18" -> Common.AgeOver18
+            "issuance_date" -> PidClaim.IssuanceDate
+            "email_address" -> PidClaim.EmailAddress
+            "resident_street" -> PidClaim.ResidentStreet
+            "resident_house_number" -> PidClaim.ResidentHouseNumber
+            "personal_administrative_number" -> PidClaim.PersonalAdministrativeNumber
+            "mobile_phone_number" -> PidClaim.MobilePhoneNumber
+            "birth_family_name" -> PidClaim.BirthFamilyName
+            "birth_given_name" -> PidClaim.BirthGivenName
+            "place_of_birth" -> PidClaim.PlaceOfBirth
+            "trust_anchor" -> PidClaim.TrustAnchor
+            "driving_privileges" -> MdlClaim.DrivingPrivileges
+            "un_distinguishing_sign" -> MdlClaim.UnDistinguishingSign
+            "administrative_number" -> MdlClaim.AdministrativeNumber
+            "height" -> MdlClaim.Height
+            "weight" -> MdlClaim.Weight
+            "eye_colour" -> MdlClaim.EyeColour
+            "hair_colour" -> MdlClaim.HairColour
+            "birth_place" -> MdlClaim.BirthPlaceRaw
+            "portrait_capture_date" -> MdlClaim.PortraitCaptureDate
+            "biometric_template_xx" -> MdlClaim.BiometricTemplate
+            "family_name_national_character" -> MdlClaim.FamilyNameNationalCharacter
+            "given_name_national_character" -> MdlClaim.GivenNameNationalCharacter
+            "signature_usual_mark" -> MdlClaim.SignatureUsualMark
+            else -> null
+        }
 
         val common: List<ClaimUi> = Common.allClaims
 

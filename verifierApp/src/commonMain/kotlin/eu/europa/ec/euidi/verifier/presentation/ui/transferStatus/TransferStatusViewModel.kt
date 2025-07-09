@@ -27,6 +27,7 @@ sealed interface TransferStatusViewModelContract {
         data object Init : Event
         data object OnCancelClick : Event
         data object OnBackClick : Event
+        data object OnShowDocumentsClick : Event
     }
     data class State(val message: String = "") : UiState
 
@@ -58,6 +59,11 @@ class TransferStatusViewModel : BaseViewModel<TransferStatusViewModelContract.Ev
             TransferStatusViewModelContract.Event.OnBackClick -> {
                 setEffect {
                     TransferStatusViewModelContract.Effect.Navigation.GoBack
+                }
+            }
+            TransferStatusViewModelContract.Event.OnShowDocumentsClick -> {
+                setEffect {
+                    TransferStatusViewModelContract.Effect.Navigation.NavigateToShowDocumentsScreen
                 }
             }
         }

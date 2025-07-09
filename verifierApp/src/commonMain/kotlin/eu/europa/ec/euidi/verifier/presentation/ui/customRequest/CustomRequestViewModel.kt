@@ -48,24 +48,23 @@ class CustomRequestViewModel(
             }
 
             is CustomRequestContract.Event.OnDoneClick -> {
-//                currentState.requestedDoc?.let {
-//                    val reqDoc = it.copy(
-//                        documentType = it.documentType,
-//                        mode = it.mode,
-//                        claims = currentState.fields
-//                    )
-//
-//                    setState {
-//                        copy(
-//                            requestedDoc = reqDoc
-//                        )
-//                    }
-//
-//                    setEffect {
-//                        CustomRequestContract.Effect.Navigation.GoBack(reqDoc)
-//                    }
-//                } ?:
-                setEffect {
+                uiState.value.requestedDoc?.let {
+                    val reqDoc = it.copy(
+                        documentType = it.documentType,
+                        mode = it.mode,
+                        claims = uiState.value.fields
+                    )
+
+                    setState {
+                        copy(
+                            requestedDoc = reqDoc
+                        )
+                    }
+
+                    setEffect {
+                        CustomRequestContract.Effect.Navigation.GoBack(reqDoc)
+                    }
+                } ?: setEffect {
                     CustomRequestContract.Effect.ShowToast("Something went wrong")
                 }
             }
@@ -93,14 +92,14 @@ class CustomRequestViewModel(
     override fun onCleared() {
         super.onCleared()
 
-        currentState.requestedDoc?.let {
+        uiState.value.requestedDoc?.let {
             savedStateHandle.set(
                 key = Constants.SAVED_STATE_REQUESTED_DOCUMENT,
                 value = RequestedDocumentUi(
                     id = it.id,
                     documentType = it.documentType,
                     mode = it.mode,
-                    claims = currentState.fields
+                    claims = uiState.value.fields
                 )
             )
         }

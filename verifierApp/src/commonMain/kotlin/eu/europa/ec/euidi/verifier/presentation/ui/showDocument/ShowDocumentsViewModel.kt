@@ -37,7 +37,7 @@ interface ShowDocumentViewModelContract {
 }
 
 @KoinViewModel
-class ShowDocumentViewModel() : BaseViewModel<ShowDocumentViewModelContract.Event, ShowDocumentViewModelContract.State, ShowDocumentViewModelContract.Effect>() {
+class ShowDocumentsViewModel() : BaseViewModel<ShowDocumentViewModelContract.Event, ShowDocumentViewModelContract.State, ShowDocumentViewModelContract.Effect>() {
     override fun createInitialState(): ShowDocumentViewModelContract.State = ShowDocumentViewModelContract.State()
 
     override fun handleEvent(event: ShowDocumentViewModelContract.Event) {
@@ -52,6 +52,5 @@ class ShowDocumentViewModel() : BaseViewModel<ShowDocumentViewModelContract.Even
 
             }
         }
-
     }
 }
