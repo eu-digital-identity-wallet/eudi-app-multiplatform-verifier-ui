@@ -14,21 +14,19 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier
+package eu.europa.ec.euidi.verifier.presentation.component
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.Immutable
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.StringResource
 
-class MainActivity : ComponentActivity() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-
-        setContent {
-            App()
-        }
-    }
-}
+/**
+ * Data class to be used when we want to display an Icon.
+ * @param resourceId The [DrawableResource] of the icon.
+ * @param contentDescriptionId The [StringResource] of its content description.
+ */
+@Immutable
+data class IconDataUi(
+    val resourceId: DrawableResource,
+    val contentDescriptionId: StringResource,
+)

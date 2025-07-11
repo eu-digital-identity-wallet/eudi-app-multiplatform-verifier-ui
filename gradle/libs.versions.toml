@@ -20,6 +20,7 @@ koinAnnotations = "2.1.0"
 koinComposeMultiplatform = "4.1.0"
 kotlinxSerializationJson = "1.9.0"
 navigationCompose = "2.9.0-beta03"
+material = "1.12.0"
 dataStore = "1.1.7"
 okio = "3.10.2"
 ktor = "3.2.1"
@@ -48,6 +49,12 @@ androidx-espresso-core = { module = "androidx.test.espresso:espresso-core", vers
 
 # Compose Navigation
 navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+
+# Compose BackHandler
+backhandler-cmp = { module = "org.jetbrains.compose.ui:ui-backhandler", version.ref = "composeMultiplatform" }
+
+# Material Components for Android (which includes the XML Theme.Material3.* parents)
+material = { module = "com.google.android.material:material", version.ref = "material" }
 
 # Koin Core
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
