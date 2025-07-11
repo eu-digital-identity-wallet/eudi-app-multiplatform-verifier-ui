@@ -29,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import eu.europa.ec.euidi.verifier.navigation.VerifierNavHost
+import eu.europa.ec.euidi.verifier.presentation.theme.AppTypography
 import eu.europa.ec.euidi.verifier.presentation.theme.darkColors
 import eu.europa.ec.euidi.verifier.presentation.theme.lightColors
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -45,7 +46,7 @@ fun App(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        //typography = AppTypography() //TODO this currently breaks for iOS, need to investigate.
+        typography = AppTypography(),
     ) {
         Surface(
             modifier = Modifier
