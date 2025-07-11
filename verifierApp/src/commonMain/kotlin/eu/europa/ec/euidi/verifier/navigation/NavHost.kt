@@ -24,7 +24,7 @@ import eu.europa.ec.euidi.verifier.presentation.ui.docToRequest.docToRequestScre
 import eu.europa.ec.euidi.verifier.presentation.ui.home.homeScreen
 import eu.europa.ec.euidi.verifier.presentation.ui.reverseengagement.reverseEngagementScreen
 import eu.europa.ec.euidi.verifier.presentation.ui.settings.settingsScreen
-import eu.europa.ec.euidi.verifier.presentation.ui.showDocument.showDocumentScreen
+import eu.europa.ec.euidi.verifier.presentation.ui.showDocument.showDocumentsScreen
 import eu.europa.ec.euidi.verifier.presentation.ui.transferStatus.transferStatusScreen
 
 @Composable
@@ -39,7 +39,7 @@ fun VerifierNavHost() {
         docToRequestScreen(navController)
         customRequestScreen(navController)
         transferStatusScreen(navController)
-        showDocumentScreen(navController)
+        showDocumentsScreen(navController)
         reverseEngagementScreen(navController)
         settingsScreen(navController)
     }

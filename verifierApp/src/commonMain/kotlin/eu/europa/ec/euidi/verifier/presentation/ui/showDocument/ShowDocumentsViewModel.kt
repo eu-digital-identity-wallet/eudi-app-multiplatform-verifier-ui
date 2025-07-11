@@ -20,15 +20,21 @@ import eu.europa.ec.euidi.verifier.mvi.BaseViewModel
 import eu.europa.ec.euidi.verifier.mvi.UiEffect
 import eu.europa.ec.euidi.verifier.mvi.UiEvent
 import eu.europa.ec.euidi.verifier.mvi.UiState
+import eu.europa.ec.euidi.verifier.presentation.model.ReceivedDocumentUi
 import org.koin.android.annotation.KoinViewModel
 
 interface ShowDocumentViewModelContract {
     sealed interface Event : UiEvent {
-        data object Init : Event
+        data class Init(
+            val items: List<ReceivedDocumentUi>
+        ) : Event
         data object OnDoneClick : Event
         data object OnBackClick : Event
     }
-    data class State(val message: String = "") : UiState
+    data class State(
+        val message: String = "",
+        val items: List<ReceivedDocumentUi> = emptyList()
+    ) : UiState
     sealed interface Effect : UiEffect {
         sealed interface Navigation : Effect {
             data object NavigateToHome : Navigation
@@ -37,12 +43,18 @@ interface ShowDocumentViewModelContract {
 }
 
 @KoinViewModel
-class ShowDocumentViewModel() : BaseViewModel<ShowDocumentViewModelContract.Event, ShowDocumentViewModelContract.State, ShowDocumentViewModelContract.Effect>() {
+class ShowDocumentsViewModel() : BaseViewModel<ShowDocumentViewModelContract.Event, ShowDocumentViewModelContract.State, ShowDocumentViewModelContract.Effect>() {
     override fun createInitialState(): ShowDocumentViewModelContract.State = ShowDocumentViewModelContract.State()
 
     override fun handleEvent(event: ShowDocumentViewModelContract.Event) {
         when (event) {
-            ShowDocumentViewModelContract.Event.Init -> {}
+            is ShowDocumentViewModelContract.Event.Init -> {
+                setState {
+                    copy(
+                        items = event.items
+                    )
+                }
+            }
             ShowDocumentViewModelContract.Event.OnDoneClick -> {
                 setEffect {
                     ShowDocumentViewModelContract.Effect.Navigation.NavigateToHome
@@ -52,6 +64,5 @@ class ShowDocumentViewModel() : BaseViewModel<ShowDocumentViewModelContract.Even
 
             }
         }
-
     }
 }

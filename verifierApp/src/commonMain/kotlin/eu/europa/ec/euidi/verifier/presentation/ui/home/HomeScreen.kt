@@ -35,7 +35,8 @@ import eu.europa.ec.euidi.verifier.navigation.NavItem
 import org.koin.compose.viewmodel.koinViewModel
 import androidx.compose.runtime.getValue
 import eu.europa.ec.euidi.verifier.navigation.getFromCurrentBackStack
-import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
+import eu.europa.ec.euidi.verifier.navigation.saveToCurrentBackStack
+import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocsHolder
 import eu.europa.ec.euidi.verifier.utils.Constants
 
 @Composable
@@ -46,8 +47,10 @@ fun HomeScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        val value = navController.getFromCurrentBackStack<RequestedDocumentUi>(Constants.REQUESTED_DOCUMENT)
-        viewModel.setEvent(HomeViewModelContract.Event.Init(value))
+        val documents = navController.getFromCurrentBackStack<RequestedDocsHolder>(Constants.REQUESTED_DOCUMENTS)
+        documents?.let {
+            viewModel.setEvent(HomeViewModelContract.Event.Init(it.items))
+        }
     }
 
     LaunchedEffect(Unit) {
@@ -57,7 +60,11 @@ fun HomeScreen(
                     navController.navigate(NavItem.DocToRequest)
                 }
 
-                HomeViewModelContract.Effect.Navigation.NavigateToTransferStatusScreen -> {
+                is HomeViewModelContract.Effect.Navigation.NavigateToTransferStatusScreen -> {
+                    navController.saveToCurrentBackStack<RequestedDocsHolder>(
+                        key = Constants.REQUESTED_DOCUMENTS,
+                        value = effect.requestedDocs
+                    )
                     navController.navigate(NavItem.TransferStatus)
                 }
 
@@ -94,7 +101,8 @@ fun HomeScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = { viewModel.setEvent(HomeViewModelContract.Event.OnScanQrCodeClick) }
+            onClick = { viewModel.setEvent(HomeViewModelContract.Event.OnScanQrCodeClick) },
+            enabled = state.isScanQrCodeButtonEnabled
         ) {
             Text("Scan QR Code")
         }

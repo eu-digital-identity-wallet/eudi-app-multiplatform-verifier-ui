@@ -21,22 +21,20 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 
-abstract class BaseViewModel<Event: UiEvent, State: UiState, Effect: UiEffect>: ViewModel(), KoinComponent {
+abstract class BaseViewModel<Event: UiEvent, State: UiState, Effect: UiEffect>: ViewModel() {
     private val initialState: State by lazy { createInitialState() }
 
     abstract fun createInitialState(): State
 
-    protected val currentState: State
-        get() = uiState.value
-
-    private val _uiState: MutableStateFlow<State> = MutableStateFlow(initialState)
-    val uiState = _uiState.asStateFlow()
+    private val _uiState: MutableStateFlow<State> by lazy { MutableStateFlow(initialState) }
+    val uiState: StateFlow<State> by lazy { _uiState.asStateFlow() }
 
     private val _event: MutableSharedFlow<Event> = MutableSharedFlow()
     private val event = _event.asSharedFlow()
@@ -75,7 +73,7 @@ abstract class BaseViewModel<Event: UiEvent, State: UiState, Effect: UiEffect>: 
      * Set new Ui State
      */
     protected fun setState(reduce: State.() -> State) {
-        val newState = currentState.reduce()
+        val newState = uiState.value.reduce()
         _uiState.value = newState
     }
 

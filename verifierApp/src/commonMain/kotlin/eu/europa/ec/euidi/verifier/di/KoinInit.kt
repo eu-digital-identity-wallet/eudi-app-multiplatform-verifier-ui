@@ -18,6 +18,7 @@ package eu.europa.ec.euidi.verifier.di
 
 import eu.europa.ec.euidi.verifier.di.modules.LoggerModule
 import eu.europa.ec.euidi.verifier.di.modules.PreferencesModule
+import eu.europa.ec.euidi.verifier.di.modules.ProviderModule
 import eu.europa.ec.euidi.verifier.platform.platformModule
 import org.koin.core.context.startKoin
 import org.koin.dsl.KoinAppDeclaration
@@ -33,6 +34,7 @@ fun initKoin(appDeclaration: KoinAppDeclaration = {}) =
             platformModule(),
             PreferencesModule().module,
             LoggerModule().module,
+            ProviderModule().module,
             defaultModule // needed for generated viewModels
         )
     }

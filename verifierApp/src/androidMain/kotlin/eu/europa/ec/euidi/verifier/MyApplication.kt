@@ -23,9 +23,15 @@ import org.koin.android.ext.koin.androidContext
 class MyApplication: Application() {
     override fun onCreate() {
         super.onCreate()
+        instance = this
 
         initKoin {
             androidContext(this@MyApplication)
         }
+    }
+
+    companion object {
+        lateinit var instance: MyApplication
+            private set
     }
 }

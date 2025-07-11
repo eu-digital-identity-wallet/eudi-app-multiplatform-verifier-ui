@@ -28,15 +28,15 @@ inline fun <reified T : CommonParcelable> NavController.saveToPreviousBackStack(
 }
 
 inline fun <reified T : CommonParcelable> NavController.getFromPreviousBackStack(key: String): T? {
-    return previousBackStackEntry?.savedStateHandle?.remove<T>(key)
+    return previousBackStackEntry?.savedStateHandle?.remove(key)
 }
 
 inline fun <reified T : CommonParcelable> NavController.getFromCurrentBackStack(key: String): T? {
-    return currentBackStackEntry?.savedStateHandle?.remove<T>(key)
+    return currentBackStackEntry?.savedStateHandle?.remove(key)
 }
 
 /**
- * Saves data to a specified destinations saved state handle.
+ * Saves data to a specified destination's saved state handle.
  */
 inline fun <reified T : CommonParcelable> NavController.popToAndSave(
     destination: NavItem,
