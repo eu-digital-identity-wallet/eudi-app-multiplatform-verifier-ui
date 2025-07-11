@@ -32,7 +32,6 @@ import eu.europa.ec.euidi.verifier.navigation.VerifierNavHost
 import eu.europa.ec.euidi.verifier.presentation.theme.darkColors
 import eu.europa.ec.euidi.verifier.presentation.theme.lightColors
 import org.jetbrains.compose.ui.tooling.preview.Preview
-import org.koin.compose.KoinContext
 
 @Composable
 @Preview
@@ -48,15 +47,13 @@ fun App(
         colorScheme = colorScheme,
         //typography = AppTypography() //TODO this currently breaks for iOS, need to investigate.
     ) {
-        KoinContext {
-            Surface(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Transparent) //TODO This is the color of the status bar. Do we want to change it?
-                    .statusBarsPadding()
-            ) {
-                VerifierNavHost()
-            }
+        Surface(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Transparent) //TODO This is the color of the status bar. Do we want to change it?
+                .statusBarsPadding()
+        ) {
+            VerifierNavHost()
         }
     }
 }
