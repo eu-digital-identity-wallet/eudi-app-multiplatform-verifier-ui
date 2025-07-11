@@ -42,9 +42,9 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 private fun AppFontFamily() = FontFamily(
-    Font(Res.font.roboto_light, weight = FontWeight.Light),
-    Font(Res.font.roboto_regular, weight = FontWeight.Normal),
-    Font(Res.font.roboto_medium, weight = FontWeight.Medium),
+    Font(Res.font.roboto_light, weight = FontWeight.W300),
+    Font(Res.font.roboto_regular, weight = FontWeight.W400),
+    Font(Res.font.roboto_medium, weight = FontWeight.W500),
 )
 
 @Composable
