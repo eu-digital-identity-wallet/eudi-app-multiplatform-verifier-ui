@@ -16,14 +16,22 @@
 
 package eu.europa.ec.euidi.verifier.presentation.ui.showDocument
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -37,6 +45,9 @@ import eu.europa.ec.euidi.verifier.navigation.NavItem
 import org.koin.compose.viewmodel.koinViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.unit.dp
+import eu.europa.ec.euidi.verifier.navigation.getFromPreviousBackStack
+import eu.europa.ec.euidi.verifier.presentation.model.ReceivedDocsHolder
+import eu.europa.ec.euidi.verifier.utils.Constants
 
 @Composable
 fun ShowDocumentsScreen(
@@ -46,7 +57,10 @@ fun ShowDocumentsScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        viewModel.setEvent(ShowDocumentViewModelContract.Event.Init)
+        val documents = navController.getFromPreviousBackStack<ReceivedDocsHolder>(Constants.RECEIVED_DOCUMENTS)
+        documents?.let {
+            viewModel.setEvent(ShowDocumentViewModelContract.Event.Init(it.items))
+        }
     }
 
     LaunchedEffect(viewModel.effect) {
@@ -80,9 +94,7 @@ fun ShowDocumentsScreen(
         }
 
         Column(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .padding(32.dp),
+            modifier = Modifier.align(Alignment.Center),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
@@ -90,7 +102,42 @@ fun ShowDocumentsScreen(
                 style = MaterialTheme.typography.headlineMedium
             )
 
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(36.dp))
+
+            Card(
+                modifier = Modifier
+                    .wrapContentHeight()
+                    .padding(8.dp),
+                elevation = CardDefaults.cardElevation(4.dp)
+            ) {
+                Column(
+                    modifier = Modifier.wrapContentHeight().padding(8.dp),
+                    horizontalAlignment = Alignment.Start,
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        text = "Number of documents returned: ${state.items.size}",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+
+                    Text(
+                        text = "Address:ognfoenrgiergieigwbegiwbrognfoenrgiergieigwbegiwbr",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(36.dp))
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+            ) {
+                state.items.forEach {
+                    DocumentDetailsCard(data = it.claims)
+                }
+            }
 
             Button(
                 content = {
@@ -101,6 +148,50 @@ fun ShowDocumentsScreen(
                 }
             )
         }
+    }
+}
 
+@Composable
+fun DocumentDetailsCard(
+    data: Map<String, String>
+) {
+    Card(
+        modifier = Modifier
+            .padding(8.dp),
+        elevation = CardDefaults.cardElevation(4.dp)
+    ) {
+        Column(modifier = Modifier.padding(12.dp)) {
+            data.forEach { field ->
+                DocumentDetailsTile(
+                    field = field,
+                    isLast = field.key == data.keys.last()
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun DocumentDetailsTile(
+    field: Map.Entry<String, String>,
+    isLast: Boolean
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+    ) {
+        Text(
+            text = field.key,
+            style = MaterialTheme.typography.bodyMedium
+        )
+        Text(
+            text = field.value,
+            style = MaterialTheme.typography.bodySmall
+        )
+
+        if (!isLast) {
+            HorizontalDivider(modifier = Modifier.padding(top = 8.dp))
+        }
     }
 }

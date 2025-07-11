@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.material3.Button
 import androidx.compose.material3.IconButton
@@ -33,9 +34,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import eu.europa.ec.euidi.verifier.navigation.NavItem
+import eu.europa.ec.euidi.verifier.navigation.getFromPreviousBackStack
+import eu.europa.ec.euidi.verifier.navigation.saveToCurrentBackStack
+import eu.europa.ec.euidi.verifier.presentation.model.ReceivedDocsHolder
+import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocsHolder
+import eu.europa.ec.euidi.verifier.utils.Constants
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -46,8 +53,13 @@ fun TransferStatusScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        viewModel.setEvent(TransferStatusViewModelContract.Event.Init)
+        val requestedDocs = navController.getFromPreviousBackStack<RequestedDocsHolder>(
+            key = Constants.REQUESTED_DOCUMENTS
+        )
 
+        requestedDocs?.let {
+            viewModel.setEvent(TransferStatusViewModelContract.Event.Init(requestedDocs.items))
+        }
     }
 
     LaunchedEffect(viewModel.effect) {
@@ -55,7 +67,11 @@ fun TransferStatusScreen(
             when (effect) {
                 TransferStatusViewModelContract.Effect.Navigation.GoBack -> navController.popBackStack()
 
-                TransferStatusViewModelContract.Effect.Navigation.NavigateToShowDocumentsScreen -> {
+                is TransferStatusViewModelContract.Effect.Navigation.NavigateToShowDocumentsScreen -> {
+                    navController.saveToCurrentBackStack<ReceivedDocsHolder>(
+                        key = Constants.RECEIVED_DOCUMENTS,
+                        value = ReceivedDocsHolder(items = effect.receivedDocuments)
+                    )
                     navController.navigate(NavItem.ShowDocuments)
                 }
             }
@@ -77,18 +93,30 @@ fun TransferStatusScreen(
         }
 
         Column(
-            modifier = Modifier.align(Alignment.Center),
+            modifier = Modifier.fillMaxSize().padding(top = 36.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
                 text = "Transfer Status",
                 style = MaterialTheme.typography.headlineMedium
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Column(
+                modifier = Modifier.padding(bottom = 2.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = state.connectionStatus
+                )
+
+                Text(
+                    text = state.message
+                )
+            }
 
             Button(
+                modifier = Modifier.padding(bottom = 4.dp),
                 content = {
                     Text("Cancel")
                 },

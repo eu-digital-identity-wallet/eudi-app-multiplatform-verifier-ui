@@ -53,7 +53,10 @@ class DocumentsToRequestViewModel(
                     ?: uiState.value.requestedDocuments
 
                 setState {
-                    copy(requestedDocuments = requestedDocs)
+                    copy(
+                        requestedDocuments = requestedDocs,
+                        isButtonEnabled = shouldEnableDoneButton()
+                    )
                 }
             }
 
@@ -68,7 +71,13 @@ class DocumentsToRequestViewModel(
                         val updatedDocs = currentDocs.filterNot {
                             it.documentType == event.docType && it.mode == event.mode
                         }
-                        setState { copy(requestedDocuments = updatedDocs) }
+
+                        setState {
+                            copy(
+                                requestedDocuments = updatedDocs,
+                                isButtonEnabled = shouldEnableDoneButton(updatedDocs)
+                            )
+                        }
                     }
 
                     event.mode == SupportedDocument.Mode.CUSTOM -> {
@@ -145,6 +154,10 @@ class DocumentsToRequestViewModel(
                 value = uiState.value.requestedDocuments
             )
         }
+    }
+
+    private fun shouldEnableDoneButton(requestedDocs: List<RequestedDocumentUi> = uiState.value.requestedDocuments): Boolean {
+        return requestedDocs.any { it.format != null }
     }
 }
 

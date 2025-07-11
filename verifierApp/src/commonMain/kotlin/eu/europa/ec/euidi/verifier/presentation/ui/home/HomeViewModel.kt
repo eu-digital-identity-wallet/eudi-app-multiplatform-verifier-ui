@@ -20,6 +20,7 @@ import eu.europa.ec.euidi.verifier.mvi.BaseViewModel
 import eu.europa.ec.euidi.verifier.mvi.UiEffect
 import eu.europa.ec.euidi.verifier.mvi.UiEvent
 import eu.europa.ec.euidi.verifier.mvi.UiState
+import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocsHolder
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
 import org.koin.android.annotation.KoinViewModel
 
@@ -33,7 +34,8 @@ class HomeViewModel() : BaseViewModel<HomeViewModelContract.Event, HomeViewModel
             is HomeViewModelContract.Event.Init -> {
                setState {
                    copy(
-                       requesteddocs = event.docs.orEmpty()
+                       requestedDocs = event.docs.orEmpty(),
+                       isScanQrCodeButtonEnabled = event.docs.isNullOrEmpty().not()
                    )
                }
             }
@@ -46,7 +48,11 @@ class HomeViewModel() : BaseViewModel<HomeViewModelContract.Event, HomeViewModel
 
             HomeViewModelContract.Event.OnScanQrCodeClick -> {
                 setEffect {
-                    HomeViewModelContract.Effect.Navigation.NavigateToTransferStatusScreen
+                    HomeViewModelContract.Effect.Navigation.NavigateToTransferStatusScreen(
+                        requestedDocs = RequestedDocsHolder(
+                            items = uiState.value.requestedDocs
+                        )
+                    )
                 }
             }
 
@@ -75,13 +81,14 @@ interface HomeViewModelContract {
     }
 
     data class State(
-        val requesteddocs: List<RequestedDocumentUi> = emptyList()
+        val requestedDocs: List<RequestedDocumentUi> = emptyList(),
+        val isScanQrCodeButtonEnabled: Boolean = false
     ) : UiState
 
     sealed interface Effect : UiEffect {
         sealed interface Navigation : Effect {
             data object NavigateToDocToRequestScreen : Navigation
-            data object NavigateToTransferStatusScreen : Navigation
+            data class NavigateToTransferStatusScreen(val requestedDocs: RequestedDocsHolder) : Navigation
             data object NavigateToSettingsScreen : Navigation
             data object NavigateToReverseEngagementScreen : Navigation
         }

@@ -55,7 +55,7 @@ fun CustomRequestScreen(
     LaunchedEffect(Unit) {
         viewModel.setEvent(
             CustomRequestContract.Event.Init(
-                doc = navController.getFromPreviousBackStack<RequestedDocumentUi>(Constants.REQUESTED_DOCUMENT)
+                doc = navController.getFromPreviousBackStack<RequestedDocumentUi>(Constants.REQUESTED_DOCUMENTS)
             )
         )
     }
@@ -69,7 +69,7 @@ fun CustomRequestScreen(
                 is CustomRequestContract.Effect.Navigation.GoBack -> {
                     effect.requestedDocument?.let {
                         navController.saveToPreviousBackStack(
-                            key = Constants.REQUESTED_DOCUMENT,
+                            key = Constants.REQUESTED_DOCUMENTS,
                             value = effect.requestedDocument
                         )
                     }
@@ -98,13 +98,13 @@ fun CustomRequestScreen(
         ) {
             items(
                 items = state.fields,
-                key = { it.claim.identifier }
+                key = { it.claim.key }
             ) {item ->
 
                 ListItem(
                     headlineContent = {
                         Text(
-                            text = item.claim.label,
+                            text = item.claim.displayTitle,
                             style = MaterialTheme.typography.bodyLarge
                         )
                     },
@@ -113,7 +113,7 @@ fun CustomRequestScreen(
                             checked = item.isSelected,
                             onCheckedChange = { checked ->
                                 viewModel.setEvent(
-                                    CustomRequestContract.Event.OnItemChecked(item.claim.identifier, checked)
+                                    CustomRequestContract.Event.OnItemChecked(item.claim.key, checked)
                                 )
                             }
                         )

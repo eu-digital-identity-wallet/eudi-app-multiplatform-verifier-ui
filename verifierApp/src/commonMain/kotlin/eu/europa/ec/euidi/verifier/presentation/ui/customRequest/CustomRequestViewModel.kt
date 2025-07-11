@@ -79,7 +79,7 @@ class CustomRequestViewModel(
                 setState {
                     copy(
                         fields = fields.map {
-                            if (it.claim.identifier == event.identifier) {
+                            if (it.claim.key == event.identifier) {
                                 it.copy(isSelected = event.checked)
                             } else it
                         }

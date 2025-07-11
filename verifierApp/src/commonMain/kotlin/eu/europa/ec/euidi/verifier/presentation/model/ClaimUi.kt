@@ -21,15 +21,15 @@ import eu.europa.ec.euidi.verifier.utils.CommonParcelize
 
 @CommonParcelize
 sealed class ClaimUi(
-    open val identifier: String,
-    open val label: String
+    open val key: String,
+    open val displayTitle: String
 ) : CommonParcelable {
 
     @CommonParcelize
     sealed class Common(
-        override val identifier: String,
-        override val label: String
-    ) : ClaimUi(identifier, label), CommonParcelable {
+        override val key: String,
+        override val displayTitle: String
+    ) : ClaimUi(key, displayTitle), CommonParcelable {
         data object FamilyName : Common("family_name", "Family Name(s)")
         data object GivenName : Common("given_name", "Given Name(s)")
         data object BirthDate : Common("birth_date", "Date of Birth")
@@ -77,9 +77,9 @@ sealed class ClaimUi(
 
     @CommonParcelize
     sealed class PidClaim(
-        override val identifier: String,
-        override val label: String
-    ) : ClaimUi(identifier, label), CommonParcelable {
+        override val key: String,
+        override val displayTitle: String
+    ) : ClaimUi(key, displayTitle), CommonParcelable {
         data object IssuanceDate : PidClaim("issuance_date", "Issuance Date")
         data object EmailAddress : PidClaim("email_address", "Email Address")
         data object ResidentStreet : PidClaim("resident_street", "Resident Street")
@@ -109,9 +109,9 @@ sealed class ClaimUi(
 
     @CommonParcelize
     sealed class MdlClaim(
-        override val identifier: String,
-        override val label: String
-    ) : ClaimUi(identifier, label), CommonParcelable {
+        override val key: String,
+        override val displayTitle: String
+    ) : ClaimUi(key, displayTitle), CommonParcelable {
         data object DrivingPrivileges : MdlClaim("driving_privileges", "Driving Privileges")
         data object UnDistinguishingSign : MdlClaim("un_distinguishing_sign", "UN distinguishing sign")
         data object AdministrativeNumber : MdlClaim("administrative_number", "Administrative number")
