@@ -52,7 +52,6 @@ fun AppTypography(): Typography {
     val appFontFamily = AppFontFamily()
 
     return remember {
-
         with(Typography()) {
             copy(
                 displayLarge = displayLarge.copy(
