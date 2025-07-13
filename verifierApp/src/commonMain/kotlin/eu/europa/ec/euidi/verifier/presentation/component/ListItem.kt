@@ -201,7 +201,7 @@ fun ListItem(
     modifier: Modifier = Modifier,
     hideSensitiveContent: Boolean = false,
     mainContentVerticalPadding: Dp? = null,
-    clickableAreas: List<ClickableArea> = listOf(ClickableArea.TRAILING_CONTENT),
+    clickableAreas: List<ClickableArea> = listOf(TRAILING_CONTENT),
     overlineTextStyle: TextStyle = MaterialTheme.typography.labelMedium.copy(
         color = MaterialTheme.colorScheme.onSurfaceVariant
     ),
@@ -237,7 +237,7 @@ fun ListItem(
 
     with(item) {
         Row(
-            modifier = if (clickableAreas.contains(ClickableArea.ENTIRE_ROW) && handleRowItemClick != null) {
+            modifier = if (clickableAreas.contains(ENTIRE_ROW) && handleRowItemClick != null) {
                 Modifier.clickable {
                     handleRowItemClick(item)
                 }
@@ -325,7 +325,7 @@ fun ListItem(
                             iconData = trailingContentData.iconData,
                             customTint = trailingContentData.tint
                                 ?: MaterialTheme.colorScheme.primary,
-                            onClick = if (clickableAreas.contains(ClickableArea.TRAILING_CONTENT)) {
+                            onClick = if (clickableAreas.contains(TRAILING_CONTENT)) {
                                 { onItemClick?.invoke(item) }
                             } else null,
                             throttleClicks = false,
@@ -352,7 +352,7 @@ fun ListItem(
                 when (safeTrailingContentData) {
                     is ListItemTrailingContentDataUi.Checkbox -> WrapCheckbox(
                         checkboxData = safeTrailingContentData.checkboxData.copy(
-                            onCheckedChange = if (clickableAreas.contains(ClickableArea.TRAILING_CONTENT)) {
+                            onCheckedChange = if (clickableAreas.contains(TRAILING_CONTENT)) {
                                 { onItemClick?.invoke(item) }
                             } else null
                         ),
@@ -366,7 +366,7 @@ fun ListItem(
                         iconData = safeTrailingContentData.iconData,
                         customTint = safeTrailingContentData.tint
                             ?: MaterialTheme.colorScheme.primary,
-                        onClick = if (clickableAreas.contains(ClickableArea.TRAILING_CONTENT)) {
+                        onClick = if (clickableAreas.contains(TRAILING_CONTENT)) {
                             { onItemClick?.invoke(item) }
                         } else null,
                         throttleClicks = false,
@@ -374,7 +374,7 @@ fun ListItem(
 
                     is ListItemTrailingContentDataUi.RadioButton -> WrapRadioButton(
                         radioButtonData = safeTrailingContentData.radioButtonData.copy(
-                            onCheckedChange = if (clickableAreas.contains(ClickableArea.TRAILING_CONTENT)) {
+                            onCheckedChange = if (clickableAreas.contains(TRAILING_CONTENT)) {
                                 { onItemClick?.invoke(item) }
                             } else null
                         ),
@@ -385,7 +385,7 @@ fun ListItem(
 
                     is ListItemTrailingContentDataUi.Switch -> WrapSwitch(
                         switchData = safeTrailingContentData.switchData,
-                        onCheckedChange = if (clickableAreas.contains(ClickableArea.TRAILING_CONTENT)) {
+                        onCheckedChange = if (clickableAreas.contains(TRAILING_CONTENT)) {
                             { onItemClick?.invoke(item) }
                         } else null,
                         modifier = Modifier.padding(start = SIZE_MEDIUM.dp),

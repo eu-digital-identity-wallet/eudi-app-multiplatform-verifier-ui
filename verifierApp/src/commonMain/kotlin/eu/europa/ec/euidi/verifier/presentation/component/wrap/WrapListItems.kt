@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
@@ -43,8 +42,7 @@ import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
 @Composable
 fun WrapListItems(
     modifier: Modifier = Modifier,
-    items: List<ExpandableListItemUi>,
-    onExpandedChange: ((item: ListItemDataUi) -> Unit)?,
+    items: List<ListItemDataUi>,
     onItemClick: ((item: ListItemDataUi) -> Unit)?,
     hideSensitiveContent: Boolean = false,
     mainContentVerticalPadding: Dp? = null,
@@ -53,7 +51,7 @@ fun WrapListItems(
     addDivider: Boolean = true,
     shape: Shape? = null,
     colors: CardColors? = null,
-    overlineTextStyle: (@Composable (item: ListItemDataUi) -> TextStyle)? = null,
+    overlineTextStyle: TextStyle? = null,
 ) {
     WrapCard(
         modifier = modifier,
@@ -61,44 +59,19 @@ fun WrapListItems(
         colors = colors,
     ) {
         items.forEachIndexed { index, item ->
-            val itemModifier = Modifier
-                .fillMaxWidth()
+            WrapListItem(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                item = item,
+                onItemClick = onItemClick,
+                throttleClicks = throttleClicks,
+                hideSensitiveContent = hideSensitiveContent,
+                mainContentVerticalPadding = mainContentVerticalPadding,
+                clickableAreas = clickableAreas,
+                overlineTextStyle = overlineTextStyle,
+                shape = RectangleShape
+            )
 
-            when (item) {
-                is ExpandableListItemUi.NestedListItem -> {
-                    WrapExpandableListItem(
-                        modifier = itemModifier,
-                        header = item.header,
-                        data = item.nestedItems,
-                        onItemClick = onItemClick,
-                        onExpandedChange = onExpandedChange,
-                        isExpanded = item.isExpanded,
-                        throttleClicks = throttleClicks,
-                        hideSensitiveContent = hideSensitiveContent,
-                        collapsedMainContentVerticalPadding = SPACING_MEDIUM.dp,
-                        shape = RectangleShape,
-                    )
-                }
-
-                is ExpandableListItemUi.SingleListItem -> {
-                    val defaultOverlineTextStyle = MaterialTheme.typography.labelMedium.copy(
-                        MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-
-                    WrapListItem(
-                        modifier = itemModifier,
-                        item = item.header,
-                        onItemClick = onItemClick,
-                        throttleClicks = throttleClicks,
-                        hideSensitiveContent = hideSensitiveContent,
-                        mainContentVerticalPadding = mainContentVerticalPadding,
-                        clickableAreas = clickableAreas,
-                        overlineTextStyle = overlineTextStyle?.invoke(item.header)
-                            ?: defaultOverlineTextStyle,
-                        shape = RectangleShape
-                    )
-                }
-            }
 
             if (addDivider && index < items.lastIndex) {
                 HorizontalDivider(modifier = Modifier.padding(horizontal = SPACING_MEDIUM.dp))
@@ -171,9 +144,8 @@ private fun WrapListItemsPreview(
         )
 
         WrapListItems(
-            items = items.map { ExpandableListItemUi.SingleListItem(it) },
+            items = items,
             onItemClick = {},
-            onExpandedChange = {},
         )
     }
 }
