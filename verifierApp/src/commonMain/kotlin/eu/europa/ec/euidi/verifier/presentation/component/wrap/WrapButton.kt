@@ -40,26 +40,48 @@ import eu.europa.ec.euidi.verifier.presentation.component.utils.ALPHA_DISABLED
 import eu.europa.ec.euidi.verifier.presentation.component.utils.SIZE_100
 import eu.europa.ec.euidi.verifier.presentation.component.utils.SPACING_LARGE
 
+object ButtonConfigDefaults {
+    /** Rounded shape for buttons. */
+    val shape: Shape = RoundedCornerShape(SIZE_100.dp)
+
+    /** Default padding inside buttons. */
+    val contentPadding: PaddingValues = PaddingValues(
+        vertical = 10.dp,
+        horizontal = SPACING_LARGE.dp
+    )
+
+    /** Default colors; if null, [ButtonDefaults] colors will be used. */
+    val buttonColors: ButtonColors? = null
+}
+
+/**
+ * Types of buttons determining their style.
+ */
 enum class ButtonType {
     PRIMARY,
     SECONDARY,
 }
 
-private val buttonsShape: RoundedCornerShape = RoundedCornerShape(SIZE_100.dp)
-
-private val buttonsContentPadding: PaddingValues = PaddingValues(
-    vertical = 10.dp,
-    horizontal = SPACING_LARGE.dp
-)
-
+/**
+ * Configuration holder for buttons, marked @Immutable for Compose stability.
+ *
+ * @property type          Primary vs Secondary style.
+ * @property enabled       Whether the button is interactive.
+ * @property isWarning     Use warning/error color scheme.
+ * @property shape         Corner shape of the button.
+ * @property contentPadding Padding inside the button label.
+ * @property buttonColors  Custom colors, or null to use defaults.
+ * @property onClick       Click callback.
+ * @property content       Slot for the button's content.
+ */
 @Immutable
 data class ButtonConfig(
     val type: ButtonType,
     val enabled: Boolean = true,
     val isWarning: Boolean = false,
-    val shape: Shape = buttonsShape,
-    val contentPadding: PaddingValues = buttonsContentPadding,
-    val buttonColors: ButtonColors? = null,
+    val shape: Shape = ButtonConfigDefaults.shape,
+    val contentPadding: PaddingValues = ButtonConfigDefaults.contentPadding,
+    val buttonColors: ButtonColors? = ButtonConfigDefaults.buttonColors,
     val onClick: () -> Unit,
     val content: @Composable RowScope.() -> Unit,
 )
@@ -70,9 +92,9 @@ data class ButtonConfig(
  * @param type           The visual style of the button (primary vs. secondary).
  * @param enabled        Whether the button is enabled.
  * @param isWarning      Whether to use the warning color scheme.
- * @param shape          Rounded corner shape for the button.
- * @param contentPadding Padding inside the button.
- * @param buttonColors   Optional custom colors for the button.
+ * @param shape          Rounded corner shape for the button (default from [ButtonConfigDefaults]).
+ * @param contentPadding Padding inside the button (default from [ButtonConfigDefaults]).
+ * @param buttonColors   Optional custom colors for the button (default from [ButtonConfigDefaults]).
  * @param onClick        Lambda to invoke when the button is clicked.
  * @param content        Composable slot for the button's content (e.g. Text, Icon).
  *
@@ -85,9 +107,9 @@ fun rememberButtonConfig(
     type: ButtonType,
     enabled: Boolean = true,
     isWarning: Boolean = false,
-    shape: Shape = buttonsShape,
-    contentPadding: PaddingValues = buttonsContentPadding,
-    buttonColors: ButtonColors? = null,
+    shape: Shape = ButtonConfigDefaults.shape,
+    contentPadding: PaddingValues = ButtonConfigDefaults.contentPadding,
+    buttonColors: ButtonColors? = ButtonConfigDefaults.buttonColors,
     onClick: () -> Unit,
     content: @Composable RowScope.() -> Unit,
 ): ButtonConfig {
