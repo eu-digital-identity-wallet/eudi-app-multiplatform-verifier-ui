@@ -161,7 +161,9 @@ fun rememberButtonConfig(
     val colors = ButtonConfigDefaults.defaultColors(type, isWarning)
     val border = ButtonConfigDefaults.defaultBorder(type, isWarning, enabled)
 
-    return remember(type, enabled, isWarning, shape, contentPadding) {
+    return remember(
+        type, enabled, isWarning, shape, contentPadding, colors, border
+    ) {
         ButtonConfig(
             type = type,
             enabled = enabled,
