@@ -40,16 +40,30 @@ import eu.europa.ec.euidi.verifier.presentation.component.utils.ALPHA_DISABLED
 import eu.europa.ec.euidi.verifier.presentation.component.utils.SIZE_100
 import eu.europa.ec.euidi.verifier.presentation.component.utils.SPACING_LARGE
 
+/**
+ * Default styling parameters for buttons.
+ *
+ * Centralizes common values like shape, padding, and
+ * exposes theme-aware factories for colors and borders.
+ */
 object ButtonConfigDefaults {
-    /** Rounded shape for buttons. */
+    /** Rounded corner shape for all buttons. */
     val shape: Shape = RoundedCornerShape(SIZE_100.dp)
 
-    /** Default padding inside buttons. */
+    /** Standard padding applied inside buttons. */
     val contentPadding: PaddingValues = PaddingValues(
         vertical = 10.dp,
         horizontal = SPACING_LARGE.dp
     )
 
+    /**
+     * Produces a [ButtonColors] instance based on type and warning state.
+     * Applies [ALPHA_DISABLED] to disabled colors for consistency.
+     *
+     * @param type          Primary vs. Secondary styling
+     * @param isWarning     Whether to use the error (warning) palette
+     * @return              Configured [ButtonColors]
+     */
     @Composable
     fun defaultColors(
         type: ButtonType,
@@ -80,10 +94,7 @@ object ButtonConfigDefaults {
                 } else {
                     MaterialTheme.colorScheme.primary
                 }
-
-                val disabledContentColor = contentColor.copy(
-                    alpha = ALPHA_DISABLED
-                )
+                val disabledContentColor = contentColor.copy(alpha = ALPHA_DISABLED)
 
                 ButtonDefaults.outlinedButtonColors(
                     contentColor = contentColor,
@@ -93,13 +104,22 @@ object ButtonConfigDefaults {
         }
     }
 
+    /**
+     * Produces a [BorderStroke] for outlined buttons, or null for primary.
+     * Applies [ALPHA_DISABLED] to the border when disabled.
+     *
+     * @param type      Button style (only secondary gets a border)
+     * @param isWarning Whether to use the error (warning) palette
+     * @param enabled   Whether the button is interactive
+     * @return          Configured [BorderStroke] or null
+     */
     @Composable
     fun defaultBorder(
         type: ButtonType,
         isWarning: Boolean,
         enabled: Boolean
     ): BorderStroke? = when (type) {
-        ButtonType.PRIMARY -> null
+        ButtonType.PRIMARY -> null // Primary buttons have no border
 
         ButtonType.SECONDARY -> {
             val borderColor = if (isWarning) {
@@ -114,24 +134,34 @@ object ButtonConfigDefaults {
 
             BorderStroke(
                 width = 1.dp,
-                color = if (enabled) {
-                    borderColor
-                } else {
-                    disabledBorderColor
-                }
+                color = if (enabled) borderColor else disabledBorderColor
             )
         }
     }
 }
 
 /**
- * Types of buttons determining their style.
+ * Button style variants.
  */
 enum class ButtonType {
     PRIMARY,
     SECONDARY,
 }
 
+/**
+ * Data holder for a fully-resolved button configuration.
+ * Marked [Immutable] so Compose treats the instance as stable.
+ *
+ * @property type           Visual style (primary/secondary)
+ * @property enabled        Interactivity flag
+ * @property isWarning      Use warning/error palette
+ * @property shape          Corner shape
+ * @property contentPadding Inner padding
+ * @property buttonColors   Colors for normal/disabled states
+ * @property border         Outline stroke for secondary buttons
+ * @property onClick        Click callback
+ * @property content        Composable slot for button content
+ */
 @Immutable
 data class ButtonConfig(
     val type: ButtonType,
@@ -145,6 +175,20 @@ data class ButtonConfig(
     val content: @Composable RowScope.() -> Unit,
 )
 
+/**
+ * Factory that returns a stable [ButtonConfig], re-allocating only
+ * when its structural inputs _or_ theme-driven defaults change.
+ * Uses [rememberUpdatedState] to avoid stale lambda captures.
+ *
+ * @param type Visual style (primary/secondary)
+ * @param enabled Interactivity flag
+ * @param isWarning Use warning/error palette
+ * @param shape Corner shape
+ * @param contentPadding Inner padding
+ * @param onClick Click callback
+ * @param content Composable slot for button content
+ * @return A remembered [ButtonConfig] instance.
+ */
 @Composable
 fun rememberButtonConfig(
     type: ButtonType,
@@ -155,14 +199,19 @@ fun rememberButtonConfig(
     onClick: () -> Unit,
     content: @Composable RowScope.() -> Unit,
 ): ButtonConfig {
+    // Keep lambdas fresh without invalidating the entire config
     val currentOnClick by rememberUpdatedState(onClick)
     val currentContent by rememberUpdatedState(content)
 
+    // Resolve theme-based defaults
     val colors = ButtonConfigDefaults.defaultColors(type, isWarning)
     val border = ButtonConfigDefaults.defaultBorder(type, isWarning, enabled)
 
+    // Cache the fully-initialized config, including defaults
     return remember(
-        type, enabled, isWarning, shape, contentPadding, colors, border
+        type, enabled, isWarning, shape, contentPadding,
+        // Also invalidate when our theme-driven objects change
+        colors, border
     ) {
         ButtonConfig(
             type = type,
