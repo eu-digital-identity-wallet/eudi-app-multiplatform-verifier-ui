@@ -50,8 +50,78 @@ object ButtonConfigDefaults {
         horizontal = SPACING_LARGE.dp
     )
 
-    /** Default colors; if null, [ButtonDefaults] colors will be used. */
-    val buttonColors: ButtonColors? = null
+    @Composable
+    fun defaultColors(
+        type: ButtonType,
+        isWarning: Boolean
+    ): ButtonColors {
+        return when (type) {
+            ButtonType.PRIMARY -> {
+                val (containerColor, contentColor) = if (isWarning) {
+                    MaterialTheme.colorScheme.error to MaterialTheme.colorScheme.onError
+                } else {
+                    MaterialTheme.colorScheme.primary to MaterialTheme.colorScheme.onPrimary
+                }
+
+                val disabledContainerColor = containerColor.copy(alpha = ALPHA_DISABLED)
+                val disabledContentColor = contentColor.copy(alpha = ALPHA_DISABLED)
+
+                ButtonDefaults.buttonColors(
+                    containerColor = containerColor,
+                    disabledContainerColor = disabledContainerColor,
+                    contentColor = contentColor,
+                    disabledContentColor = disabledContentColor
+                )
+            }
+
+            ButtonType.SECONDARY -> {
+                val contentColor = if (isWarning) {
+                    MaterialTheme.colorScheme.error
+                } else {
+                    MaterialTheme.colorScheme.primary
+                }
+
+                val disabledContentColor = contentColor.copy(
+                    alpha = ALPHA_DISABLED
+                )
+
+                ButtonDefaults.outlinedButtonColors(
+                    contentColor = contentColor,
+                    disabledContentColor = disabledContentColor
+                )
+            }
+        }
+    }
+
+    @Composable
+    fun defaultBorder(
+        type: ButtonType,
+        isWarning: Boolean,
+        enabled: Boolean
+    ): BorderStroke? = when (type) {
+        ButtonType.PRIMARY -> null
+
+        ButtonType.SECONDARY -> {
+            val borderColor = if (isWarning) {
+                MaterialTheme.colorScheme.error
+            } else {
+                MaterialTheme.colorScheme.primary
+            }
+
+            val disabledBorderColor = borderColor.copy(
+                alpha = ALPHA_DISABLED
+            )
+
+            BorderStroke(
+                width = 1.dp,
+                color = if (enabled) {
+                    borderColor
+                } else {
+                    disabledBorderColor
+                }
+            )
+        }
+    }
 }
 
 /**
@@ -62,18 +132,6 @@ enum class ButtonType {
     SECONDARY,
 }
 
-/**
- * Configuration holder for buttons, marked @Immutable for Compose stability.
- *
- * @property type          Primary vs Secondary style.
- * @property enabled       Whether the button is interactive.
- * @property isWarning     Use warning/error color scheme.
- * @property shape         Corner shape of the button.
- * @property contentPadding Padding inside the button label.
- * @property buttonColors  Custom colors, or null to use defaults.
- * @property onClick       Click callback.
- * @property content       Slot for the button's content.
- */
 @Immutable
 data class ButtonConfig(
     val type: ButtonType,
@@ -81,27 +139,12 @@ data class ButtonConfig(
     val isWarning: Boolean = false,
     val shape: Shape = ButtonConfigDefaults.shape,
     val contentPadding: PaddingValues = ButtonConfigDefaults.contentPadding,
-    val buttonColors: ButtonColors? = ButtonConfigDefaults.buttonColors,
+    val buttonColors: ButtonColors? = null,
+    val border: BorderStroke? = null,
     val onClick: () -> Unit,
     val content: @Composable RowScope.() -> Unit,
 )
 
-/**
- * Creates a stable [ButtonConfig] instance with up-to-date lambdas for Compose recomposition.
- *
- * @param type           The visual style of the button (primary vs. secondary).
- * @param enabled        Whether the button is enabled.
- * @param isWarning      Whether to use the warning color scheme.
- * @param shape          Rounded corner shape for the button (default from [ButtonConfigDefaults]).
- * @param contentPadding Padding inside the button (default from [ButtonConfigDefaults]).
- * @param buttonColors   Optional custom colors for the button (default from [ButtonConfigDefaults]).
- * @param onClick        Lambda to invoke when the button is clicked.
- * @param content        Composable slot for the button's content (e.g. Text, Icon).
- *
- * This helper keeps a single [ButtonConfig] allocation across recompositions
- * (via [remember]), and uses [rememberUpdatedState] to avoid stale lambda
- * captures while still respecting identity-based recomposition.
- */
 @Composable
 fun rememberButtonConfig(
     type: ButtonType,
@@ -109,34 +152,25 @@ fun rememberButtonConfig(
     isWarning: Boolean = false,
     shape: Shape = ButtonConfigDefaults.shape,
     contentPadding: PaddingValues = ButtonConfigDefaults.contentPadding,
-    buttonColors: ButtonColors? = ButtonConfigDefaults.buttonColors,
     onClick: () -> Unit,
     content: @Composable RowScope.() -> Unit,
 ): ButtonConfig {
-    // Keep the latest onClick lambda without invalidating the whole config
     val currentOnClick by rememberUpdatedState(onClick)
-    // Keep the latest content lambda in a stable reference
     val currentContent by rememberUpdatedState(content)
 
-    // Remember the ButtonConfig instance so we don't reallocate it every recomposition.
-    // Only re-create when structural parameters change (type, enabled, colors, etc.).
-    return remember(
-        type,
-        enabled,
-        isWarning,
-        shape,
-        contentPadding,
-        buttonColors
-    ) {
+    val colors = ButtonConfigDefaults.defaultColors(type, isWarning)
+    val border = ButtonConfigDefaults.defaultBorder(type, isWarning, enabled)
+
+    return remember(type, enabled, isWarning, shape, contentPadding) {
         ButtonConfig(
             type = type,
             enabled = enabled,
-            // Wrap the state-backed lambdas in new lambdas so they always call the latest version
-            onClick = { currentOnClick() },
             isWarning = isWarning,
             shape = shape,
             contentPadding = contentPadding,
-            buttonColors = buttonColors,
+            buttonColors = colors,
+            border = border,
+            onClick = { currentOnClick() },
             content = { currentContent() }
         )
     }
@@ -165,24 +199,9 @@ private fun WrapPrimaryButton(
     modifier: Modifier = Modifier,
     buttonConfig: ButtonConfig,
 ) {
-    val (containerColor, contentColor) = if (buttonConfig.isWarning) {
-        MaterialTheme.colorScheme.error to MaterialTheme.colorScheme.onError
-    } else {
-        MaterialTheme.colorScheme.primary to MaterialTheme.colorScheme.onPrimary
-    }
-
-    val disabledContentColor = contentColor.copy(
-        alpha = ALPHA_DISABLED
-    )
-    val disabledContainerColor = containerColor.copy(
-        alpha = ALPHA_DISABLED
-    )
-
-    val colors = buttonConfig.buttonColors ?: ButtonDefaults.buttonColors(
-        containerColor = containerColor,
-        disabledContainerColor = disabledContainerColor,
-        contentColor = contentColor,
-        disabledContentColor = disabledContentColor,
+    val colors = buttonConfig.buttonColors ?: ButtonConfigDefaults.defaultColors(
+        type = buttonConfig.type,
+        isWarning = buttonConfig.isWarning
     )
 
     Button(
@@ -201,22 +220,15 @@ private fun WrapSecondaryButton(
     modifier: Modifier = Modifier,
     buttonConfig: ButtonConfig,
 ) {
-    val (contentColor, borderColor) = if (buttonConfig.isWarning) {
-        MaterialTheme.colorScheme.error to MaterialTheme.colorScheme.error
-    } else {
-        MaterialTheme.colorScheme.primary to MaterialTheme.colorScheme.primary
-    }
-
-    val disabledContentColor = contentColor.copy(
-        alpha = ALPHA_DISABLED
-    )
-    val disabledBorderColor = borderColor.copy(
-        alpha = ALPHA_DISABLED
+    val colors = buttonConfig.buttonColors ?: ButtonConfigDefaults.defaultColors(
+        type = buttonConfig.type,
+        isWarning = buttonConfig.isWarning
     )
 
-    val colors = buttonConfig.buttonColors ?: ButtonDefaults.outlinedButtonColors(
-        contentColor = contentColor,
-        disabledContentColor = disabledContentColor,
+    val border = buttonConfig.border ?: ButtonConfigDefaults.defaultBorder(
+        type = buttonConfig.type,
+        isWarning = buttonConfig.isWarning,
+        enabled = buttonConfig.enabled
     )
 
     OutlinedButton(
@@ -225,14 +237,7 @@ private fun WrapSecondaryButton(
         onClick = buttonConfig.onClick,
         shape = buttonConfig.shape,
         colors = colors,
-        border = BorderStroke(
-            width = 1.dp,
-            color = if (buttonConfig.enabled) {
-                borderColor
-            } else {
-                disabledBorderColor
-            },
-        ),
+        border = border,
         contentPadding = buttonConfig.contentPadding,
         content = buttonConfig.content
     )
