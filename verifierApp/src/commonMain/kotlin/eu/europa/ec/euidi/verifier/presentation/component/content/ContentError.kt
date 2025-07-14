@@ -59,18 +59,19 @@ internal fun ContentError(config: ContentErrorConfig, paddingValues: PaddingValu
 
         config.onRetry?.let { callback ->
             WrapButton(
+                modifier = Modifier.fillMaxWidth(),
                 buttonConfig = ButtonConfig(
                     type = ButtonType.PRIMARY,
                     onClick = {
                         callback()
                     },
-                ),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = stringResource(resource = Res.string.generic_error_button_retry)
+                    content = {
+                        Text(
+                            text = stringResource(resource = Res.string.generic_error_button_retry)
+                        )
+                    }
                 )
-            }
+            )
         }
     }
 }

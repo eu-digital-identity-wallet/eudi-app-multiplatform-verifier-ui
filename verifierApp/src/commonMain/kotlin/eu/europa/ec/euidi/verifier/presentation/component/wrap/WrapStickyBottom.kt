@@ -26,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import eu.europa.ec.euidi.verifier.presentation.component.utils.SPACING_SMALL
 import eu.europa.ec.euidi.verifier.presentation.theme.divider
 
 sealed interface StickyBottomType {
@@ -38,7 +39,9 @@ sealed interface StickyBottomType {
         val secondaryButtonConfig: ButtonConfig,
     ) : StickyBottomType
 
-    data object Generic : StickyBottomType
+    data class Generic(
+        val content: @Composable () -> Unit,
+    ) : StickyBottomType
 }
 
 data class StickyBottomConfig(
@@ -50,7 +53,6 @@ data class StickyBottomConfig(
 fun WrapStickyBottomContent(
     stickyBottomModifier: Modifier = Modifier,
     stickyBottomConfig: StickyBottomConfig,
-    content: @Composable () -> Unit,
 ) {
     when (val stickyBottomType = stickyBottomConfig.type) {
         is StickyBottomType.OneButton -> {
@@ -74,9 +76,7 @@ fun WrapStickyBottomContent(
                     WrapButton(
                         modifier = Modifier.fillMaxWidth(),
                         buttonConfig = stickyBottomType.config,
-                    ) {
-                        content()
-                    }
+                    )
                 }
             }
         }
@@ -85,25 +85,21 @@ fun WrapStickyBottomContent(
             Row(
                 modifier = stickyBottomModifier,
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceEvenly
+                horizontalArrangement = Arrangement.spacedBy(SPACING_SMALL.dp)
             ) {
                 WrapButton(
                     modifier = Modifier.weight(1f),
-                    buttonConfig = stickyBottomType.primaryButtonConfig
-                ) {
-                    content()
-                }
+                    buttonConfig = stickyBottomType.secondaryButtonConfig
+                )
                 WrapButton(
                     modifier = Modifier.weight(1f),
-                    buttonConfig = stickyBottomType.secondaryButtonConfig
-                ) {
-                    content()
-                }
+                    buttonConfig = stickyBottomType.primaryButtonConfig
+                )
             }
         }
 
         is StickyBottomType.Generic -> {
-            content()
+            stickyBottomType.content()
         }
     }
 }

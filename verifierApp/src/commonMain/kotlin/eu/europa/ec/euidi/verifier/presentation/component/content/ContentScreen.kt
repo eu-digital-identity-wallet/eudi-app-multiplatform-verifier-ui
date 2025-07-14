@@ -148,7 +148,7 @@ fun ContentScreen(
                         ) {
                             stickyBottomContent(
                                 stickyBottomPaddings(
-                                    contentScreenPaddings = screenPaddings(padding),
+                                    contentScreenPaddings = screenPaddings(),
                                     layoutDirection = LocalLayoutDirection.current
                                 )
                             )

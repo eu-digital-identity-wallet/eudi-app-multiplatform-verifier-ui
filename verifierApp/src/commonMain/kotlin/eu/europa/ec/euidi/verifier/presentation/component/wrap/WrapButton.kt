@@ -27,6 +27,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
@@ -48,10 +49,12 @@ private val buttonsContentPadding: PaddingValues = PaddingValues(
     horizontal = SPACING_LARGE.dp
 )
 
+@Immutable
 data class ButtonConfig(
     val type: ButtonType,
-    val enabled: Boolean = true,
     val onClick: () -> Unit,
+    val content: @Composable RowScope.() -> Unit,
+    val enabled: Boolean = true,
     val isWarning: Boolean = false,
     val shape: Shape = buttonsShape,
     val contentPadding: PaddingValues = buttonsContentPadding,
@@ -62,19 +65,16 @@ data class ButtonConfig(
 fun WrapButton(
     modifier: Modifier = Modifier,
     buttonConfig: ButtonConfig,
-    content: @Composable RowScope.() -> Unit,
 ) {
     when (buttonConfig.type) {
         ButtonType.PRIMARY -> WrapPrimaryButton(
             modifier = modifier,
             buttonConfig = buttonConfig,
-            content = content,
         )
 
         ButtonType.SECONDARY -> WrapSecondaryButton(
             modifier = modifier,
             buttonConfig = buttonConfig,
-            content = content,
         )
     }
 }
@@ -83,7 +83,6 @@ fun WrapButton(
 private fun WrapPrimaryButton(
     modifier: Modifier = Modifier,
     buttonConfig: ButtonConfig,
-    content: @Composable RowScope.() -> Unit,
 ) {
     val (containerColor, contentColor) = if (buttonConfig.isWarning) {
         MaterialTheme.colorScheme.error to MaterialTheme.colorScheme.onError
@@ -112,7 +111,7 @@ private fun WrapPrimaryButton(
         shape = buttonConfig.shape,
         colors = colors,
         contentPadding = buttonConfig.contentPadding,
-        content = content
+        content = buttonConfig.content
     )
 }
 
@@ -120,7 +119,6 @@ private fun WrapPrimaryButton(
 private fun WrapSecondaryButton(
     modifier: Modifier = Modifier,
     buttonConfig: ButtonConfig,
-    content: @Composable RowScope.() -> Unit,
 ) {
     val (contentColor, borderColor) = if (buttonConfig.isWarning) {
         MaterialTheme.colorScheme.error to MaterialTheme.colorScheme.error
@@ -155,7 +153,7 @@ private fun WrapSecondaryButton(
             },
         ),
         contentPadding = buttonConfig.contentPadding,
-        content = content
+        content = buttonConfig.content
     )
 }
 
@@ -167,11 +165,12 @@ private fun WrapPrimaryButtonEnabledPreview() {
             buttonConfig = ButtonConfig(
                 type = ButtonType.PRIMARY,
                 enabled = true,
-                onClick = { }
-            ),
-        ) {
-            Text("Enabled Primary Button")
-        }
+                onClick = { },
+                content = {
+                    Text("Enabled Primary Button")
+                },
+            )
+        )
     }
 }
 
@@ -183,11 +182,12 @@ private fun WrapPrimaryButtonDisabledPreview() {
             buttonConfig = ButtonConfig(
                 type = ButtonType.PRIMARY,
                 enabled = false,
-                onClick = { }
-            ),
-        ) {
-            Text("Disabled Primary Button")
-        }
+                onClick = { },
+                content = {
+                    Text("Disabled Primary Button")
+                },
+            )
+        )
     }
 }
 
@@ -200,11 +200,12 @@ private fun WrapPrimaryButtonEnabledWarningPreview() {
                 type = ButtonType.PRIMARY,
                 enabled = true,
                 isWarning = true,
-                onClick = { }
+                onClick = { },
+                content = {
+                    Text("Enabled Warning Primary Button")
+                },
             )
-        ) {
-            Text("Enabled Warning Primary Button")
-        }
+        )
     }
 }
 
@@ -217,11 +218,12 @@ private fun WrapPrimaryButtonDisabledWarningPreview() {
                 type = ButtonType.PRIMARY,
                 enabled = false,
                 isWarning = true,
-                onClick = { }
+                onClick = { },
+                content = {
+                    Text("Disabled Warning Primary Button")
+                },
             )
-        ) {
-            Text("Disabled Warning Primary Button")
-        }
+        )
     }
 }
 
@@ -233,11 +235,12 @@ private fun WrapSecondaryButtonEnabledPreview() {
             buttonConfig = ButtonConfig(
                 type = ButtonType.SECONDARY,
                 enabled = true,
-                onClick = { }
+                onClick = { },
+                content = {
+                    Text("Enabled Secondary Button")
+                },
             )
-        ) {
-            Text("Enabled Secondary Button")
-        }
+        )
     }
 }
 
@@ -249,11 +252,12 @@ private fun WrapSecondaryButtonDisabledPreview() {
             buttonConfig = ButtonConfig(
                 type = ButtonType.SECONDARY,
                 enabled = false,
-                onClick = { }
+                onClick = { },
+                content = {
+                    Text("Disabled Secondary Button")
+                },
             )
-        ) {
-            Text("Disabled Secondary Button")
-        }
+        )
     }
 }
 
@@ -266,11 +270,12 @@ private fun WrapSecondaryButtonEnabledWarningPreview() {
                 type = ButtonType.SECONDARY,
                 enabled = true,
                 isWarning = true,
-                onClick = { }
+                onClick = { },
+                content = {
+                    Text("Enabled Warning Secondary Button")
+                },
             )
-        ) {
-            Text("Enabled Warning Secondary Button")
-        }
+        )
     }
 }
 
@@ -283,10 +288,11 @@ private fun WrapSecondaryButtonDisabledWarningPreview() {
                 type = ButtonType.SECONDARY,
                 enabled = false,
                 isWarning = true,
-                onClick = { }
+                onClick = { },
+                content = {
+                    Text("Disabled Warning Secondary Button")
+                }
             )
-        ) {
-            Text("Disabled Warning Secondary Button")
-        }
+        )
     }
 }
