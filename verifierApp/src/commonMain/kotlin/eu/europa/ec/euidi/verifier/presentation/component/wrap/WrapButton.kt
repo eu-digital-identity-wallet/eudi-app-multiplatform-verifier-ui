@@ -28,6 +28,9 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
@@ -52,14 +55,70 @@ private val buttonsContentPadding: PaddingValues = PaddingValues(
 @Immutable
 data class ButtonConfig(
     val type: ButtonType,
-    val onClick: () -> Unit,
-    val content: @Composable RowScope.() -> Unit,
     val enabled: Boolean = true,
     val isWarning: Boolean = false,
     val shape: Shape = buttonsShape,
     val contentPadding: PaddingValues = buttonsContentPadding,
     val buttonColors: ButtonColors? = null,
+    val onClick: () -> Unit,
+    val content: @Composable RowScope.() -> Unit,
 )
+
+/**
+ * Creates a stable [ButtonConfig] instance with up-to-date lambdas for Compose recomposition.
+ *
+ * @param type           The visual style of the button (primary vs. secondary).
+ * @param enabled        Whether the button is enabled.
+ * @param isWarning      Whether to use the warning color scheme.
+ * @param shape          Rounded corner shape for the button.
+ * @param contentPadding Padding inside the button.
+ * @param buttonColors   Optional custom colors for the button.
+ * @param onClick        Lambda to invoke when the button is clicked.
+ * @param content        Composable slot for the button's content (e.g. Text, Icon).
+ *
+ * This helper keeps a single [ButtonConfig] allocation across recompositions
+ * (via [remember]), and uses [rememberUpdatedState] to avoid stale lambda
+ * captures while still respecting identity-based recomposition.
+ */
+@Composable
+fun rememberButtonConfig(
+    type: ButtonType,
+    enabled: Boolean = true,
+    isWarning: Boolean = false,
+    shape: Shape = buttonsShape,
+    contentPadding: PaddingValues = buttonsContentPadding,
+    buttonColors: ButtonColors? = null,
+    onClick: () -> Unit,
+    content: @Composable RowScope.() -> Unit,
+): ButtonConfig {
+    // Keep the latest onClick lambda without invalidating the whole config
+    val currentOnClick by rememberUpdatedState(onClick)
+    // Keep the latest content lambda in a stable reference
+    val currentContent by rememberUpdatedState(content)
+
+    // Remember the ButtonConfig instance so we don't reallocate it every recomposition.
+    // Only re-create when structural parameters change (type, enabled, colors, etc.).
+    return remember(
+        type,
+        enabled,
+        isWarning,
+        shape,
+        contentPadding,
+        buttonColors
+    ) {
+        ButtonConfig(
+            type = type,
+            enabled = enabled,
+            // Wrap the state-backed lambdas in new lambdas so they always call the latest version
+            onClick = { currentOnClick() },
+            isWarning = isWarning,
+            shape = shape,
+            contentPadding = contentPadding,
+            buttonColors = buttonColors,
+            content = { currentContent() }
+        )
+    }
+}
 
 @Composable
 fun WrapButton(
