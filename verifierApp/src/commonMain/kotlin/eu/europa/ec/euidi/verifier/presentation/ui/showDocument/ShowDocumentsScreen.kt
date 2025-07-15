@@ -41,13 +41,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import eu.europa.ec.euidi.verifier.navigation.NavItem
+import eu.europa.ec.euidi.verifier.presentation.navigation.NavItem
 import org.koin.compose.viewmodel.koinViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.unit.dp
-import eu.europa.ec.euidi.verifier.navigation.getFromPreviousBackStack
+import eu.europa.ec.euidi.verifier.presentation.navigation.getFromPreviousBackStack
 import eu.europa.ec.euidi.verifier.presentation.model.ReceivedDocsHolder
-import eu.europa.ec.euidi.verifier.utils.Constants
+import eu.europa.ec.euidi.verifier.presentation.utils.Constants
 
 @Composable
 fun ShowDocumentsScreen(

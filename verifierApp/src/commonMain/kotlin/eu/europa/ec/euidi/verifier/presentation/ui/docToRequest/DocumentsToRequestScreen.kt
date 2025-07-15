@@ -47,14 +47,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import eu.europa.ec.euidi.verifier.navigation.NavItem
-import eu.europa.ec.euidi.verifier.navigation.getFromCurrentBackStack
-import eu.europa.ec.euidi.verifier.navigation.popToAndSave
-import eu.europa.ec.euidi.verifier.navigation.saveToCurrentBackStack
+import eu.europa.ec.euidi.verifier.presentation.navigation.NavItem
+import eu.europa.ec.euidi.verifier.presentation.navigation.getFromCurrentBackStack
+import eu.europa.ec.euidi.verifier.presentation.navigation.popToAndSave
+import eu.europa.ec.euidi.verifier.presentation.navigation.saveToCurrentBackStack
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocsHolder
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
 import eu.europa.ec.euidi.verifier.presentation.model.SupportedDocument
-import eu.europa.ec.euidi.verifier.utils.Constants
+import eu.europa.ec.euidi.verifier.presentation.utils.Constants
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable

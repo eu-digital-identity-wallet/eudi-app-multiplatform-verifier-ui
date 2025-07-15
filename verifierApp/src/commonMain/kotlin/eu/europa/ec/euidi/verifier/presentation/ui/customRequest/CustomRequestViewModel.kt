@@ -17,14 +17,14 @@
 package eu.europa.ec.euidi.verifier.presentation.ui.customRequest
 
 import androidx.lifecycle.SavedStateHandle
-import eu.europa.ec.euidi.verifier.mvi.BaseViewModel
-import eu.europa.ec.euidi.verifier.mvi.UiEffect
-import eu.europa.ec.euidi.verifier.mvi.UiEvent
-import eu.europa.ec.euidi.verifier.mvi.UiState
+import eu.europa.ec.euidi.verifier.presentation.mvi.BaseViewModel
+import eu.europa.ec.euidi.verifier.presentation.mvi.UiEffect
+import eu.europa.ec.euidi.verifier.presentation.mvi.UiEvent
+import eu.europa.ec.euidi.verifier.presentation.mvi.UiState
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
 import eu.europa.ec.euidi.verifier.presentation.model.SelectableClaimUi
 import eu.europa.ec.euidi.verifier.presentation.model.SupportedDocument.AttestationType
-import eu.europa.ec.euidi.verifier.utils.Constants
+import eu.europa.ec.euidi.verifier.presentation.utils.Constants
 import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel

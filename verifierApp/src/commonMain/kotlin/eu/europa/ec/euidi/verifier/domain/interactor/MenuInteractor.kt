@@ -23,8 +23,8 @@ import eu.europa.ec.euidi.verifier.presentation.component.ListItemMainContentDat
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemTrailingContentDataUi
 import eu.europa.ec.euidi.verifier.presentation.ui.menu.model.MenuItemUi
 import eu.europa.ec.euidi.verifier.presentation.ui.menu.model.MenuTypeUi
-import eu.europa.ec.euidi.verifier.provider.ResourceProvider
-import eu.europa.ec.euidi.verifier.provider.UuidProvider
+import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
+import eu.europa.ec.euidi.verifier.core.provider.UuidProvider
 import eudiverifier.verifierapp.generated.resources.Res
 import eudiverifier.verifierapp.generated.resources.menu_screen_item_home_name
 import eudiverifier.verifierapp.generated.resources.menu_screen_item_reverse_engagement_name

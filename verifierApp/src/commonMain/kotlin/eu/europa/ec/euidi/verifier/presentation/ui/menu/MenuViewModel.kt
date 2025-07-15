@@ -18,11 +18,11 @@ package eu.europa.ec.euidi.verifier.presentation.ui.menu
 
 import androidx.lifecycle.viewModelScope
 import eu.europa.ec.euidi.verifier.domain.interactor.MenuInteractor
-import eu.europa.ec.euidi.verifier.mvi.BaseViewModel
-import eu.europa.ec.euidi.verifier.mvi.UiEffect
-import eu.europa.ec.euidi.verifier.mvi.UiEvent
-import eu.europa.ec.euidi.verifier.mvi.UiState
-import eu.europa.ec.euidi.verifier.navigation.NavItem
+import eu.europa.ec.euidi.verifier.presentation.mvi.BaseViewModel
+import eu.europa.ec.euidi.verifier.presentation.mvi.UiEffect
+import eu.europa.ec.euidi.verifier.presentation.mvi.UiEvent
+import eu.europa.ec.euidi.verifier.presentation.mvi.UiState
+import eu.europa.ec.euidi.verifier.presentation.navigation.NavItem
 import eu.europa.ec.euidi.verifier.presentation.ui.menu.MenuViewModelContract.Effect
 import eu.europa.ec.euidi.verifier.presentation.ui.menu.MenuViewModelContract.Event
 import eu.europa.ec.euidi.verifier.presentation.ui.menu.MenuViewModelContract.State
