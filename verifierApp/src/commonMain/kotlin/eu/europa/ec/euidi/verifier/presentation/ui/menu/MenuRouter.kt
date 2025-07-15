@@ -16,30 +16,17 @@
 
 package eu.europa.ec.euidi.verifier.presentation.ui.menu
 
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.core.EaseOut
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.tween
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import eu.europa.ec.euidi.verifier.presentation.navigation.NavItem
+import eu.europa.ec.euidi.verifier.presentation.navigation.slideInFromEnd
+import eu.europa.ec.euidi.verifier.presentation.navigation.slideOutToEnd
 
 fun NavGraphBuilder.menuScreen(navController: NavController) {
     composable<NavItem.Menu>(
-        enterTransition = {
-            slideIntoContainer(
-                animationSpec = tween(300, easing = EaseOut),
-                towards = AnimatedContentTransitionScope.SlideDirection.Start
-            )
-
-        },
-        exitTransition = {
-            slideOutOfContainer(
-                animationSpec = tween(200, easing = LinearEasing),
-                towards = AnimatedContentTransitionScope.SlideDirection.End
-            )
-        }
+        enterTransition = slideInFromEnd(),
+        exitTransition = slideOutToEnd(),
     ) {
         MenuScreen(
             navController = navController

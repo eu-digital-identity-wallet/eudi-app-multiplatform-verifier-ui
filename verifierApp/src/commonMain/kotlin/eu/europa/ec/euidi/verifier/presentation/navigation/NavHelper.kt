@@ -16,14 +16,26 @@
 
 package eu.europa.ec.euidi.verifier.presentation.navigation
 
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.EaseOut
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
 import androidx.navigation.NavController
 import eu.europa.ec.euidi.verifier.presentation.utils.CommonParcelable
 
-inline fun <reified T : CommonParcelable> NavController.saveToCurrentBackStack(key: String, value: T) {
+inline fun <reified T : CommonParcelable> NavController.saveToCurrentBackStack(
+    key: String,
+    value: T
+) {
     currentBackStackEntry?.savedStateHandle?.set(key, value)
 }
 
-inline fun <reified T : CommonParcelable> NavController.saveToPreviousBackStack(key: String, value: T) {
+inline fun <reified T : CommonParcelable> NavController.saveToPreviousBackStack(
+    key: String,
+    value: T
+) {
     previousBackStackEntry?.savedStateHandle?.set(key, value)
 }
 
@@ -48,5 +60,38 @@ inline fun <reified T : CommonParcelable> NavController.popToAndSave(
     popBackStack(
         route = destination,
         inclusive = inclusive
+    )
+}
+
+/**
+ * Defines a slide-in animation from the end of the screen.
+ *
+ * This function returns a lambda that can be used as an enter transition
+ * for composable navigation. The animation slides content into the container
+ * from the start (right side for LTR layouts, left side for RTL layouts)
+ * with a duration of 300 milliseconds and an EaseOut easing function.
+ *
+ * @return A lambda function representing the enter transition.
+ */
+fun slideInFromEnd(): AnimatedContentTransitionScope<*>.() -> EnterTransition? = {
+    slideIntoContainer(
+        animationSpec = tween(durationMillis = 300, easing = EaseOut),
+        towards = AnimatedContentTransitionScope.SlideDirection.Start
+    )
+}
+
+/**
+ * Defines a slide-out animation to the end of the container.
+ *
+ * This function returns a lambda that produces an [ExitTransition].
+ * The animation uses a linear easing curve with a duration of 200 milliseconds.
+ *
+ * @return A lambda function that, when invoked within an [AnimatedContentTransitionScope],
+ * returns an [ExitTransition] or null.
+ */
+fun slideOutToEnd(): AnimatedContentTransitionScope<*>.() -> ExitTransition? = {
+    slideOutOfContainer(
+        animationSpec = tween(durationMillis = 200, easing = LinearEasing),
+        towards = AnimatedContentTransitionScope.SlideDirection.End
     )
 }
