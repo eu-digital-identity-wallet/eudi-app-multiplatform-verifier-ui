@@ -33,6 +33,13 @@ import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
 interface MenuViewModelContract {
+    data class State(
+        val isLoading: Boolean,
+
+        val screenTitle: String = "",
+        val menuItems: List<MenuItemUi> = emptyList(),
+    ) : UiState
+
     sealed interface Event : UiEvent {
         data object Init : Event
         data object OnBackClicked : Event
@@ -41,13 +48,6 @@ interface MenuViewModelContract {
             val itemType: MenuTypeUi,
         ) : Event
     }
-
-    data class State(
-        val isLoading: Boolean,
-
-        val screenTitle: String = "",
-        val menuItems: List<MenuItemUi> = emptyList(),
-    ) : UiState
 
     sealed interface Effect : UiEffect {
         sealed interface Navigation : Effect {
