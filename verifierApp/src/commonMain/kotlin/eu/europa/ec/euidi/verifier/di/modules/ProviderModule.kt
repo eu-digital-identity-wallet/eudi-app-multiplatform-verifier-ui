@@ -16,6 +16,8 @@
 
 package eu.europa.ec.euidi.verifier.di.modules
 
+import eu.europa.ec.euidi.verifier.provider.ResourceProvider
+import eu.europa.ec.euidi.verifier.provider.ResourceProviderImpl
 import eu.europa.ec.euidi.verifier.provider.UuidProvider
 import eu.europa.ec.euidi.verifier.provider.UuidProviderImpl
 import org.koin.core.annotation.Module
@@ -26,4 +28,7 @@ class ProviderModule {
 
     @Single
     fun provideUuidProvider(): UuidProvider = UuidProviderImpl()
+
+    @Single
+    fun provideResourceProvider(): ResourceProvider = ResourceProviderImpl()
 }
