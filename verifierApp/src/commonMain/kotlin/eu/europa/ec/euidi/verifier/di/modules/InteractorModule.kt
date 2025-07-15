@@ -14,18 +14,24 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier.navigation
+package eu.europa.ec.euidi.verifier.di.modules
 
-import kotlinx.serialization.Serializable
+import eu.europa.ec.euidi.verifier.domain.interactor.MenuInteractor
+import eu.europa.ec.euidi.verifier.domain.interactor.MenuInteractorImpl
+import eu.europa.ec.euidi.verifier.provider.ResourceProvider
+import eu.europa.ec.euidi.verifier.provider.UuidProvider
+import org.koin.core.annotation.Module
+import org.koin.core.annotation.Single
 
-@Serializable
-sealed interface NavItem {
-    @Serializable data object Home : NavItem
-    @Serializable data object Menu : NavItem
-    @Serializable data object DocToRequest : NavItem
-    @Serializable data object CustomRequest : NavItem
-    @Serializable data object TransferStatus : NavItem
-    @Serializable data object ShowDocuments : NavItem
-    @Serializable data object ReverseEngagement : NavItem
-    @Serializable data object Settings : NavItem
+@Module
+class InteractorModule {
+
+    @Single
+    fun provideMenuInteractor(
+        uuidProvider: UuidProvider,
+        resourceProvider: ResourceProvider,
+    ): MenuInteractor = MenuInteractorImpl(
+        uuidProvider,
+        resourceProvider,
+    )
 }

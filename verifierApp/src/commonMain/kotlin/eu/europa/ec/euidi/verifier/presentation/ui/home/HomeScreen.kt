@@ -75,6 +75,10 @@ fun HomeScreen(
                 HomeViewModelContract.Effect.Navigation.NavigateToReverseEngagementScreen -> {
                     navController.navigate(NavItem.ReverseEngagement)
                 }
+
+                HomeViewModelContract.Effect.Navigation.NavigateToMenuScreen ->{
+                    navController.navigate(NavItem.Menu)
+                }
             }
         }
     }
@@ -122,5 +126,13 @@ fun HomeScreen(
         ) {
             Text("Reverse Engagement")
         }
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = { viewModel.setEvent(HomeViewModelContract.Event.OnMenuClick) }
+        ) {
+            Text("Menu")
+        }
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }

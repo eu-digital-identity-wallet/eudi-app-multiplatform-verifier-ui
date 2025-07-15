@@ -22,6 +22,7 @@ import androidx.navigation.compose.rememberNavController
 import eu.europa.ec.euidi.verifier.presentation.ui.customRequest.customRequestScreen
 import eu.europa.ec.euidi.verifier.presentation.ui.docToRequest.docToRequestScreen
 import eu.europa.ec.euidi.verifier.presentation.ui.home.homeScreen
+import eu.europa.ec.euidi.verifier.presentation.ui.menu.menuScreen
 import eu.europa.ec.euidi.verifier.presentation.ui.reverseengagement.reverseEngagementScreen
 import eu.europa.ec.euidi.verifier.presentation.ui.settings.settingsScreen
 import eu.europa.ec.euidi.verifier.presentation.ui.showDocument.showDocumentsScreen
@@ -36,6 +37,7 @@ fun VerifierNavHost() {
         startDestination = NavItem.Home
     ) {
         homeScreen(navController)
+        menuScreen(navController)
         docToRequestScreen(navController)
         customRequestScreen(navController)
         transferStatusScreen(navController)

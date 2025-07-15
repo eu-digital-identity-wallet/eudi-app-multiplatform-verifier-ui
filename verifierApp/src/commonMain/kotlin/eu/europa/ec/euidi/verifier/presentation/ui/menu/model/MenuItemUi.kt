@@ -14,18 +14,17 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier.navigation
+package eu.europa.ec.euidi.verifier.presentation.ui.menu.model
 
-import kotlinx.serialization.Serializable
+import eu.europa.ec.euidi.verifier.presentation.component.ListItemDataUi
 
-@Serializable
-sealed interface NavItem {
-    @Serializable data object Home : NavItem
-    @Serializable data object Menu : NavItem
-    @Serializable data object DocToRequest : NavItem
-    @Serializable data object CustomRequest : NavItem
-    @Serializable data object TransferStatus : NavItem
-    @Serializable data object ShowDocuments : NavItem
-    @Serializable data object ReverseEngagement : NavItem
-    @Serializable data object Settings : NavItem
+data class MenuItemUi(
+    val type: MenuTypeUi,
+    val data: ListItemDataUi,
+)
+
+enum class MenuTypeUi {
+    HOME,
+    REVERSE_ENGAGEMENT,
+    SETTINGS,
 }

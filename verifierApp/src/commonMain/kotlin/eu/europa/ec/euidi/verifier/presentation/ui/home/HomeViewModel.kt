@@ -67,6 +67,12 @@ class HomeViewModel() : BaseViewModel<HomeViewModelContract.Event, HomeViewModel
                     HomeViewModelContract.Effect.Navigation.NavigateToReverseEngagementScreen
                 }
             }
+
+            HomeViewModelContract.Event.OnMenuClick -> {
+                setEffect {
+                    HomeViewModelContract.Effect.Navigation.NavigateToMenuScreen
+                }
+            }
         }
     }
 }
@@ -78,6 +84,7 @@ interface HomeViewModelContract {
         data object OnScanQrCodeClick : Event
         data object OnSettingsClick : Event
         data object OnReverseEngagementClick : Event
+        data object OnMenuClick : Event
     }
 
     data class State(
@@ -91,6 +98,7 @@ interface HomeViewModelContract {
             data class NavigateToTransferStatusScreen(val requestedDocs: RequestedDocsHolder) : Navigation
             data object NavigateToSettingsScreen : Navigation
             data object NavigateToReverseEngagementScreen : Navigation
+            data object NavigateToMenuScreen : Navigation
         }
     }
 }
