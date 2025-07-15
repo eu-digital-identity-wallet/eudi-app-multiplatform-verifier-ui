@@ -68,7 +68,7 @@ private fun PreviewContent(
     val surfaceModifier = if (rowScope != null) {
         Modifier.then(with(rowScope) { Modifier.weight(1f) })
     } else if (columnScope != null) {
-        Modifier.then(with(columnScope) { Modifier.weight(1f) })
+        Modifier.then(with(columnScope) { Modifier.fillMaxWidth() })
     } else {
         Modifier
     }
