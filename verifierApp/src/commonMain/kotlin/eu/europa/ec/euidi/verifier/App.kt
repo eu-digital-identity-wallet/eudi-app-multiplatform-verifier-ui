@@ -28,7 +28,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import eu.europa.ec.euidi.verifier.navigation.VerifierNavHost
+import eu.europa.ec.euidi.verifier.presentation.navigation.VerifierNavHost
 import eu.europa.ec.euidi.verifier.presentation.theme.AppTypography
 import eu.europa.ec.euidi.verifier.presentation.theme.darkColors
 import eu.europa.ec.euidi.verifier.presentation.theme.lightColors

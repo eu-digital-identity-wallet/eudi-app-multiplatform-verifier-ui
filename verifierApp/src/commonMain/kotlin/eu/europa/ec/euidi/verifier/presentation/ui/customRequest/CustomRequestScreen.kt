@@ -38,11 +38,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import eu.europa.ec.euidi.verifier.navigation.getFromPreviousBackStack
-import eu.europa.ec.euidi.verifier.navigation.saveToPreviousBackStack
+import eu.europa.ec.euidi.verifier.presentation.navigation.getFromPreviousBackStack
+import eu.europa.ec.euidi.verifier.presentation.navigation.saveToPreviousBackStack
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
-import eu.europa.ec.euidi.verifier.utils.Constants
-import eu.europa.ec.euidi.verifier.utils.ToastManager
+import eu.europa.ec.euidi.verifier.presentation.utils.Constants
+import eu.europa.ec.euidi.verifier.presentation.utils.ToastManager
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable

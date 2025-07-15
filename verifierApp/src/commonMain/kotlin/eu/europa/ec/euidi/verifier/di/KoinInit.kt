@@ -16,10 +16,11 @@
 
 package eu.europa.ec.euidi.verifier.di
 
-import eu.europa.ec.euidi.verifier.di.modules.LoggerModule
-import eu.europa.ec.euidi.verifier.di.modules.PreferencesModule
-import eu.europa.ec.euidi.verifier.di.modules.ProviderModule
-import eu.europa.ec.euidi.verifier.platform.platformModule
+import eu.europa.ec.euidi.verifier.domain.di.InteractorModule
+import eu.europa.ec.euidi.verifier.core.di.LoggerModule
+import eu.europa.ec.euidi.verifier.core.di.PreferencesModule
+import eu.europa.ec.euidi.verifier.core.di.ProviderModule
+import eu.europa.ec.euidi.verifier.core.di.platformModule
 import org.koin.core.context.startKoin
 import org.koin.dsl.KoinAppDeclaration
 import org.koin.ksp.generated.defaultModule
@@ -35,6 +36,7 @@ fun initKoin(appDeclaration: KoinAppDeclaration = {}) =
             PreferencesModule().module,
             LoggerModule().module,
             ProviderModule().module,
+            InteractorModule().module,
             defaultModule // needed for generated viewModels
         )
     }

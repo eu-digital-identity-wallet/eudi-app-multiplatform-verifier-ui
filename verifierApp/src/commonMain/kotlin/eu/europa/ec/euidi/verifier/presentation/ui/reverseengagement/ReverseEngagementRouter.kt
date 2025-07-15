@@ -19,7 +19,7 @@ package eu.europa.ec.euidi.verifier.presentation.ui.reverseengagement
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import eu.europa.ec.euidi.verifier.navigation.NavItem
+import eu.europa.ec.euidi.verifier.presentation.navigation.NavItem
 
 fun NavGraphBuilder.reverseEngagementScreen(navController: NavController) =
     composable<NavItem.ReverseEngagement> {
