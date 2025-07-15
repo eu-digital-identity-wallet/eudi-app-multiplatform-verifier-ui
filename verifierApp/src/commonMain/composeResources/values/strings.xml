@@ -43,4 +43,7 @@
     <string name="content_description_settings_icon">Settings</string>
     <string name="content_description_user_icon">User</string>
     <string name="content_description_image_or_placeholder_icon">Image or placeholder icon</string>
+
+
+    <string name="pid_family_name">O gamias is geitonias</string>
 </resources>

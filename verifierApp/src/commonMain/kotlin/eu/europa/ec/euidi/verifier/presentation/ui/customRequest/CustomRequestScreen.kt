@@ -16,30 +16,35 @@
 
 package eu.europa.ec.euidi.verifier.presentation.ui.customRequest
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import eu.europa.ec.euidi.verifier.navigation.getFromPreviousBackStack
 import eu.europa.ec.euidi.verifier.navigation.saveToPreviousBackStack
+import eu.europa.ec.euidi.verifier.presentation.component.ClickableArea
+import eu.europa.ec.euidi.verifier.presentation.component.ListItemDataUi
+import eu.europa.ec.euidi.verifier.presentation.component.ListItemTrailingContentDataUi
+import eu.europa.ec.euidi.verifier.presentation.component.content.ContentScreen
+import eu.europa.ec.euidi.verifier.presentation.component.content.ScreenNavigateAction
+import eu.europa.ec.euidi.verifier.presentation.component.content.ToolbarConfig
+import eu.europa.ec.euidi.verifier.presentation.component.utils.SPACING_MEDIUM
+import eu.europa.ec.euidi.verifier.presentation.component.wrap.ButtonType
+import eu.europa.ec.euidi.verifier.presentation.component.wrap.StickyBottomConfig
+import eu.europa.ec.euidi.verifier.presentation.component.wrap.StickyBottomType
+import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapListItems
+import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapStickyBottomContent
+import eu.europa.ec.euidi.verifier.presentation.component.wrap.rememberButtonConfig
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
 import eu.europa.ec.euidi.verifier.utils.Constants
 import eu.europa.ec.euidi.verifier.utils.ToastManager
@@ -51,6 +56,30 @@ fun CustomRequestScreen(
     viewModel: CustomRequestViewModel = koinViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+    val checkedCount by remember(state.items) {
+        derivedStateOf { state.items.count {
+            (it.trailingContentData as? ListItemTrailingContentDataUi.Checkbox)?.checkboxData?.isChecked == true
+        }}
+    }
+
+    val stickyPrimaryButtonConfig = rememberButtonConfig(
+        type = ButtonType.PRIMARY,
+        enabled = remember(state.items) {
+            derivedStateOf { checkedCount != state.items.size }
+        }.value,
+        onClick = {
+            viewModel.setEvent(CustomRequestContract.Event.OnDoneClick)
+        },
+        content = { Text("Done") }
+    )
+    val stickySecondaryButtonConfig = rememberButtonConfig(
+        type = ButtonType.SECONDARY,
+        onClick = {
+            viewModel.setEvent(CustomRequestContract.Event.OnCancelClick)
+        },
+        content = { Text("Cancel") }
+    )
 
     LaunchedEffect(Unit) {
         viewModel.setEvent(
@@ -79,69 +108,39 @@ fun CustomRequestScreen(
         }
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(
-            text = "Custom request",
-            style = MaterialTheme.typography.headlineMedium
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        LazyColumn(
-            modifier = Modifier
-                .weight(1f)
-                .padding(16.dp)
-        ) {
-            items(
-                items = state.fields,
-                key = { it.claim.key }
-            ) {item ->
-
-                ListItem(
-                    headlineContent = {
-                        Text(
-                            text = item.claim.displayTitle,
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    },
-                    trailingContent = {
-                        Checkbox(
-                            checked = item.isSelected,
-                            onCheckedChange = { checked ->
-                                viewModel.setEvent(
-                                    CustomRequestContract.Event.OnItemChecked(item.claim.key, checked)
-                                )
-                            }
-                        )
-                    }
-                )
-            }
-        }
-
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Button(
-                onClick = {
-                    viewModel.setEvent(
-                        CustomRequestContract.Event.OnDoneClick
+    ContentScreen(
+        navigatableAction = ScreenNavigateAction.BACKABLE,
+        toolBarConfig = ToolbarConfig(
+            title = "Custom ${state.requestedDoc?.documentType?.displayName} request"
+        ),
+        onBack = {
+            viewModel.setEvent(CustomRequestContract.Event.OnCancelClick)
+        },
+        stickyBottom = { paddingValues ->
+            WrapStickyBottomContent(
+                stickyBottomModifier = Modifier.padding(paddingValues = paddingValues),
+                stickyBottomConfig = StickyBottomConfig(
+                    type = StickyBottomType.TwoButtons(
+                        primaryButtonConfig = stickyPrimaryButtonConfig,
+                        secondaryButtonConfig = stickySecondaryButtonConfig
                     )
-                }
-            ) {
-                Text("Done")
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = {}
-            ) {
-                Text("Cancel")
-            }
+                )
+            )
         }
+    ) { paddingValues ->
+        WrapListItems(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .verticalScroll(rememberScrollState()),
+            items = state.items,
+            onItemClick = {
+                val itemChecked = (it.trailingContentData as ListItemTrailingContentDataUi.Checkbox).checkboxData.isChecked
+
+                viewModel.setEvent(CustomRequestContract.Event.OnItemClicked(it.itemId, !itemChecked))
+            },
+            clickableAreas = listOf(ClickableArea.TRAILING_CONTENT),
+            mainContentVerticalPadding = SPACING_MEDIUM.dp
+        )
     }
 }

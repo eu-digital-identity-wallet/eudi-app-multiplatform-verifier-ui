@@ -1,0 +1,80 @@
+/*
+ * Copyright (c) 2023 European Commission
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the European
+ * Commission - subsequent versions of the EUPL (the "Licence"); You may not use this work
+ * except in compliance with the Licence.
+ *
+ * You may obtain a copy of the Licence at:
+ * https://joinup.ec.europa.eu/software/page/eupl
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
+ * ANY KIND, either express or implied. See the Licence for the specific language
+ * governing permissions and limitations under the Licence.
+ */
+
+package eu.europa.ec.euidi.verifier.domain.transformer
+
+import eu.europa.ec.euidi.verifier.domain.config.AttestationType
+import eu.europa.ec.euidi.verifier.domain.config.ClaimItem
+import eu.europa.ec.euidi.verifier.presentation.component.ListItemDataUi
+import eu.europa.ec.euidi.verifier.presentation.component.ListItemMainContentDataUi
+import eu.europa.ec.euidi.verifier.presentation.component.ListItemTrailingContentDataUi
+import eu.europa.ec.euidi.verifier.presentation.component.wrap.CheckboxDataUi
+import eu.europa.ec.euidi.verifier.provider.ResourceProvider
+import eudiverifier.verifierapp.generated.resources.Res
+import eudiverifier.verifierapp.generated.resources.allStringResources
+import kotlinx.coroutines.runBlocking
+import org.jetbrains.compose.resources.StringResource
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+
+object UiTransformer {
+
+    fun transformToUiItems(
+        fields: List<ClaimItem>,
+        attestationType: AttestationType,
+        resourceProvider: ResourceProvider
+    ) : List<ListItemDataUi> {
+        return when (fields.isEmpty()) {
+            true -> emptyList()
+            false -> {
+                fields.map { claimItem ->
+                    val translation = runBlocking {
+                        getClaimTranslation(
+                            attestationType = attestationType,
+                            claimItem = claimItem,
+                            resourceProvider = resourceProvider
+                        )
+                    }
+
+                    ListItemDataUi(
+                        itemId = claimItem.label,
+                        mainContentData = ListItemMainContentDataUi.Text(
+                            text = translation
+                        ),
+                        trailingContentData = ListItemTrailingContentDataUi.Checkbox(
+                            checkboxData = CheckboxDataUi(
+                                isChecked = true
+                            )
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    suspend fun getClaimTranslation(
+        attestationType: AttestationType,
+        claimItem: ClaimItem,
+        resourceProvider: ResourceProvider
+    ): String {
+        val allStringResources: Map<String, StringResource> = Res.allStringResources
+        val resourceKey = "${attestationType}_${claimItem.label}".lowercase()
+
+       return resourceProvider.getSharedString(
+            resource = allStringResources[resourceKey] ?: allStringResources.values.first()
+        )
+    }
+}

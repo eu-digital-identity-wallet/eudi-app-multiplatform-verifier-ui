@@ -16,22 +16,11 @@
 
 package eu.europa.ec.euidi.verifier.domain.model
 
-typealias ElementIdentifier = String
+import eu.europa.ec.euidi.verifier.domain.config.AttestationType
+import eu.europa.ec.euidi.verifier.domain.config.Mode
 
-sealed class DomainClaim {
-    abstract val key: ElementIdentifier
-    abstract val displayTitle: String
-
-    data class Group(
-        override val key: ElementIdentifier,
-        override val displayTitle: String,
-        val items: List<DomainClaim>,
-    ) : DomainClaim()
-
-    data class Primitive(
-        override val key: ElementIdentifier,
-        override val displayTitle: String,
-        val value: String,
-        val isRequired: Boolean,
-    ) : DomainClaim()
-}
+data class SupportedDocumentUi(
+    val id: String,
+    val documentType: AttestationType,
+    val modes: List<Mode> = emptyList()
+)

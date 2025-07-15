@@ -17,21 +17,27 @@
 package eu.europa.ec.euidi.verifier.presentation.ui.customRequest
 
 import androidx.lifecycle.SavedStateHandle
+import eu.europa.ec.euidi.verifier.domain.config.ClaimItem
+import eu.europa.ec.euidi.verifier.domain.interactor.DocumentsToRequestInteractor
+import eu.europa.ec.euidi.verifier.domain.transformer.UiTransformer
 import eu.europa.ec.euidi.verifier.mvi.BaseViewModel
 import eu.europa.ec.euidi.verifier.mvi.UiEffect
 import eu.europa.ec.euidi.verifier.mvi.UiEvent
 import eu.europa.ec.euidi.verifier.mvi.UiState
+import eu.europa.ec.euidi.verifier.presentation.component.ListItemDataUi
+import eu.europa.ec.euidi.verifier.presentation.component.ListItemTrailingContentDataUi
+import eu.europa.ec.euidi.verifier.presentation.component.wrap.CheckboxDataUi
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
-import eu.europa.ec.euidi.verifier.presentation.model.SelectableClaimUi
-import eu.europa.ec.euidi.verifier.presentation.model.SupportedDocument.AttestationType
+import eu.europa.ec.euidi.verifier.provider.ResourceProvider
 import eu.europa.ec.euidi.verifier.utils.Constants
 import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
 class CustomRequestViewModel(
-    private val savedStateHandle: SavedStateHandle
-)
-    : BaseViewModel<CustomRequestContract.Event, CustomRequestContract.State, CustomRequestContract.Effect>() {
+    private val savedStateHandle: SavedStateHandle,
+    private val documentsToRequestInteractor: DocumentsToRequestInteractor,
+    private val resourceProvider: ResourceProvider
+) : BaseViewModel<CustomRequestContract.Event, CustomRequestContract.State, CustomRequestContract.Effect>() {
     override fun createInitialState(): CustomRequestContract.State = CustomRequestContract.State()
 
     override fun handleEvent(event: CustomRequestContract.Event) {
@@ -39,11 +45,21 @@ class CustomRequestViewModel(
             is CustomRequestContract.Event.Init -> {
                 val doc = savedStateHandle.get<RequestedDocumentUi>(Constants.SAVED_STATE_REQUESTED_DOCUMENT) ?: event.doc
 
-                setState {
-                    copy(
-                        requestedDoc = doc,
-                        fields = SelectableClaimUi.forType(doc?.documentType ?: AttestationType.PID)
+                doc?.let {
+                    val claims = documentsToRequestInteractor.getDocumentClaims(attestationType = it.documentType)
+
+                    val uiItems = UiTransformer.transformToUiItems(
+                        fields = claims,
+                        attestationType = doc.documentType,
+                        resourceProvider = resourceProvider
                     )
+
+                    setState {
+                        copy(
+                            requestedDoc = doc,
+                            items = uiItems
+                        )
+                    }
                 }
             }
 
@@ -52,7 +68,11 @@ class CustomRequestViewModel(
                     val reqDoc = it.copy(
                         documentType = it.documentType,
                         mode = it.mode,
-                        claims = uiState.value.fields
+                        claims = uiState.value.items.map { listItemDataUi ->
+                            ClaimItem(
+                                label = listItemDataUi.itemId
+                            )
+                        }
                     )
 
                     setState {
@@ -75,13 +95,22 @@ class CustomRequestViewModel(
                 }
             }
 
-            is CustomRequestContract.Event.OnItemChecked -> {
+            is CustomRequestContract.Event.OnItemClicked -> {
+
                 setState {
                     copy(
-                        fields = fields.map {
-                            if (it.claim.key == event.identifier) {
-                                it.copy(isSelected = event.checked)
-                            } else it
+                        items = uiState.value.items.map { item ->
+                            if (item.itemId == event.identifier) {
+                                item.copy(
+                                    trailingContentData = (item.trailingContentData as? ListItemTrailingContentDataUi.Checkbox)?.copy(
+                                        checkboxData = CheckboxDataUi(
+                                            isChecked = event.isChecked
+                                        )
+                                    )
+                                )
+                            } else {
+                                item // unchanged
+                            }
                         }
                     )
                 }
@@ -92,32 +121,33 @@ class CustomRequestViewModel(
     override fun onCleared() {
         super.onCleared()
 
-        uiState.value.requestedDoc?.let {
-            savedStateHandle.set(
-                key = Constants.SAVED_STATE_REQUESTED_DOCUMENT,
-                value = RequestedDocumentUi(
-                    id = it.id,
-                    documentType = it.documentType,
-                    mode = it.mode,
-                    claims = uiState.value.fields
-                )
-            )
-        }
+//        uiState.value.requestedDoc?.let {
+//            savedStateHandle.set(
+//                key = Constants.SAVED_STATE_REQUESTED_DOCUMENT,
+//                value = RequestedDocumentUi(
+//                    id = it.id,
+//                    documentType = it.documentType,
+//                    mode = it.mode,
+//                    claims = uiState.value.fields
+//                )
+//            )
+//        }
     }
 }
 
 sealed interface CustomRequestContract {
     sealed interface Event : UiEvent {
         data class Init(val doc: RequestedDocumentUi? = null) : Event
-        data class OnItemChecked(val identifier: String, val checked: Boolean) : Event
+        data class OnItemClicked(val identifier: String, val isChecked: Boolean) : Event
         data object OnDoneClick : Event
         data object OnCancelClick : Event
     }
+
     data class State(
         val requestedDoc: RequestedDocumentUi? = null,
-        val fields: List<SelectableClaimUi> = emptyList(),
-        val docType: AttestationType = AttestationType.PID
+        val items: List<ListItemDataUi> = emptyList()
     ) : UiState
+
     sealed interface Effect : UiEffect {
         data class ShowToast(val message: String) : Effect
         sealed interface Navigation : Effect {

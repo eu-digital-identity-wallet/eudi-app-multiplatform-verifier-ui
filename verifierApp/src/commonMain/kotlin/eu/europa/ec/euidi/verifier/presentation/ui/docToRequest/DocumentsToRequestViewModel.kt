@@ -17,33 +17,39 @@
 package eu.europa.ec.euidi.verifier.presentation.ui.docToRequest
 
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.viewModelScope
+import eu.europa.ec.euidi.verifier.domain.config.AttestationType
+import eu.europa.ec.euidi.verifier.domain.config.ClaimItem
+import eu.europa.ec.euidi.verifier.domain.config.Mode
+import eu.europa.ec.euidi.verifier.domain.interactor.DocumentsToRequestInteractor
+import eu.europa.ec.euidi.verifier.domain.model.SupportedDocumentUi
 import eu.europa.ec.euidi.verifier.mvi.BaseViewModel
 import eu.europa.ec.euidi.verifier.mvi.UiEffect
 import eu.europa.ec.euidi.verifier.mvi.UiEvent
 import eu.europa.ec.euidi.verifier.mvi.UiState
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
-import eu.europa.ec.euidi.verifier.presentation.model.SelectableClaimUi
-import eu.europa.ec.euidi.verifier.presentation.model.SupportedDocument
-import eu.europa.ec.euidi.verifier.presentation.model.SupportedDocument.AttestationType
+import eu.europa.ec.euidi.verifier.presentation.ui.docToRequest.DocToRequestContract.Effect.Navigation.NavigateToCustomRequestScreen
+import eu.europa.ec.euidi.verifier.presentation.ui.docToRequest.DocToRequestContract.Effect.Navigation.NavigateToHomeScreen
 import eu.europa.ec.euidi.verifier.provider.UuidProvider
 import eu.europa.ec.euidi.verifier.utils.Constants
+import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
 class DocumentsToRequestViewModel(
     private val savedStateHandle: SavedStateHandle,
+    private val interactor: DocumentsToRequestInteractor,
     private val uuidProvider: UuidProvider
 ) : BaseViewModel<DocToRequestContract.Event, DocToRequestContract.State, DocToRequestContract.Effect>() {
 
-    override fun createInitialState(): DocToRequestContract.State = DocToRequestContract.State(
-        supportedDocuments = AttestationType.entries.map { attestationType ->
-            SupportedDocument(
-                id = uuidProvider.provideUuid(),
-                documentType = attestationType,
-                formats = SupportedDocument.formatForType(attestationType)
-            )
-        }
-    )
+    override fun createInitialState(): DocToRequestContract.State {
+        val allSupportedDocuments = interactor.getSupportedDocuments()
+
+        return DocToRequestContract.State(
+            allSupportedDocuments = allSupportedDocuments,
+            filteredDocuments = allSupportedDocuments
+        )
+    }
 
     override fun handleEvent(event: DocToRequestContract.Event) {
         when (event) {
@@ -55,7 +61,7 @@ class DocumentsToRequestViewModel(
                 setState {
                     copy(
                         requestedDocuments = requestedDocs,
-                        isButtonEnabled = shouldEnableDoneButton()
+                        isButtonEnabled = shouldEnableDoneButton(requestedDocs)
                     )
                 }
             }
@@ -80,8 +86,8 @@ class DocumentsToRequestViewModel(
                         }
                     }
 
-                    event.mode == SupportedDocument.Mode.CUSTOM -> {
-                        val updatedDocs = if (currentDocs.any { it.id == event.docId && it.mode == SupportedDocument.Mode.FULL }) {
+                    event.mode == Mode.CUSTOM -> {
+                        val updatedDocs = if (currentDocs.any { it.id == event.docId && it.mode == Mode.FULL }) {
                             currentDocs.filterNot { it.id == event.docId }
                         } else {
                             currentDocs
@@ -93,53 +99,63 @@ class DocumentsToRequestViewModel(
                             id = event.docId,
                             documentType = event.docType,
                             mode = event.mode,
-                            claims = SelectableClaimUi.forType(event.docType)
+                            claims = emptyList()
                         )
 
                         setEffect {
-                            DocToRequestContract.Effect.Navigation.NavigateToCustomRequestScreen(customDoc)
+                            NavigateToCustomRequestScreen(customDoc)
                         }
                     }
 
                     else -> {
+                        val claims = interactor.getDocumentClaims(event.docType)
+
                         // Add FULL doc directly
                         val newDoc = RequestedDocumentUi(
                             id = event.docId,
                             documentType = event.docType,
                             mode = event.mode,
-                            claims = SelectableClaimUi.forType(event.docType)
+                            claims = claims
                         )
+
+                        val updatedRequestedDocs =  currentDocs + newDoc
                         setState {
-                            copy(requestedDocuments = currentDocs + newDoc)
+                            copy(
+                                requestedDocuments = updatedRequestedDocs,
+                                isButtonEnabled = shouldEnableDoneButton(updatedRequestedDocs)
+                            )
                         }
                     }
                 }
             }
 
-            is DocToRequestContract.Event.OnDocFormatSelected -> {
-                val updatedList = uiState.value.requestedDocuments.map { doc ->
-                    if (doc.id == event.docId) doc.copy(format = event.format) else doc
-                }
-
-                val isAnyFormatSelected = updatedList.any { it.format != null }
-
-                setState {
-                    copy(
-                        requestedDocuments = updatedList,
-                        isButtonEnabled = isAnyFormatSelected
-                    )
-                }
-            }
-
             DocToRequestContract.Event.OnBackClick -> {
-                setEffect { DocToRequestContract.Effect.Navigation.NavigateToHomeScreen() }
+                setEffect { NavigateToHomeScreen() }
             }
 
             DocToRequestContract.Event.OnDoneClick -> {
                 setEffect {
-                    DocToRequestContract.Effect.Navigation.NavigateToHomeScreen(
+                    NavigateToHomeScreen(
                         requestedDocuments = uiState.value.requestedDocuments
                     )
+                }
+            }
+
+            is DocToRequestContract.Event.OnSearchQueryChanged -> {
+                viewModelScope.launch {
+                    val query = event.query
+
+                    interactor.searchDocuments(
+                        query = query,
+                        documents = uiState.value.allSupportedDocuments
+                    ).collect {
+                        setState {
+                            copy(
+                                searchTerm = query,
+                                filteredDocuments = it
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -157,25 +173,31 @@ class DocumentsToRequestViewModel(
     }
 
     private fun shouldEnableDoneButton(requestedDocs: List<RequestedDocumentUi> = uiState.value.requestedDocuments): Boolean {
-        return requestedDocs.any { it.format != null }
+        return requestedDocs.any { it.id in uiState.value.filteredDocuments.map { doc -> doc.id } }
     }
 }
 
 sealed interface DocToRequestContract {
     sealed interface Event : UiEvent {
         data class Init(val requestedDoc: RequestedDocumentUi?) : Event
-        data class OnDocOptionSelected(val docId: String, val docType: AttestationType, val mode: SupportedDocument.Mode) : Event
-        data class OnDocFormatSelected(
+        data class OnSearchQueryChanged(val query: String) : Event
+
+        data class OnDocOptionSelected(
             val docId: String,
-            val format: SupportedDocument.DocumentFormat
+            val docType: AttestationType,
+            val mode: Mode
         ) : Event
+
         data object OnBackClick : Event
+
         data object OnDoneClick : Event
     }
 
     data class State(
         val requestedDocuments: List<RequestedDocumentUi> = emptyList(),
-        val supportedDocuments: List<SupportedDocument> = emptyList(),
+        val allSupportedDocuments: List<SupportedDocumentUi> = emptyList(),
+        val filteredDocuments: List<SupportedDocumentUi> = emptyList(),
+        val searchTerm: String = "",
         val isButtonEnabled: Boolean = false
     ) : UiState
 

@@ -17,23 +17,15 @@
 package eu.europa.ec.euidi.verifier.di.modules
 
 import eu.europa.ec.euidi.verifier.domain.config.ConfigProvider
-import eu.europa.ec.euidi.verifier.domain.config.ConfigProviderImpl
-import eu.europa.ec.euidi.verifier.provider.ResourceProvider
-import eu.europa.ec.euidi.verifier.provider.ResourceProviderImpl
-import eu.europa.ec.euidi.verifier.provider.UuidProvider
-import eu.europa.ec.euidi.verifier.provider.UuidProviderImpl
+import eu.europa.ec.euidi.verifier.domain.interactor.DocumentsToRequestInteractor
+import eu.europa.ec.euidi.verifier.domain.interactor.DocumentsToRequestInteractorImpl
+import org.koin.core.annotation.Factory
 import org.koin.core.annotation.Module
-import org.koin.core.annotation.Single
 
 @Module
-class ProviderModule {
+class InteractorModule {
 
-    @Single
-    fun provideUuidProvider(): UuidProvider = UuidProviderImpl()
-
-    @Single
-    fun provideResourceProvider(): ResourceProvider = ResourceProviderImpl()
-
-    @Single
-    fun provideConfigProvider(): ConfigProvider = ConfigProviderImpl()
+    @Factory
+    fun provideDocumentsToRequestInteractor(configProvider: ConfigProvider): DocumentsToRequestInteractor =
+        DocumentsToRequestInteractorImpl(configProvider)
 }
