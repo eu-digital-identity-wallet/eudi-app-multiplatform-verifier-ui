@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -83,6 +84,7 @@ private fun PreviewContent(
         ) {
             Column {
                 Text(text = "Light Theme")
+                HorizontalDivider()
                 content()
             }
         }
@@ -98,6 +100,7 @@ private fun PreviewContent(
         ) {
             Column {
                 Text(text = "Dark Theme")
+                HorizontalDivider()
                 content()
             }
         }
