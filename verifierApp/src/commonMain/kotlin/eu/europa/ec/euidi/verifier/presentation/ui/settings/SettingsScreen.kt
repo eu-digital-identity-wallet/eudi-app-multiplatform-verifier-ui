@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -32,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -42,8 +42,9 @@ import eu.europa.ec.euidi.verifier.presentation.component.ListItemDataUi
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemMainContentDataUi
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemTrailingContentDataUi
 import eu.europa.ec.euidi.verifier.presentation.component.content.ContentScreen
-import eu.europa.ec.euidi.verifier.presentation.component.content.ContentTitle
 import eu.europa.ec.euidi.verifier.presentation.component.content.ScreenNavigateAction
+import eu.europa.ec.euidi.verifier.presentation.component.content.ToolbarConfig
+import eu.europa.ec.euidi.verifier.presentation.component.preview.PreviewOrientation
 import eu.europa.ec.euidi.verifier.presentation.component.preview.PreviewTheme
 import eu.europa.ec.euidi.verifier.presentation.component.preview.ThemeModePreviews
 import eu.europa.ec.euidi.verifier.presentation.component.utils.OneTimeLaunchedEffect
@@ -65,9 +66,16 @@ import eudiverifier.verifierapp.generated.resources.Res
 import eudiverifier.verifierapp.generated.resources.generic_cancel
 import eudiverifier.verifierapp.generated.resources.settings_screen_category_data_retrieval_methods_description
 import eudiverifier.verifierapp.generated.resources.settings_screen_category_data_retrieval_methods_title
+import eudiverifier.verifierapp.generated.resources.settings_screen_category_data_retrieval_options_title
 import eudiverifier.verifierapp.generated.resources.settings_screen_item_auto_close_connection_description
 import eudiverifier.verifierapp.generated.resources.settings_screen_item_auto_close_connection_title
+import eudiverifier.verifierapp.generated.resources.settings_screen_item_clear_ble_description
+import eudiverifier.verifierapp.generated.resources.settings_screen_item_clear_ble_title
+import eudiverifier.verifierapp.generated.resources.settings_screen_item_use_l2cap_description
+import eudiverifier.verifierapp.generated.resources.settings_screen_item_use_l2cap_title
+import eudiverifier.verifierapp.generated.resources.settings_screen_title
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -78,8 +86,15 @@ fun SettingsScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
+    val toolbarConfig = remember(state.screenTitle) {
+        ToolbarConfig(
+            title = state.screenTitle,
+        )
+    }
+
     ContentScreen(
         isLoading = state.isLoading,
+        toolBarConfig = toolbarConfig,
         navigatableAction = ScreenNavigateAction.BACKABLE,
         onBack = { viewModel.setEvent(Event.OnBackClicked) },
         stickyBottom = { stickyBottomPaddings ->
@@ -168,7 +183,7 @@ private fun Content(
     val layoutDirection = LocalLayoutDirection.current
     LazyColumn(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxWidth()
             .padding(
                 top = paddingValues.calculateTopPadding(),
                 bottom = 0.dp,
@@ -176,13 +191,6 @@ private fun Content(
                 end = paddingValues.calculateEndPadding(layoutDirection)
             ),
     ) {
-        item {
-            ContentTitle(
-                title = state.screenTitle,
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
-
         items(
             items = state.settingsItems,
             key = {
@@ -211,7 +219,7 @@ private fun Content(
                         },
                     )
 
-                    if (settingsItemUi.isLastInSection){
+                    if (settingsItemUi.isLastInSection) {
                         VSpacer.Medium()
                     }
                 }
@@ -269,6 +277,64 @@ private fun SettingsCategoryItem(
         mainContentVerticalPadding = SPACING_MEDIUM.dp,
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
     )
+}
+
+@ThemeModePreviews
+@Composable
+private fun ContentPreview() {
+    PreviewTheme(orientation = PreviewOrientation.VERTICAL) {
+        val settingsItems = listOf(
+            SettingsItemUi.CategoryHeader(
+                title = stringResource(Res.string.settings_screen_category_data_retrieval_options_title),
+            ),
+            SettingsItemUi.CategoryItem(
+                type = SettingsTypeUi.UseL2Cap,
+                data = ListItemDataUi(
+                    itemId = "1",
+                    mainContentData = ListItemMainContentDataUi.Text(
+                        text = stringResource(Res.string.settings_screen_item_use_l2cap_title)
+                    ),
+                    supportingText = stringResource(Res.string.settings_screen_item_use_l2cap_description),
+                    trailingContentData = ListItemTrailingContentDataUi.Switch(
+                        switchData = SwitchDataUi(
+                            isChecked = false,
+                            enabled = true,
+                        )
+                    )
+                ),
+                isLastInSection = false,
+            ),
+            SettingsItemUi.CategoryItem(
+                type = SettingsTypeUi.ClearBleCache,
+                data = ListItemDataUi(
+                    itemId = "2",
+                    mainContentData = ListItemMainContentDataUi.Text(
+                        text = stringResource(Res.string.settings_screen_item_clear_ble_title)
+                    ),
+                    supportingText = stringResource(Res.string.settings_screen_item_clear_ble_description),
+                    trailingContentData = ListItemTrailingContentDataUi.Switch(
+                        switchData = SwitchDataUi(
+                            isChecked = true,
+                            enabled = true,
+                        )
+                    )
+                ),
+                isLastInSection = true,
+            ),
+        )
+
+        Content(
+            state = State(
+                isLoading = false,
+                screenTitle = stringResource(Res.string.settings_screen_title),
+                settingsItems = settingsItems,
+            ),
+            effectFlow = emptyFlow(),
+            onEventSend = {},
+            onNavigationRequested = {},
+            paddingValues = PaddingValues(SPACING_MEDIUM.dp),
+        )
+    }
 }
 
 @ThemeModePreviews
