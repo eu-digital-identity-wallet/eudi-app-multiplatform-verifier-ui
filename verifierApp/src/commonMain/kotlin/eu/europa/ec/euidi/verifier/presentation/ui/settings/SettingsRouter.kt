@@ -20,8 +20,24 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import eu.europa.ec.euidi.verifier.presentation.navigation.NavItem
+import eu.europa.ec.euidi.verifier.presentation.navigation.noAnimation
+import eu.europa.ec.euidi.verifier.presentation.navigation.slideInFromEnd
+import eu.europa.ec.euidi.verifier.presentation.navigation.slideOutToEnd
 
-fun NavGraphBuilder.settingsScreen(navController: NavController) =
-    composable<NavItem.Settings> {
+fun NavGraphBuilder.settingsScreen(navController: NavController) {
+    composable<NavItem.Settings>(
+        // when you navigate TO Settings (initial / forward)
+        enterTransition = slideInFromEnd(),
+
+        // when you navigate AWAY from Settings (forward), disable it
+        exitTransition = noAnimation(),
+
+        // when you pop BACK to Settings, disable any enter‐animation
+        popEnterTransition = noAnimation(),
+
+        // when you pop Settings itself, slide it out
+        popExitTransition = slideOutToEnd()
+    ) {
         SettingsScreen(navController)
     }
+}

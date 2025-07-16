@@ -16,22 +16,36 @@
 
 package eu.europa.ec.euidi.verifier.domain.di
 
+import eu.europa.ec.euidi.verifier.core.controller.DataStoreController
 import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
 import eu.europa.ec.euidi.verifier.core.provider.UuidProvider
 import eu.europa.ec.euidi.verifier.domain.interactor.MenuInteractor
 import eu.europa.ec.euidi.verifier.domain.interactor.MenuInteractorImpl
+import eu.europa.ec.euidi.verifier.domain.interactor.SettingsInteractor
+import eu.europa.ec.euidi.verifier.domain.interactor.SettingsInteractorImpl
+import org.koin.core.annotation.Factory
 import org.koin.core.annotation.Module
-import org.koin.core.annotation.Single
 
 @Module
 class InteractorModule {
 
-    @Single
+    @Factory
     fun provideMenuInteractor(
         uuidProvider: UuidProvider,
         resourceProvider: ResourceProvider,
     ): MenuInteractor = MenuInteractorImpl(
         uuidProvider,
         resourceProvider,
+    )
+
+    @Factory
+    fun provideSettingsInteractor(
+        uuidProvider: UuidProvider,
+        resourceProvider: ResourceProvider,
+        dataStoreController: DataStoreController,
+    ): SettingsInteractor = SettingsInteractorImpl(
+        uuidProvider,
+        resourceProvider,
+        dataStoreController,
     )
 }

@@ -46,7 +46,7 @@ sealed interface StickyBottomType {
 
 data class StickyBottomConfig(
     val type: StickyBottomType,
-    val showDivider: Boolean = true,
+    val showDivider: Boolean = false,
 )
 
 @Composable

@@ -16,43 +16,132 @@
 
 package eu.europa.ec.euidi.verifier.presentation.ui.settings
 
+import androidx.lifecycle.viewModelScope
+import eu.europa.ec.euidi.verifier.domain.interactor.SettingsInteractor
 import eu.europa.ec.euidi.verifier.presentation.architecture.MviViewModel
 import eu.europa.ec.euidi.verifier.presentation.architecture.UiEffect
 import eu.europa.ec.euidi.verifier.presentation.architecture.UiEvent
 import eu.europa.ec.euidi.verifier.presentation.architecture.UiState
+import eu.europa.ec.euidi.verifier.presentation.navigation.NavItem
+import eu.europa.ec.euidi.verifier.presentation.ui.settings.SettingsViewModelContract.Effect
+import eu.europa.ec.euidi.verifier.presentation.ui.settings.SettingsViewModelContract.Event
+import eu.europa.ec.euidi.verifier.presentation.ui.settings.SettingsViewModelContract.State
+import eu.europa.ec.euidi.verifier.presentation.ui.settings.model.SettingsItemUi
+import eu.europa.ec.euidi.verifier.presentation.ui.settings.model.SettingsTypeUi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
 sealed interface SettingsViewModelContract {
+    data class State(
+        val isLoading: Boolean,
+        val screenTitle: String = "",
+
+        val settingsItems: List<SettingsItemUi> = emptyList(),
+    ) : UiState
+
     sealed interface Event : UiEvent {
         data object Init : Event
-        data object OnCancelClick : Event
-        data object OnBackClick : Event
+        data object OnBackClicked : Event
+        data object OnStickyButtonClicked : Event
+
+        data class SettingsItemClicked(
+            val itemType: SettingsTypeUi,
+        ) : Event
     }
 
-    data class State(val message: String = "") : UiState
     sealed interface Effect : UiEffect {
         sealed interface Navigation : Effect {
-            data object GoBack : Navigation
+            data class PushScreen(
+                val route: NavItem,
+                val popUpTo: NavItem,
+                val inclusive: Boolean,
+            ) : Navigation
+
+            data class PopTo(
+                val route: NavItem,
+                val inclusive: Boolean,
+            ) : Navigation
+
+            data object Pop : Navigation
         }
     }
 }
 
 @KoinViewModel
-class SettingsViewModel() :
-    MviViewModel<SettingsViewModelContract.Event, SettingsViewModelContract.State, SettingsViewModelContract.Effect>() {
-    override fun createInitialState(): SettingsViewModelContract.State =
-        SettingsViewModelContract.State()
+class SettingsViewModel(
+    private val interactor: SettingsInteractor,
+) : MviViewModel<Event, State, Effect>() {
 
-    override fun handleEvent(event: SettingsViewModelContract.Event) {
+    override fun createInitialState(): State {
+        return State(
+            isLoading = true,
+        )
+    }
+
+    override fun handleEvent(event: Event) {
         when (event) {
-            SettingsViewModelContract.Event.Init -> TODO()
-            SettingsViewModelContract.Event.OnBackClick -> {
-                setEffect {
-                    SettingsViewModelContract.Effect.Navigation.GoBack
-                }
+            is Event.Init -> {
+                setTitleAndSettingsItems()
             }
 
-            SettingsViewModelContract.Event.OnCancelClick -> TODO()
+            is Event.OnBackClicked -> {
+                setEffect { Effect.Navigation.Pop }
+            }
+
+            is Event.OnStickyButtonClicked -> {
+                popToHome()
+            }
+
+            is Event.SettingsItemClicked -> {
+                handleSettingsItemClicked(type = event.itemType)
+            }
         }
     }
+
+    private fun setTitleAndSettingsItems() {
+        viewModelScope.launch {
+            setState {
+                copy(
+                    isLoading = true,
+                )
+            }
+
+            val titleDeferred = async { interactor.getScreenTitle() }
+            val settingsItemsDeferred = async { interactor.getSettingsItemsUi() }
+
+            val screenTitle = titleDeferred.await()
+            val settingsItems = settingsItemsDeferred.await()
+
+            setState {
+                copy(
+                    screenTitle = screenTitle,
+                    settingsItems = settingsItems,
+                    isLoading = false
+                )
+            }
+        }
+    }
+
+    private fun popToHome() {
+        setEffect {
+            Effect.Navigation.PopTo(
+                route = NavItem.Home,
+                inclusive = false,
+            )
+        }
+    }
+
+    private fun handleSettingsItemClicked(type: SettingsTypeUi) {
+        viewModelScope.launch {
+            interactor.togglePrefBoolean(type.prefKey)
+
+            val updatedItems = interactor.getSettingsItemsUi()
+
+            setState {
+                copy(settingsItems = updatedItems)
+            }
+        }
+    }
+
 }
