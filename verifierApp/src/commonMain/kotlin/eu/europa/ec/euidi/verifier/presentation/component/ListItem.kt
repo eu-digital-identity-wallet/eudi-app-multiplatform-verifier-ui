@@ -208,7 +208,7 @@ fun ListItem(
     supportingTextColor: Color? = null,
     mainContentTextStyle: TextStyle? = null,
 ) {
-    val maxSecondaryTextLines = 1
+    val maxSecondaryTextLines = 2
     val textOverflow = TextOverflow.Ellipsis
     val mainTextStyle = mainContentTextStyle ?: MaterialTheme.typography.bodyLarge.copy(
         color = MaterialTheme.colorScheme.onSurface
