@@ -18,10 +18,10 @@ package eu.europa.ec.euidi.verifier.presentation.ui.settings
 
 import androidx.lifecycle.viewModelScope
 import eu.europa.ec.euidi.verifier.domain.interactor.SettingsInteractor
-import eu.europa.ec.euidi.verifier.presentation.mvi.BaseViewModel
-import eu.europa.ec.euidi.verifier.presentation.mvi.UiEffect
-import eu.europa.ec.euidi.verifier.presentation.mvi.UiEvent
-import eu.europa.ec.euidi.verifier.presentation.mvi.UiState
+import eu.europa.ec.euidi.verifier.presentation.architecture.MviViewModel
+import eu.europa.ec.euidi.verifier.presentation.architecture.UiEffect
+import eu.europa.ec.euidi.verifier.presentation.architecture.UiEvent
+import eu.europa.ec.euidi.verifier.presentation.architecture.UiState
 import eu.europa.ec.euidi.verifier.presentation.navigation.NavItem
 import eu.europa.ec.euidi.verifier.presentation.ui.settings.SettingsViewModelContract.Effect
 import eu.europa.ec.euidi.verifier.presentation.ui.settings.SettingsViewModelContract.Event
@@ -71,7 +71,7 @@ sealed interface SettingsViewModelContract {
 @KoinViewModel
 class SettingsViewModel(
     private val interactor: SettingsInteractor,
-) : BaseViewModel<Event, State, Effect>() {
+) : MviViewModel<Event, State, Effect>() {
 
     override fun createInitialState(): State {
         return State(

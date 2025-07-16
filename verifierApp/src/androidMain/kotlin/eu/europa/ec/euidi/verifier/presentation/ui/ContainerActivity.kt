@@ -14,14 +14,22 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier.presentation.utils
+package eu.europa.ec.euidi.verifier.presentation.ui
 
-import android.widget.Toast
-import eu.europa.ec.euidi.verifier.VerifierApplication
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import eu.europa.ec.euidi.verifier.presentation.ui.container.ContainerView
 
-actual open class ToastManager actual constructor() {
-    actual fun showToast(message: String) {
-        val context = VerifierApplication.Companion.instance.baseContext
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+class ContainerActivity : ComponentActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+
+        setContent {
+            ContainerView()
+        }
     }
 }

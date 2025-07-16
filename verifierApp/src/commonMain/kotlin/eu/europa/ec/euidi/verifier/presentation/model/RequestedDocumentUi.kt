@@ -38,7 +38,7 @@ data class RequestedDocumentUi(
 data class SelectableClaimUi(
     val claim: ClaimUi,
     val isSelected: Boolean
-): CommonParcelable {
+) : CommonParcelable {
     companion object {
         fun forType(type: AttestationType): List<SelectableClaimUi> {
             return when (type) {

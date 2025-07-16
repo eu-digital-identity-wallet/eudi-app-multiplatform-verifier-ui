@@ -20,12 +20,20 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 sealed interface NavItem {
-    @Serializable data object Home : NavItem
-    @Serializable data object Menu : NavItem
-    @Serializable data object DocToRequest : NavItem
-    @Serializable data object CustomRequest : NavItem
-    @Serializable data object TransferStatus : NavItem
-    @Serializable data object ShowDocuments : NavItem
-    @Serializable data object ReverseEngagement : NavItem
-    @Serializable data object Settings : NavItem
+    @Serializable
+    data object Home : NavItem
+    @Serializable
+    data object Menu : NavItem
+    @Serializable
+    data object DocToRequest : NavItem
+    @Serializable
+    data object CustomRequest : NavItem
+    @Serializable
+    data object TransferStatus : NavItem
+    @Serializable
+    data object ShowDocuments : NavItem
+    @Serializable
+    data object ReverseEngagement : NavItem
+    @Serializable
+    data object Settings : NavItem
 }

@@ -18,10 +18,10 @@ package eu.europa.ec.euidi.verifier.presentation.ui.menu
 
 import androidx.lifecycle.viewModelScope
 import eu.europa.ec.euidi.verifier.domain.interactor.MenuInteractor
-import eu.europa.ec.euidi.verifier.presentation.mvi.BaseViewModel
-import eu.europa.ec.euidi.verifier.presentation.mvi.UiEffect
-import eu.europa.ec.euidi.verifier.presentation.mvi.UiEvent
-import eu.europa.ec.euidi.verifier.presentation.mvi.UiState
+import eu.europa.ec.euidi.verifier.presentation.architecture.MviViewModel
+import eu.europa.ec.euidi.verifier.presentation.architecture.UiEffect
+import eu.europa.ec.euidi.verifier.presentation.architecture.UiEvent
+import eu.europa.ec.euidi.verifier.presentation.architecture.UiState
 import eu.europa.ec.euidi.verifier.presentation.navigation.NavItem
 import eu.europa.ec.euidi.verifier.presentation.ui.menu.MenuViewModelContract.Effect
 import eu.europa.ec.euidi.verifier.presentation.ui.menu.MenuViewModelContract.Event
@@ -70,7 +70,7 @@ interface MenuViewModelContract {
 @KoinViewModel
 class MenuViewModel(
     private val interactor: MenuInteractor,
-) : BaseViewModel<Event, State, Effect>() {
+) : MviViewModel<Event, State, Effect>() {
 
     override fun createInitialState(): State {
         return State(

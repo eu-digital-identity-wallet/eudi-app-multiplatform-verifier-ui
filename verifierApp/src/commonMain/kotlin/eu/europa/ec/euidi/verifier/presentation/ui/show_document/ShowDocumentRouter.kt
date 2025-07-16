@@ -14,14 +14,16 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier.presentation.utils
+package eu.europa.ec.euidi.verifier.presentation.ui.show_document
 
-import android.widget.Toast
-import eu.europa.ec.euidi.verifier.VerifierApplication
+import androidx.navigation.NavController
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.compose.composable
+import eu.europa.ec.euidi.verifier.presentation.navigation.NavItem
 
-actual open class ToastManager actual constructor() {
-    actual fun showToast(message: String) {
-        val context = VerifierApplication.Companion.instance.baseContext
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+fun NavGraphBuilder.showDocumentsScreen(navController: NavController) =
+    composable<NavItem.ShowDocuments> {
+        ShowDocumentsScreen(
+            navController = navController
+        )
     }
-}
