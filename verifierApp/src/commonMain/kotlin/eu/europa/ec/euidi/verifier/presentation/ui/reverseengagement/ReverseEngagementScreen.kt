@@ -36,7 +36,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import eu.europa.ec.euidi.verifier.navigation.NavItem
+import eu.europa.ec.euidi.verifier.presentation.navigation.NavItem
 
 @Composable
 fun ReverseEngagementScreen(

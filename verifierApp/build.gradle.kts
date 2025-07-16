@@ -30,6 +30,7 @@ plugins {
 
 kotlin {
     val basePackage = "eu.europa.ec.euidi.verifier"
+    val parcelizeAnnotationPath = "$basePackage.presentation.utils"
 
     androidTarget {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
@@ -37,7 +38,7 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_17)
             freeCompilerArgs.addAll(
                 "-P",
-                "plugin:org.jetbrains.kotlin.parcelize:additionalAnnotation=$basePackage.utils.CommonParcelize"
+                "plugin:org.jetbrains.kotlin.parcelize:additionalAnnotation=$parcelizeAnnotationPath.CommonParcelize"
             )
         }
     }

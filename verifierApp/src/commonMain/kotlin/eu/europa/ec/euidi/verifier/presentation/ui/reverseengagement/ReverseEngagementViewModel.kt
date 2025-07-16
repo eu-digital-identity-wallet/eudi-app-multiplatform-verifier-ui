@@ -16,10 +16,10 @@
 
 package eu.europa.ec.euidi.verifier.presentation.ui.reverseengagement
 
-import eu.europa.ec.euidi.verifier.mvi.BaseViewModel
-import eu.europa.ec.euidi.verifier.mvi.UiEffect
-import eu.europa.ec.euidi.verifier.mvi.UiEvent
-import eu.europa.ec.euidi.verifier.mvi.UiState
+import eu.europa.ec.euidi.verifier.presentation.mvi.BaseViewModel
+import eu.europa.ec.euidi.verifier.presentation.mvi.UiEffect
+import eu.europa.ec.euidi.verifier.presentation.mvi.UiEvent
+import eu.europa.ec.euidi.verifier.presentation.mvi.UiState
 import org.koin.android.annotation.KoinViewModel
 
 sealed interface ReverseEngagementViewModelContract {

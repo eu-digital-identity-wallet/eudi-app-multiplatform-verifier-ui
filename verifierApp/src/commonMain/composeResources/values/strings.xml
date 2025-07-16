@@ -44,6 +44,9 @@
     <string name="content_description_user_icon">User</string>
     <string name="content_description_image_or_placeholder_icon">Image or placeholder icon</string>
 
-
-    <string name="pid_family_name">O gamias is geitonias</string>
+    <!-- Menu -->
+    <string name="menu_screen_title">Menu</string>
+    <string name="menu_screen_item_home_name">Home</string>
+    <string name="menu_screen_item_reverse_engagement_name">Reverse Engagement</string>
+    <string name="menu_screen_item_settings_name">Settings</string>
 </resources>

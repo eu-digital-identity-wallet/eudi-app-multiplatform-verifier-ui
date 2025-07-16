@@ -19,9 +19,7 @@ package eu.europa.ec.euidi.verifier.presentation.ui.transferStatus
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.material3.Button
@@ -34,15 +32,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import eu.europa.ec.euidi.verifier.navigation.NavItem
-import eu.europa.ec.euidi.verifier.navigation.getFromPreviousBackStack
-import eu.europa.ec.euidi.verifier.navigation.saveToCurrentBackStack
+import eu.europa.ec.euidi.verifier.presentation.navigation.NavItem
+import eu.europa.ec.euidi.verifier.presentation.navigation.getFromPreviousBackStack
+import eu.europa.ec.euidi.verifier.presentation.navigation.saveToCurrentBackStack
 import eu.europa.ec.euidi.verifier.presentation.model.ReceivedDocsHolder
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocsHolder
-import eu.europa.ec.euidi.verifier.utils.Constants
+import eu.europa.ec.euidi.verifier.presentation.utils.Constants
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable

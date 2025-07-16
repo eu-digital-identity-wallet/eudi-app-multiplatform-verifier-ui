@@ -34,6 +34,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
+import eu.europa.ec.euidi.verifier.presentation.component.preview.PreviewOrientation
 import eu.europa.ec.euidi.verifier.presentation.component.preview.PreviewTheme
 import eu.europa.ec.euidi.verifier.presentation.component.preview.ThemeModePreviews
 import eu.europa.ec.euidi.verifier.presentation.component.utils.ALPHA_DISABLED
@@ -297,7 +298,7 @@ private fun WrapSecondaryButton(
 @ThemeModePreviews
 @Composable
 private fun WrapPrimaryButtonEnabledPreview() {
-    PreviewTheme {
+    PreviewTheme(orientation = PreviewOrientation.HORIZONTAL) {
         WrapButton(
             buttonConfig = ButtonConfig(
                 type = ButtonType.PRIMARY,
@@ -314,7 +315,7 @@ private fun WrapPrimaryButtonEnabledPreview() {
 @ThemeModePreviews
 @Composable
 private fun WrapPrimaryButtonDisabledPreview() {
-    PreviewTheme {
+    PreviewTheme(orientation = PreviewOrientation.HORIZONTAL) {
         WrapButton(
             buttonConfig = ButtonConfig(
                 type = ButtonType.PRIMARY,
@@ -331,7 +332,7 @@ private fun WrapPrimaryButtonDisabledPreview() {
 @ThemeModePreviews
 @Composable
 private fun WrapPrimaryButtonEnabledWarningPreview() {
-    PreviewTheme {
+    PreviewTheme(orientation = PreviewOrientation.HORIZONTAL) {
         WrapButton(
             buttonConfig = ButtonConfig(
                 type = ButtonType.PRIMARY,
@@ -349,7 +350,7 @@ private fun WrapPrimaryButtonEnabledWarningPreview() {
 @ThemeModePreviews
 @Composable
 private fun WrapPrimaryButtonDisabledWarningPreview() {
-    PreviewTheme {
+    PreviewTheme(orientation = PreviewOrientation.HORIZONTAL) {
         WrapButton(
             buttonConfig = ButtonConfig(
                 type = ButtonType.PRIMARY,
@@ -367,7 +368,7 @@ private fun WrapPrimaryButtonDisabledWarningPreview() {
 @ThemeModePreviews
 @Composable
 private fun WrapSecondaryButtonEnabledPreview() {
-    PreviewTheme {
+    PreviewTheme(orientation = PreviewOrientation.HORIZONTAL) {
         WrapButton(
             buttonConfig = ButtonConfig(
                 type = ButtonType.SECONDARY,
@@ -384,7 +385,7 @@ private fun WrapSecondaryButtonEnabledPreview() {
 @ThemeModePreviews
 @Composable
 private fun WrapSecondaryButtonDisabledPreview() {
-    PreviewTheme {
+    PreviewTheme(orientation = PreviewOrientation.HORIZONTAL) {
         WrapButton(
             buttonConfig = ButtonConfig(
                 type = ButtonType.SECONDARY,
@@ -401,7 +402,7 @@ private fun WrapSecondaryButtonDisabledPreview() {
 @ThemeModePreviews
 @Composable
 private fun WrapSecondaryButtonEnabledWarningPreview() {
-    PreviewTheme {
+    PreviewTheme(orientation = PreviewOrientation.HORIZONTAL) {
         WrapButton(
             buttonConfig = ButtonConfig(
                 type = ButtonType.SECONDARY,
@@ -419,7 +420,7 @@ private fun WrapSecondaryButtonEnabledWarningPreview() {
 @ThemeModePreviews
 @Composable
 private fun WrapSecondaryButtonDisabledWarningPreview() {
-    PreviewTheme {
+    PreviewTheme(orientation = PreviewOrientation.HORIZONTAL) {
         WrapButton(
             buttonConfig = ButtonConfig(
                 type = ButtonType.SECONDARY,

@@ -31,13 +31,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import eu.europa.ec.euidi.verifier.navigation.NavItem
+import eu.europa.ec.euidi.verifier.presentation.navigation.NavItem
 import org.koin.compose.viewmodel.koinViewModel
 import androidx.compose.runtime.getValue
-import eu.europa.ec.euidi.verifier.navigation.getFromCurrentBackStack
-import eu.europa.ec.euidi.verifier.navigation.saveToCurrentBackStack
+import eu.europa.ec.euidi.verifier.presentation.navigation.getFromCurrentBackStack
+import eu.europa.ec.euidi.verifier.presentation.navigation.saveToCurrentBackStack
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocsHolder
-import eu.europa.ec.euidi.verifier.utils.Constants
+import eu.europa.ec.euidi.verifier.presentation.utils.Constants
 
 @Composable
 fun HomeScreen(
@@ -74,6 +74,10 @@ fun HomeScreen(
 
                 HomeViewModelContract.Effect.Navigation.NavigateToReverseEngagementScreen -> {
                     navController.navigate(NavItem.ReverseEngagement)
+                }
+
+                HomeViewModelContract.Effect.Navigation.NavigateToMenuScreen ->{
+                    navController.navigate(NavItem.Menu)
                 }
             }
         }
@@ -122,5 +126,13 @@ fun HomeScreen(
         ) {
             Text("Reverse Engagement")
         }
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = { viewModel.setEvent(HomeViewModelContract.Event.OnMenuClick) }
+        ) {
+            Text("Menu")
+        }
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }

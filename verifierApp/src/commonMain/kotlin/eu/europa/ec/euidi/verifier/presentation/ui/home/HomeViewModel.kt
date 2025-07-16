@@ -16,10 +16,10 @@
 
 package eu.europa.ec.euidi.verifier.presentation.ui.home
 
-import eu.europa.ec.euidi.verifier.mvi.BaseViewModel
-import eu.europa.ec.euidi.verifier.mvi.UiEffect
-import eu.europa.ec.euidi.verifier.mvi.UiEvent
-import eu.europa.ec.euidi.verifier.mvi.UiState
+import eu.europa.ec.euidi.verifier.presentation.mvi.BaseViewModel
+import eu.europa.ec.euidi.verifier.presentation.mvi.UiEffect
+import eu.europa.ec.euidi.verifier.presentation.mvi.UiEvent
+import eu.europa.ec.euidi.verifier.presentation.mvi.UiState
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocsHolder
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
 import org.koin.android.annotation.KoinViewModel
@@ -67,6 +67,12 @@ class HomeViewModel() : BaseViewModel<HomeViewModelContract.Event, HomeViewModel
                     HomeViewModelContract.Effect.Navigation.NavigateToReverseEngagementScreen
                 }
             }
+
+            HomeViewModelContract.Event.OnMenuClick -> {
+                setEffect {
+                    HomeViewModelContract.Effect.Navigation.NavigateToMenuScreen
+                }
+            }
         }
     }
 }
@@ -78,6 +84,7 @@ interface HomeViewModelContract {
         data object OnScanQrCodeClick : Event
         data object OnSettingsClick : Event
         data object OnReverseEngagementClick : Event
+        data object OnMenuClick : Event
     }
 
     data class State(
@@ -91,6 +98,7 @@ interface HomeViewModelContract {
             data class NavigateToTransferStatusScreen(val requestedDocs: RequestedDocsHolder) : Navigation
             data object NavigateToSettingsScreen : Navigation
             data object NavigateToReverseEngagementScreen : Navigation
+            data object NavigateToMenuScreen : Navigation
         }
     }
 }

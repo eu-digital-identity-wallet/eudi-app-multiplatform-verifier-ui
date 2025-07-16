@@ -20,16 +20,16 @@ import androidx.lifecycle.SavedStateHandle
 import eu.europa.ec.euidi.verifier.domain.config.ClaimItem
 import eu.europa.ec.euidi.verifier.domain.interactor.DocumentsToRequestInteractor
 import eu.europa.ec.euidi.verifier.domain.transformer.UiTransformer
-import eu.europa.ec.euidi.verifier.mvi.BaseViewModel
-import eu.europa.ec.euidi.verifier.mvi.UiEffect
-import eu.europa.ec.euidi.verifier.mvi.UiEvent
-import eu.europa.ec.euidi.verifier.mvi.UiState
+import eu.europa.ec.euidi.verifier.presentation.mvi.BaseViewModel
+import eu.europa.ec.euidi.verifier.presentation.mvi.UiEffect
+import eu.europa.ec.euidi.verifier.presentation.mvi.UiEvent
+import eu.europa.ec.euidi.verifier.presentation.mvi.UiState
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemDataUi
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemTrailingContentDataUi
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.CheckboxDataUi
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
 import eu.europa.ec.euidi.verifier.provider.ResourceProvider
-import eu.europa.ec.euidi.verifier.utils.Constants
+import eu.europa.ec.euidi.verifier.presentation.utils.Constants
 import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel

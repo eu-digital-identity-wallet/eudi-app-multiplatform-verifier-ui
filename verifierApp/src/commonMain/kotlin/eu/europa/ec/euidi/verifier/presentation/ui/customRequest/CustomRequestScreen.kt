@@ -30,8 +30,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import eu.europa.ec.euidi.verifier.navigation.getFromPreviousBackStack
-import eu.europa.ec.euidi.verifier.navigation.saveToPreviousBackStack
+import eu.europa.ec.euidi.verifier.presentation.navigation.getFromPreviousBackStack
+import eu.europa.ec.euidi.verifier.presentation.navigation.saveToPreviousBackStack
 import eu.europa.ec.euidi.verifier.presentation.component.ClickableArea
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemDataUi
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemTrailingContentDataUi
@@ -46,8 +46,8 @@ import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapListItems
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapStickyBottomContent
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.rememberButtonConfig
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
-import eu.europa.ec.euidi.verifier.utils.Constants
-import eu.europa.ec.euidi.verifier.utils.ToastManager
+import eu.europa.ec.euidi.verifier.presentation.utils.Constants
+import eu.europa.ec.euidi.verifier.presentation.utils.ToastManager
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
