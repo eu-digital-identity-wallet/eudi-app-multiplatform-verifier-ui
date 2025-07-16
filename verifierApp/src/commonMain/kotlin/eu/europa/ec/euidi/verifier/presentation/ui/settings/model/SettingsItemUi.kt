@@ -27,5 +27,6 @@ sealed class SettingsItemUi {
     data class CategoryItem(
         val type: SettingsTypeUi,
         val data: ListItemDataUi,
+        val isLastInSection: Boolean,
     ) : SettingsItemUi()
 }

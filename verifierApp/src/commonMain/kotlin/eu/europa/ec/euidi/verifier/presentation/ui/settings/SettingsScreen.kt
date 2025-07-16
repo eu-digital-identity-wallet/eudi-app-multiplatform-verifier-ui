@@ -48,6 +48,7 @@ import eu.europa.ec.euidi.verifier.presentation.component.preview.PreviewTheme
 import eu.europa.ec.euidi.verifier.presentation.component.preview.ThemeModePreviews
 import eu.europa.ec.euidi.verifier.presentation.component.utils.OneTimeLaunchedEffect
 import eu.europa.ec.euidi.verifier.presentation.component.utils.SPACING_MEDIUM
+import eu.europa.ec.euidi.verifier.presentation.component.utils.VSpacer
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.ButtonType
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.StickyBottomConfig
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.StickyBottomType
@@ -209,6 +210,10 @@ private fun Content(
                             )
                         },
                     )
+
+                    if (settingsItemUi.isLastInSection){
+                        VSpacer.Medium()
+                    }
                 }
             }
         }
@@ -299,7 +304,8 @@ private fun SettingsCategoryItemPreview() {
                             enabled = true,
                         )
                     )
-                )
+                ),
+                isLastInSection = true,
             ),
             modifier = Modifier.fillMaxWidth(),
             onItemClick = {},

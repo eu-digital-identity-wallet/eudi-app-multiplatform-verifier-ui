@@ -148,7 +148,8 @@ class SettingsInteractorImpl(
             )
 
             // each item
-            sectionItems.forEach { sectionItem ->
+            sectionItems.forEachIndexed { index, sectionItem ->
+                val isLast = index == sectionItems.lastIndex
                 val checked = preferences[sectionItem.prefKey] ?: false
                 add(
                     SettingsItemUi.CategoryItem(
@@ -162,7 +163,8 @@ class SettingsInteractorImpl(
                             trailingContentData = ListItemTrailingContentDataUi.Switch(
                                 switchData = SwitchDataUi(isChecked = checked)
                             )
-                        )
+                        ),
+                        isLastInSection = isLast,
                     )
                 )
             }
