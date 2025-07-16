@@ -35,8 +35,8 @@ import org.koin.android.annotation.KoinViewModel
 interface MenuViewModelContract {
     data class State(
         val isLoading: Boolean,
-
         val screenTitle: String = "",
+
         val menuItems: List<MenuItemUi> = emptyList(),
     ) : UiState
 
@@ -51,9 +51,14 @@ interface MenuViewModelContract {
 
     sealed interface Effect : UiEffect {
         sealed interface Navigation : Effect {
-            data class SwitchScreen(
+            data class PushScreen(
                 val route: NavItem,
                 val popUpTo: NavItem,
+                val inclusive: Boolean,
+            ) : Navigation
+
+            data class PopTo(
+                val route: NavItem,
                 val inclusive: Boolean,
             ) : Navigation
 
@@ -114,35 +119,44 @@ class MenuViewModel(
     }
 
     private fun handleMenuItemClicked(itemType: MenuTypeUi) {
-        val nextScreen: NavItem
-        val popUpTo: NavItem
-        val inclusive: Boolean
-
         when (itemType) {
             MenuTypeUi.HOME -> {
-                nextScreen = NavItem.Home
-                popUpTo = NavItem.Menu
-                inclusive = true
+                popToHome()
             }
 
             MenuTypeUi.REVERSE_ENGAGEMENT -> {
-                nextScreen = NavItem.ReverseEngagement
-                popUpTo = NavItem.Menu
-                inclusive = false
+                pushScreen(
+                    route = NavItem.ReverseEngagement,
+                    popUpTo = NavItem.Menu,
+                    inclusive = false,
+                )
             }
 
             MenuTypeUi.SETTINGS -> {
-                nextScreen = NavItem.Settings
-                popUpTo = NavItem.Menu
-                inclusive = false
+                pushScreen(
+                    route = NavItem.Settings,
+                    popUpTo = NavItem.Menu,
+                    inclusive = false,
+                )
             }
         }
+    }
 
+    private fun popToHome() {
         setEffect {
-            Effect.Navigation.SwitchScreen(
-                route = nextScreen,
+            Effect.Navigation.PopTo(
+                route = NavItem.Home,
+                inclusive = false,
+            )
+        }
+    }
+
+    private fun pushScreen(route: NavItem, popUpTo: NavItem, inclusive: Boolean) {
+        setEffect {
+            Effect.Navigation.PushScreen(
+                route = route,
                 popUpTo = popUpTo,
-                inclusive = inclusive
+                inclusive = inclusive,
             )
         }
     }
