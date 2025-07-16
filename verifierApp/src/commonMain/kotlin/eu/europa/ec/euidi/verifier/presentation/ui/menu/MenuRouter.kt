@@ -16,33 +16,28 @@
 
 package eu.europa.ec.euidi.verifier.presentation.ui.menu
 
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.core.EaseOut
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.tween
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import eu.europa.ec.euidi.verifier.presentation.navigation.NavItem
+import eu.europa.ec.euidi.verifier.presentation.navigation.noAnimation
+import eu.europa.ec.euidi.verifier.presentation.navigation.slideInFromEnd
+import eu.europa.ec.euidi.verifier.presentation.navigation.slideOutToEnd
 
 fun NavGraphBuilder.menuScreen(navController: NavController) {
     composable<NavItem.Menu>(
-        enterTransition = {
-            slideIntoContainer(
-                animationSpec = tween(300, easing = EaseOut),
-                towards = AnimatedContentTransitionScope.SlideDirection.Start
-            )
+        // when you navigate TO Menu (initial / forward)
+        enterTransition = slideInFromEnd(),
 
-        },
-        exitTransition = {
-            slideOutOfContainer(
-                animationSpec = tween(200, easing = LinearEasing),
-                towards = AnimatedContentTransitionScope.SlideDirection.End
-            )
-        }
+        // when you navigate AWAY from Menu (forward), disable it
+        exitTransition = noAnimation(),
+
+        // when you pop BACK to Menu, disable any enter‐animation
+        popEnterTransition = noAnimation(),
+
+        // when you pop Menu itself, slide it out
+        popExitTransition = slideOutToEnd()
     ) {
-        MenuScreen(
-            navController = navController
-        )
+        MenuScreen(navController)
     }
 }

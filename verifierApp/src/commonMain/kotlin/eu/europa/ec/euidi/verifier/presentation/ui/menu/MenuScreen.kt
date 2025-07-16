@@ -94,12 +94,19 @@ private fun handleNavigationEffect(
     navController: NavController,
 ) {
     when (navigationEffect) {
-        is Effect.Navigation.SwitchScreen -> {
-            navController.navigate(navigationEffect.route) {
-                popUpTo(navigationEffect.popUpTo) {
+        is Effect.Navigation.PushScreen -> {
+            navController.navigate(route = navigationEffect.route) {
+                popUpTo(route = navigationEffect.popUpTo) {
                     inclusive = navigationEffect.inclusive
                 }
             }
+        }
+
+        is Effect.Navigation.PopTo -> {
+            navController.popBackStack(
+                route = navigationEffect.route,
+                inclusive = navigationEffect.inclusive,
+            )
         }
 
         is Effect.Navigation.Pop -> navController.popBackStack()
