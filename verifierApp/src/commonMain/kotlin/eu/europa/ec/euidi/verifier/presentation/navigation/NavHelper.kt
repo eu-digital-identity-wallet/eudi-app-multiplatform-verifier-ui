@@ -19,11 +19,17 @@ package eu.europa.ec.euidi.verifier.presentation.navigation
 import androidx.navigation.NavController
 import eu.europa.ec.euidi.verifier.presentation.utils.CommonParcelable
 
-inline fun <reified T : CommonParcelable> NavController.saveToCurrentBackStack(key: String, value: T) {
+inline fun <reified T : CommonParcelable> NavController.saveToCurrentBackStack(
+    key: String,
+    value: T
+) {
     currentBackStackEntry?.savedStateHandle?.set(key, value)
 }
 
-inline fun <reified T : CommonParcelable> NavController.saveToPreviousBackStack(key: String, value: T) {
+inline fun <reified T : CommonParcelable> NavController.saveToPreviousBackStack(
+    key: String,
+    value: T
+) {
     previousBackStackEntry?.savedStateHandle?.set(key, value)
 }
 

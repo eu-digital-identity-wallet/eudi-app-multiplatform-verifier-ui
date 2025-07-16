@@ -84,7 +84,9 @@ sealed class ClaimUi(
         data object EmailAddress : PidClaim("email_address", "Email Address")
         data object ResidentStreet : PidClaim("resident_street", "Resident Street")
         data object ResidentHouseNumber : PidClaim("resident_house_number", "Resident House Number")
-        data object PersonalAdministrativeNumber : PidClaim("personal_administrative_number", "Personal Administrative Number")
+        data object PersonalAdministrativeNumber :
+            PidClaim("personal_administrative_number", "Personal Administrative Number")
+
         data object MobilePhoneNumber : PidClaim("mobile_phone_number", "Mobile Phone Number")
         data object BirthFamilyName : PidClaim("birth_family_name", "Birth Family Name")
         data object BirthGivenName : PidClaim("birth_given_name", "Birth Given Name")
@@ -113,18 +115,32 @@ sealed class ClaimUi(
         override val displayTitle: String
     ) : ClaimUi(key, displayTitle), CommonParcelable {
         data object DrivingPrivileges : MdlClaim("driving_privileges", "Driving Privileges")
-        data object UnDistinguishingSign : MdlClaim("un_distinguishing_sign", "UN distinguishing sign")
-        data object AdministrativeNumber : MdlClaim("administrative_number", "Administrative number")
+        data object UnDistinguishingSign :
+            MdlClaim("un_distinguishing_sign", "UN distinguishing sign")
+
+        data object AdministrativeNumber :
+            MdlClaim("administrative_number", "Administrative number")
+
         data object Height : MdlClaim("height", "Height (cm)")
         data object Weight : MdlClaim("weight", "Weight (kg)")
         data object EyeColour : MdlClaim("eye_colour", "Eye colour")
         data object HairColour : MdlClaim("hair_colour", "Hair colour")
         data object BirthPlaceRaw : MdlClaim("birth_place", "Place of birth")
-        data object PermanentResidence : MdlClaim("resident_address", "Permanent place of residence")
-        data object PortraitCaptureDate : MdlClaim("portrait_capture_date", "Portrait image timestamp")
-        data object BiometricTemplate : MdlClaim("biometric_template_xx", "Fingerprint biometric information")
-        data object FamilyNameNationalCharacter : MdlClaim("family_name_national_character", "Family name in national characters")
-        data object GivenNameNationalCharacter : MdlClaim("given_name_national_character", "Given name in national characters")
+        data object PermanentResidence :
+            MdlClaim("resident_address", "Permanent place of residence")
+
+        data object PortraitCaptureDate :
+            MdlClaim("portrait_capture_date", "Portrait image timestamp")
+
+        data object BiometricTemplate :
+            MdlClaim("biometric_template_xx", "Fingerprint biometric information")
+
+        data object FamilyNameNationalCharacter :
+            MdlClaim("family_name_national_character", "Family name in national characters")
+
+        data object GivenNameNationalCharacter :
+            MdlClaim("given_name_national_character", "Given name in national characters")
+
         data object SignatureUsualMark : MdlClaim("signature_usual_mark", "Signature / usual mark")
 
         companion object {

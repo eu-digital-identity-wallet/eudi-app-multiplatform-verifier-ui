@@ -26,18 +26,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocsHolder
 import eu.europa.ec.euidi.verifier.presentation.navigation.NavItem
-import org.koin.compose.viewmodel.koinViewModel
-import androidx.compose.runtime.getValue
 import eu.europa.ec.euidi.verifier.presentation.navigation.getFromCurrentBackStack
 import eu.europa.ec.euidi.verifier.presentation.navigation.saveToCurrentBackStack
-import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocsHolder
 import eu.europa.ec.euidi.verifier.presentation.utils.Constants
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun HomeScreen(
@@ -47,7 +47,8 @@ fun HomeScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        val documents = navController.getFromCurrentBackStack<RequestedDocsHolder>(Constants.REQUESTED_DOCUMENTS)
+        val documents =
+            navController.getFromCurrentBackStack<RequestedDocsHolder>(Constants.REQUESTED_DOCUMENTS)
         documents?.let {
             viewModel.setEvent(HomeViewModelContract.Event.Init(it.items))
         }
@@ -76,7 +77,7 @@ fun HomeScreen(
                     navController.navigate(NavItem.ReverseEngagement)
                 }
 
-                HomeViewModelContract.Effect.Navigation.NavigateToMenuScreen ->{
+                HomeViewModelContract.Effect.Navigation.NavigateToMenuScreen -> {
                     navController.navigate(NavItem.Menu)
                 }
             }
