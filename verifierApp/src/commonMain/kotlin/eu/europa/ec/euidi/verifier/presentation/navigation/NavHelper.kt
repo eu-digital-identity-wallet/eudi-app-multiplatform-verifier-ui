@@ -95,3 +95,16 @@ fun slideOutToEnd(): AnimatedContentTransitionScope<*>.() -> ExitTransition? = {
         towards = AnimatedContentTransitionScope.SlideDirection.End
     )
 }
+
+/**
+ * Represents a no-animation transition.
+ *
+ * This function returns a lambda that, when invoked within an [AnimatedContentTransitionScope],
+ * returns `null`. This effectively disables any animation for the transition it's applied to.
+ *
+ * @param R The type of transition (e.g., [EnterTransition], [ExitTransition]).
+ * @return A lambda function that always returns `null`, indicating no animation.
+ */
+fun <R> noAnimation(): AnimatedContentTransitionScope<*>.() -> R? = {
+    null
+}

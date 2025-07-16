@@ -20,16 +20,24 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import eu.europa.ec.euidi.verifier.presentation.navigation.NavItem
+import eu.europa.ec.euidi.verifier.presentation.navigation.noAnimation
 import eu.europa.ec.euidi.verifier.presentation.navigation.slideInFromEnd
 import eu.europa.ec.euidi.verifier.presentation.navigation.slideOutToEnd
 
 fun NavGraphBuilder.menuScreen(navController: NavController) {
     composable<NavItem.Menu>(
+        // when you navigate TO Menu (initial / forward)
         enterTransition = slideInFromEnd(),
-        exitTransition = slideOutToEnd(),
+
+        // when you navigate AWAY from Menu (forward), disable it
+        exitTransition = noAnimation(),
+
+        // when you pop BACK to Menu, disable any enter‐animation
+        popEnterTransition = noAnimation(),
+
+        // when you pop Menu itself, slide it out
+        popExitTransition = slideOutToEnd()
     ) {
-        MenuScreen(
-            navController = navController
-        )
+        MenuScreen(navController)
     }
 }
