@@ -14,45 +14,62 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier.presentation.ui.settings
+package eu.europa.ec.euidi.verifier.presentation.ui.show_document
 
 import eu.europa.ec.euidi.verifier.presentation.architecture.MviViewModel
 import eu.europa.ec.euidi.verifier.presentation.architecture.UiEffect
 import eu.europa.ec.euidi.verifier.presentation.architecture.UiEvent
 import eu.europa.ec.euidi.verifier.presentation.architecture.UiState
+import eu.europa.ec.euidi.verifier.presentation.model.ReceivedDocumentUi
 import org.koin.android.annotation.KoinViewModel
 
-sealed interface SettingsViewModelContract {
+interface ShowDocumentViewModelContract {
     sealed interface Event : UiEvent {
-        data object Init : Event
-        data object OnCancelClick : Event
+        data class Init(
+            val items: List<ReceivedDocumentUi>
+        ) : Event
+
+        data object OnDoneClick : Event
         data object OnBackClick : Event
     }
 
-    data class State(val message: String = "") : UiState
+    data class State(
+        val message: String = "",
+        val items: List<ReceivedDocumentUi> = emptyList()
+    ) : UiState
+
     sealed interface Effect : UiEffect {
         sealed interface Navigation : Effect {
-            data object GoBack : Navigation
+            data object NavigateToHome : Navigation
         }
     }
 }
 
 @KoinViewModel
-class SettingsViewModel() :
-    MviViewModel<SettingsViewModelContract.Event, SettingsViewModelContract.State, SettingsViewModelContract.Effect>() {
-    override fun createInitialState(): SettingsViewModelContract.State =
-        SettingsViewModelContract.State()
+class ShowDocumentsViewModel() :
+    MviViewModel<ShowDocumentViewModelContract.Event, ShowDocumentViewModelContract.State, ShowDocumentViewModelContract.Effect>() {
+    override fun createInitialState(): ShowDocumentViewModelContract.State =
+        ShowDocumentViewModelContract.State()
 
-    override fun handleEvent(event: SettingsViewModelContract.Event) {
+    override fun handleEvent(event: ShowDocumentViewModelContract.Event) {
         when (event) {
-            SettingsViewModelContract.Event.Init -> TODO()
-            SettingsViewModelContract.Event.OnBackClick -> {
-                setEffect {
-                    SettingsViewModelContract.Effect.Navigation.GoBack
+            is ShowDocumentViewModelContract.Event.Init -> {
+                setState {
+                    copy(
+                        items = event.items
+                    )
                 }
             }
 
-            SettingsViewModelContract.Event.OnCancelClick -> TODO()
+            ShowDocumentViewModelContract.Event.OnDoneClick -> {
+                setEffect {
+                    ShowDocumentViewModelContract.Effect.Navigation.NavigateToHome
+                }
+            }
+
+            ShowDocumentViewModelContract.Event.OnBackClick -> {
+
+            }
         }
     }
 }

@@ -15,6 +15,7 @@
  */
 
 package eu.europa.ec.euidi.verifier.core.controller
+
 import co.touchlab.kermit.Logger
 
 interface LoggerController {
@@ -58,7 +59,7 @@ class LoggerControllerImpl : LoggerController {
     }
 
     override fun e(message: String, throwable: Throwable?) {
-        Logger.e(throwable){ message }
+        Logger.e(throwable) { message }
     }
 
     override fun w(message: String) {

@@ -36,7 +36,8 @@ actual open class ToastManager {
             preferredStyle = UIAlertControllerStyleAlert
         )
 
-        val rootViewController = UIApplication.Companion.sharedApplication.keyWindow?.rootViewController
+        val rootViewController =
+            UIApplication.Companion.sharedApplication.keyWindow?.rootViewController
         rootViewController?.presentViewController(alert, animated = true, completion = null)
 
         // Dismiss the alert after 2 seconds to mimic a toast

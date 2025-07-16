@@ -14,7 +14,7 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier.presentation.ui.settings
+package eu.europa.ec.euidi.verifier.presentation.ui.reverse_engagement
 
 import eu.europa.ec.euidi.verifier.presentation.architecture.MviViewModel
 import eu.europa.ec.euidi.verifier.presentation.architecture.UiEffect
@@ -22,7 +22,7 @@ import eu.europa.ec.euidi.verifier.presentation.architecture.UiEvent
 import eu.europa.ec.euidi.verifier.presentation.architecture.UiState
 import org.koin.android.annotation.KoinViewModel
 
-sealed interface SettingsViewModelContract {
+sealed interface ReverseEngagementViewModelContract {
     sealed interface Event : UiEvent {
         data object Init : Event
         data object OnCancelClick : Event
@@ -32,27 +32,28 @@ sealed interface SettingsViewModelContract {
     data class State(val message: String = "") : UiState
     sealed interface Effect : UiEffect {
         sealed interface Navigation : Effect {
+            data object NavigateToHome : Navigation
             data object GoBack : Navigation
         }
     }
 }
 
 @KoinViewModel
-class SettingsViewModel() :
-    MviViewModel<SettingsViewModelContract.Event, SettingsViewModelContract.State, SettingsViewModelContract.Effect>() {
-    override fun createInitialState(): SettingsViewModelContract.State =
-        SettingsViewModelContract.State()
+class ReverseEngagementViewModel() :
+    MviViewModel<ReverseEngagementViewModelContract.Event, ReverseEngagementViewModelContract.State, ReverseEngagementViewModelContract.Effect>() {
+    override fun createInitialState(): ReverseEngagementViewModelContract.State =
+        ReverseEngagementViewModelContract.State()
 
-    override fun handleEvent(event: SettingsViewModelContract.Event) {
+    override fun handleEvent(event: ReverseEngagementViewModelContract.Event) {
         when (event) {
-            SettingsViewModelContract.Event.Init -> TODO()
-            SettingsViewModelContract.Event.OnBackClick -> {
-                setEffect {
-                    SettingsViewModelContract.Effect.Navigation.GoBack
-                }
+            ReverseEngagementViewModelContract.Event.Init -> {}
+            ReverseEngagementViewModelContract.Event.OnBackClick -> {
+                setEffect { ReverseEngagementViewModelContract.Effect.Navigation.GoBack }
             }
 
-            SettingsViewModelContract.Event.OnCancelClick -> TODO()
+            ReverseEngagementViewModelContract.Event.OnCancelClick -> {
+                setEffect { ReverseEngagementViewModelContract.Effect.Navigation.GoBack }
+            }
         }
     }
 }

@@ -40,11 +40,16 @@ data class SupportedDocument(
 
     companion object {
         fun formatForType(type: AttestationType): List<DocumentFormat> = when (type) {
-            AttestationType.PID -> listOf(DocumentFormat.MsoMdocFormat,
+            AttestationType.PID -> listOf(
+                DocumentFormat.MsoMdocFormat,
                 DocumentFormat.SdJwtVcFormat
             )
+
             AttestationType.MDL -> listOf(DocumentFormat.MsoMdocFormat)
-            AttestationType.AGE_VERIFICATION -> listOf(DocumentFormat.MsoMdocFormat, DocumentFormat.SdJwtVcFormat)
+            AttestationType.AGE_VERIFICATION -> listOf(
+                DocumentFormat.MsoMdocFormat,
+                DocumentFormat.SdJwtVcFormat
+            )
         }
     }
 }

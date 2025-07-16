@@ -19,14 +19,14 @@ package eu.europa.ec.euidi.verifier.presentation.navigation
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
-import eu.europa.ec.euidi.verifier.presentation.ui.customRequest.customRequestScreen
-import eu.europa.ec.euidi.verifier.presentation.ui.docToRequest.docToRequestScreen
+import eu.europa.ec.euidi.verifier.presentation.ui.custom_request.customRequestScreen
+import eu.europa.ec.euidi.verifier.presentation.ui.doc_to_request.docToRequestScreen
 import eu.europa.ec.euidi.verifier.presentation.ui.home.homeScreen
 import eu.europa.ec.euidi.verifier.presentation.ui.menu.menuScreen
-import eu.europa.ec.euidi.verifier.presentation.ui.reverseengagement.reverseEngagementScreen
+import eu.europa.ec.euidi.verifier.presentation.ui.reverse_engagement.reverseEngagementScreen
 import eu.europa.ec.euidi.verifier.presentation.ui.settings.settingsScreen
-import eu.europa.ec.euidi.verifier.presentation.ui.showDocument.showDocumentsScreen
-import eu.europa.ec.euidi.verifier.presentation.ui.transferStatus.transferStatusScreen
+import eu.europa.ec.euidi.verifier.presentation.ui.show_document.showDocumentsScreen
+import eu.europa.ec.euidi.verifier.presentation.ui.transfer_status.transferStatusScreen
 
 @Composable
 fun VerifierNavHost() {

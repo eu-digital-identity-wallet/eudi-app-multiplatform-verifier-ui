@@ -16,28 +16,29 @@
 
 package eu.europa.ec.euidi.verifier.presentation.ui.home
 
-import eu.europa.ec.euidi.verifier.presentation.mvi.BaseViewModel
-import eu.europa.ec.euidi.verifier.presentation.mvi.UiEffect
-import eu.europa.ec.euidi.verifier.presentation.mvi.UiEvent
-import eu.europa.ec.euidi.verifier.presentation.mvi.UiState
+import eu.europa.ec.euidi.verifier.presentation.architecture.MviViewModel
+import eu.europa.ec.euidi.verifier.presentation.architecture.UiEffect
+import eu.europa.ec.euidi.verifier.presentation.architecture.UiEvent
+import eu.europa.ec.euidi.verifier.presentation.architecture.UiState
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocsHolder
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
 import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
-class HomeViewModel() : BaseViewModel<HomeViewModelContract.Event, HomeViewModelContract.State, HomeViewModelContract.Effect>() {
+class HomeViewModel() :
+    MviViewModel<HomeViewModelContract.Event, HomeViewModelContract.State, HomeViewModelContract.Effect>() {
 
     override fun createInitialState(): HomeViewModelContract.State = HomeViewModelContract.State()
 
     override fun handleEvent(event: HomeViewModelContract.Event) {
         when (event) {
             is HomeViewModelContract.Event.Init -> {
-               setState {
-                   copy(
-                       requestedDocs = event.docs.orEmpty(),
-                       isScanQrCodeButtonEnabled = event.docs.isNullOrEmpty().not()
-                   )
-               }
+                setState {
+                    copy(
+                        requestedDocs = event.docs.orEmpty(),
+                        isScanQrCodeButtonEnabled = event.docs.isNullOrEmpty().not()
+                    )
+                }
             }
 
             HomeViewModelContract.Event.OnSelectDocumentClick -> {
@@ -95,7 +96,9 @@ interface HomeViewModelContract {
     sealed interface Effect : UiEffect {
         sealed interface Navigation : Effect {
             data object NavigateToDocToRequestScreen : Navigation
-            data class NavigateToTransferStatusScreen(val requestedDocs: RequestedDocsHolder) : Navigation
+            data class NavigateToTransferStatusScreen(val requestedDocs: RequestedDocsHolder) :
+                Navigation
+
             data object NavigateToSettingsScreen : Navigation
             data object NavigateToReverseEngagementScreen : Navigation
             data object NavigateToMenuScreen : Navigation

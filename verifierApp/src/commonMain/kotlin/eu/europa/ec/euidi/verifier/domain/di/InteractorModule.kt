@@ -16,10 +16,10 @@
 
 package eu.europa.ec.euidi.verifier.domain.di
 
-import eu.europa.ec.euidi.verifier.domain.interactor.MenuInteractor
-import eu.europa.ec.euidi.verifier.domain.interactor.MenuInteractorImpl
 import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
 import eu.europa.ec.euidi.verifier.core.provider.UuidProvider
+import eu.europa.ec.euidi.verifier.domain.interactor.MenuInteractor
+import eu.europa.ec.euidi.verifier.domain.interactor.MenuInteractorImpl
 import org.koin.core.annotation.Module
 import org.koin.core.annotation.Single
 
