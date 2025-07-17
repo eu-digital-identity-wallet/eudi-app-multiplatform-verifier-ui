@@ -16,26 +16,52 @@
 
 package eu.europa.ec.euidi.verifier.presentation.ui.reverse_engagement
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.material3.Button
-import androidx.compose.material3.IconButton
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import eu.europa.ec.euidi.verifier.presentation.navigation.NavItem
+import eu.europa.ec.euidi.verifier.presentation.component.QrCodeImage
+import eu.europa.ec.euidi.verifier.presentation.component.content.ContentScreen
+import eu.europa.ec.euidi.verifier.presentation.component.content.ScreenNavigateAction
+import eu.europa.ec.euidi.verifier.presentation.component.content.ToolbarConfig
+import eu.europa.ec.euidi.verifier.presentation.component.preview.PreviewOrientation
+import eu.europa.ec.euidi.verifier.presentation.component.preview.PreviewTheme
+import eu.europa.ec.euidi.verifier.presentation.component.preview.ThemeModePreviews
+import eu.europa.ec.euidi.verifier.presentation.component.utils.OneTimeLaunchedEffect
+import eu.europa.ec.euidi.verifier.presentation.component.utils.SPACING_MEDIUM
+import eu.europa.ec.euidi.verifier.presentation.component.wrap.ButtonType
+import eu.europa.ec.euidi.verifier.presentation.component.wrap.StickyBottomConfig
+import eu.europa.ec.euidi.verifier.presentation.component.wrap.StickyBottomType
+import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapStickyBottomContent
+import eu.europa.ec.euidi.verifier.presentation.component.wrap.rememberButtonConfig
+import eu.europa.ec.euidi.verifier.presentation.ui.reverse_engagement.ReverseEngagementViewModelContract.Effect
+import eu.europa.ec.euidi.verifier.presentation.ui.reverse_engagement.ReverseEngagementViewModelContract.Event
+import eu.europa.ec.euidi.verifier.presentation.ui.reverse_engagement.ReverseEngagementViewModelContract.State
+import eudiverifier.verifierapp.generated.resources.Res
+import eudiverifier.verifierapp.generated.resources.generic_cancel
+import eudiverifier.verifierapp.generated.resources.reverse_engagement_screen_info_message
+import eudiverifier.verifierapp.generated.resources.reverse_engagement_screen_placeholder_qr
+import eudiverifier.verifierapp.generated.resources.reverse_engagement_screen_title
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -44,59 +70,166 @@ fun ReverseEngagementScreen(
     viewModel: ReverseEngagementViewModel = koinViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val toolbarConfig = remember(state.screenTitle) {
+        ToolbarConfig(
+            title = state.screenTitle,
+        )
+    }
 
-//    LaunchedEffect(Unit) {
-//        viewModel.setEvent(ReverseEngagementViewModelContract.Event.Init)
-//    }
-//
-    LaunchedEffect(viewModel.effect) {
-        viewModel.effect.collect { effect ->
-            when (effect) {
-                ReverseEngagementViewModelContract.Effect.Navigation.NavigateToHome -> {
-                    navController.navigate(NavItem.Home) {
-                        popUpTo<NavItem.Home>()
-                    }
+    ContentScreen(
+        isLoading = state.isLoading,
+        toolBarConfig = toolbarConfig,
+        navigatableAction = ScreenNavigateAction.BACKABLE,
+        onBack = { viewModel.setEvent(Event.OnBackClicked) },
+        stickyBottom = { stickyBottomPaddings ->
+            StickyBottomSection(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(stickyBottomPaddings),
+                enabled = !state.isLoading,
+                onClick = { viewModel.setEvent(Event.OnStickyButtonClicked) }
+            )
+        },
+        contentErrorConfig = state.error,
+    ) { padding ->
+        Content(
+            state = state,
+            effectFlow = viewModel.effect,
+            onNavigationRequested = { navigationEffect ->
+                handleNavigationEffect(navigationEffect, navController)
+            },
+            paddingValues = padding,
+        )
+    }
+
+    OneTimeLaunchedEffect {
+        viewModel.setEvent(Event.Init)
+    }
+}
+
+private fun handleNavigationEffect(
+    navigationEffect: Effect.Navigation,
+    navController: NavController,
+) {
+    when (navigationEffect) {
+        is Effect.Navigation.PushScreen -> {
+            navController.navigate(route = navigationEffect.route) {
+                popUpTo(route = navigationEffect.popUpTo) {
+                    inclusive = navigationEffect.inclusive
                 }
-
-                ReverseEngagementViewModelContract.Effect.Navigation.GoBack -> navController.popBackStack()
             }
+        }
+
+        is Effect.Navigation.PopTo -> {
+            navController.popBackStack(
+                route = navigationEffect.route,
+                inclusive = navigationEffect.inclusive,
+            )
+        }
+
+        is Effect.Navigation.Pop -> navController.popBackStack()
+    }
+}
+
+@Composable
+private fun StickyBottomSection(
+    modifier: Modifier = Modifier,
+    enabled: Boolean,
+    onClick: () -> Unit,
+) {
+    Row(modifier = modifier) {
+        WrapStickyBottomContent(
+            stickyBottomModifier = Modifier.fillMaxWidth(),
+            stickyBottomConfig = StickyBottomConfig(
+                type = StickyBottomType.OneButton(
+                    config = rememberButtonConfig(
+                        type = ButtonType.SECONDARY,
+                        enabled = enabled,
+                        onClick = onClick,
+                        content = {
+                            Text(text = stringResource(Res.string.generic_cancel))
+                        }
+                    )
+                )
+            )
+        )
+    }
+}
+
+@Composable
+private fun Content(
+    state: State,
+    effectFlow: Flow<Effect>,
+    onNavigationRequested: (Effect.Navigation) -> Unit,
+    paddingValues: PaddingValues,
+) {
+    val layoutDirection = LocalLayoutDirection.current
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(
+                top = paddingValues.calculateTopPadding(),
+                bottom = 0.dp,
+                start = paddingValues.calculateStartPadding(layoutDirection),
+                end = paddingValues.calculateEndPadding(layoutDirection)
+            ),
+    ) {
+        InformativeText(
+            text = state.informativeMessage,
+            modifier = Modifier.fillMaxWidth(),
+        )
+
+        state.qrCode?.let { safeQrCode ->
+            QrCodeImage(
+                qrCode = safeQrCode,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(vertical = SPACING_MEDIUM.dp)
+            )
         }
     }
 
-    Box(
-        modifier = Modifier.fillMaxSize().safeContentPadding(),
-    ) {
-        IconButton(
-            modifier = Modifier.align(Alignment.TopStart),
-            onClick = {
-                viewModel.setEvent(ReverseEngagementViewModelContract.Event.OnBackClick)
+    LaunchedEffect(Unit) {
+        effectFlow.collect { effect ->
+            when (effect) {
+                is Effect.Navigation -> onNavigationRequested(effect)
             }
-        ) {
-            Text(
-                text = "Back"
-            )
         }
+    }
+}
 
-        Column(
-            modifier = Modifier.align(Alignment.Center),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = "Reverse Engagement",
-                style = MaterialTheme.typography.headlineMedium
-            )
+@Composable
+private fun InformativeText(
+    text: String,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier) {
+        Text(
+            text = text,
+            modifier = Modifier.fillMaxWidth(),
+            color = MaterialTheme.colorScheme.onSurface,
+            style = MaterialTheme.typography.bodyMedium,
+        )
+    }
+}
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                content = {
-                    Text("Cancel")
-                },
-                onClick = {
-                    viewModel.setEvent(ReverseEngagementViewModelContract.Event.OnCancelClick)
-                }
-            )
-        }
+@ThemeModePreviews
+@Composable
+private fun ContentPreview() {
+    PreviewTheme(orientation = PreviewOrientation.HORIZONTAL) {
+        val state = State(
+            isLoading = false,
+            screenTitle = stringResource(Res.string.reverse_engagement_screen_title),
+            informativeMessage = stringResource(Res.string.reverse_engagement_screen_info_message),
+            qrCode = stringResource(Res.string.reverse_engagement_screen_placeholder_qr),
+        )
+        Content(
+            state = state,
+            effectFlow = emptyFlow(),
+            onNavigationRequested = {},
+            paddingValues = PaddingValues(SPACING_MEDIUM.dp),
+        )
     }
 }

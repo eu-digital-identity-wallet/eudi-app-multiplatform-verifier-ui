@@ -26,6 +26,8 @@
     <string name="generic_done">Done</string>
 
     <!-- Content Description -->
+    <string name="content_description_qr_code_image">QR code image</string>
+
     <string name="content_description_arrow_back_icon">Go Back</string>
     <string name="content_description_close_icon">Close</string>
     <string name="content_description_more_vert_icon">More Items</string>
@@ -164,5 +166,10 @@
     <string name="age_verification_issuing_authority">Issuing Authority</string>
     <string name="age_verification_issuing_country">Issuing Country</string>
     <string name="age_verification_user_pseudonym">User Pseudonym</string>
+
+    <!-- Reverse Engagement -->
+    <string name="reverse_engagement_screen_title">Reverse Engagement</string>
+    <string name="reverse_engagement_screen_info_message">Scan QR code with the EUDI Proximity Verifier application.\n\nNOTE: This is not supported for ISO 18013-7, only 23220-4.</string>
+    <string name="reverse_engagement_screen_placeholder_qr">EUDI Proximity Verifier</string>
 
 </resources>

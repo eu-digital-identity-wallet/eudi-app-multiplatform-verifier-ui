@@ -30,6 +30,8 @@ import eu.europa.ec.euidi.verifier.domain.interactor.ShowDocumentsInteractor
 import eu.europa.ec.euidi.verifier.domain.interactor.ShowDocumentsInteractorImpl
 import eu.europa.ec.euidi.verifier.domain.interactor.TransferStatusInteractor
 import eu.europa.ec.euidi.verifier.domain.interactor.TransferStatusInteractorImpl
+import eu.europa.ec.euidi.verifier.domain.interactor.ReverseEngagementInteractor
+import eu.europa.ec.euidi.verifier.domain.interactor.ReverseEngagementInteractorImpl
 import eu.europa.ec.euidi.verifier.domain.interactor.SettingsInteractor
 import eu.europa.ec.euidi.verifier.domain.interactor.SettingsInteractorImpl
 import org.koin.core.annotation.Factory
@@ -80,5 +82,12 @@ class InteractorModule {
         uuidProvider,
         resourceProvider,
         dataStoreController,
+    )
+
+    @Factory
+    fun provideReverseEngagementInteractor(
+        resourceProvider: ResourceProvider,
+    ): ReverseEngagementInteractor = ReverseEngagementInteractorImpl(
+        resourceProvider,
     )
 }
