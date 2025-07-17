@@ -26,16 +26,9 @@ import eu.europa.ec.euidi.verifier.presentation.navigation.slideOutToEnd
 
 fun NavGraphBuilder.menuScreen(navController: NavController) {
     composable<NavItem.Menu>(
-        // when you navigate TO Menu (initial / forward)
         enterTransition = slideInFromEnd(),
-
-        // when you navigate AWAY from Menu (forward), disable it
         exitTransition = noAnimation(),
-
-        // when you pop BACK to Menu, disable any enter‐animation
         popEnterTransition = noAnimation(),
-
-        // when you pop Menu itself, slide it out
         popExitTransition = slideOutToEnd()
     ) {
         MenuScreen(navController)

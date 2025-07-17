@@ -44,7 +44,6 @@ import eu.europa.ec.euidi.verifier.presentation.component.ListItemTrailingConten
 import eu.europa.ec.euidi.verifier.presentation.component.content.ContentScreen
 import eu.europa.ec.euidi.verifier.presentation.component.content.ScreenNavigateAction
 import eu.europa.ec.euidi.verifier.presentation.component.content.ToolbarConfig
-import eu.europa.ec.euidi.verifier.presentation.component.preview.PreviewOrientation
 import eu.europa.ec.euidi.verifier.presentation.component.preview.PreviewTheme
 import eu.europa.ec.euidi.verifier.presentation.component.preview.ThemeModePreviews
 import eu.europa.ec.euidi.verifier.presentation.component.utils.OneTimeLaunchedEffect
@@ -282,7 +281,7 @@ private fun SettingsCategoryItem(
 @ThemeModePreviews
 @Composable
 private fun ContentPreview() {
-    PreviewTheme(orientation = PreviewOrientation.VERTICAL) {
+    PreviewTheme {
         val settingsItems = listOf(
             SettingsItemUi.CategoryHeader(
                 title = stringResource(Res.string.settings_screen_category_data_retrieval_options_title),

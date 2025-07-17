@@ -21,6 +21,8 @@ import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
 import eu.europa.ec.euidi.verifier.core.provider.UuidProvider
 import eu.europa.ec.euidi.verifier.domain.interactor.MenuInteractor
 import eu.europa.ec.euidi.verifier.domain.interactor.MenuInteractorImpl
+import eu.europa.ec.euidi.verifier.domain.interactor.ReverseEngagementInteractor
+import eu.europa.ec.euidi.verifier.domain.interactor.ReverseEngagementInteractorImpl
 import eu.europa.ec.euidi.verifier.domain.interactor.SettingsInteractor
 import eu.europa.ec.euidi.verifier.domain.interactor.SettingsInteractorImpl
 import org.koin.core.annotation.Factory
@@ -47,5 +49,12 @@ class InteractorModule {
         uuidProvider,
         resourceProvider,
         dataStoreController,
+    )
+
+    @Factory
+    fun provideReverseEngagementInteractor(
+        resourceProvider: ResourceProvider,
+    ): ReverseEngagementInteractor = ReverseEngagementInteractorImpl(
+        resourceProvider,
     )
 }
