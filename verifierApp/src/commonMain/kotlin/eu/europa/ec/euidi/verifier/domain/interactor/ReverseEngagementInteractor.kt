@@ -56,7 +56,9 @@ class ReverseEngagementInteractorImpl(
                     qr = resourceProvider.getSharedString(Res.string.reverse_engagement_screen_placeholder_qr)
                 )
             }.getOrElse {
-                CreateQrPartialState.Failure(it.message ?: resourceProvider.genericErrorMessage())
+                CreateQrPartialState.Failure(
+                    error = it.message ?: resourceProvider.genericErrorMessage()
+                )
             }
         }
     }
