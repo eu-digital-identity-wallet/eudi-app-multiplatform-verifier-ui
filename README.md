@@ -10,13 +10,22 @@ the [EUDI Wallet Reference Implementation project description](https://github.co
 * [Overview](#overview)
 * [How to use the application](#how-to-use-the-application)
 * [Application configuration](#application-configuration)
-* [How to contribute](#how-to-contribute)
 * [Disclaimer](#disclaimer)
+* [How to contribute](#how-to-contribute)
 * [License](#license)
 
 ## Overview
 
-// TODO
+The EUDI Verifier App is a cross-platform (iOS and Android) reference implementation for ISO 18013-5 proximity-based credential verification. Built with Kotlin Multiplatform (KMP/CMP), the app provides a unified codebase for business logic, leveraging platform-native libraries to ensure compliance with the latest standards and security requirements.
+
+The EUDI Verifier App enables organizations and relying parties to:
+
+1. Read and verify ISO 18013-5 compliant mobile credentials (mDL, PID, etc.) over proximity channels (NFC/BLE).
+2. Support secure, privacy-preserving credential presentation flows, both for in-person and potentially remote scenarios.
+3. Demonstrate modular, reusable architecture by utilizing platform-specific low-level libraries, orchestrated by a shared multiplatform business logic layer.
+4. Provide an accessible, extensible codebase for pilots, research, and real-world integration projects targeting digital identity verification.
+
+This repository contains the source code for the multi-platform app, while core cryptographic and credential-handling libraries are used as external dependencies.
 
 ## How to use the application
 
@@ -33,11 +42,6 @@ You can download the application (apk file) through GitHub releases [here](https
 
 // TODO
 
-## How to contribute
-
-We welcome contributions to this project. To ensure that the process is smooth for everyone
-involved, follow the guidelines found in [CONTRIBUTING.md](CONTRIBUTING.md).
-
 ## Disclaimer
 
 The released software is an initial development release version: 
@@ -50,6 +54,11 @@ The released software is an initial development release version:
 -  Users of the software must perform sufficient engineering and additional testing to properly evaluate their application and determine whether any of the open-sourced components are suitable for use in that application.
 -  We strongly recommend not putting this version of the software into production use.
 -  Only the latest version of the software will be supported
+
+## How to contribute
+
+We welcome contributions to this project. To ensure that the process is smooth for everyone
+involved, follow the guidelines found in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
