@@ -8,6 +8,7 @@ the [EUDI Wallet Reference Implementation project description](https://github.co
 ## Table of contents
 
 * [Overview](#overview)
+* [Important things to know](#important-things-to-know)
 * [How to use the application](#how-to-use-the-application)
 * [Application configuration](#application-configuration)
 * [Disclaimer](#disclaimer)
@@ -25,7 +26,11 @@ The EUDI Verifier App enables organizations and relying parties to:
 3. Demonstrate modular, reusable architecture by utilizing platform-specific low-level libraries, orchestrated by a shared multiplatform business logic layer.
 4. Provide an accessible, extensible codebase for pilots, research, and real-world integration projects targeting digital identity verification.
 
-This repository contains the source code for the multi-platform app, while core cryptographic and credential-handling libraries are used as external dependencies.
+This repository contains the source code for the multi-platform app, while credential-handling libraries are used as external dependencies.
+
+## Important things to know
+
+Currently, the project supports building both Android and iOS applications. However, only the Android version is fully operational. The iOS version builds the user interface, but no actions are functional, as the ISO 18013-5 library has not yet been implemented. Support for this functionality is planned for a future release.
 
 ## How to use the application
 
