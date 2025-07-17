@@ -19,6 +19,8 @@ package eu.europa.ec.euidi.verifier.domain.di
 import eu.europa.ec.euidi.verifier.core.controller.DataStoreController
 import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
 import eu.europa.ec.euidi.verifier.core.provider.UuidProvider
+import eu.europa.ec.euidi.verifier.domain.interactor.HomeInteractor
+import eu.europa.ec.euidi.verifier.domain.interactor.HomeInteractorImpl
 import eu.europa.ec.euidi.verifier.domain.interactor.MenuInteractor
 import eu.europa.ec.euidi.verifier.domain.interactor.MenuInteractorImpl
 import eu.europa.ec.euidi.verifier.domain.interactor.ReverseEngagementInteractor
@@ -30,6 +32,15 @@ import org.koin.core.annotation.Module
 
 @Module
 class InteractorModule {
+
+    @Factory
+    fun provideHomeInteractor(
+        uuidProvider: UuidProvider,
+        resourceProvider: ResourceProvider,
+    ): HomeInteractor = HomeInteractorImpl(
+        uuidProvider,
+        resourceProvider,
+    )
 
     @Factory
     fun provideMenuInteractor(

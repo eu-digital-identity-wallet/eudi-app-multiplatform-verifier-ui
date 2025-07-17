@@ -23,8 +23,6 @@ import eu.europa.ec.euidi.verifier.presentation.navigation.NavItem
 
 fun NavGraphBuilder.homeScreen(navController: NavController) {
     composable<NavItem.Home> {
-        HomeScreen(
-            navController = navController
-        )
+        HomeScreen(navController)
     }
 }
