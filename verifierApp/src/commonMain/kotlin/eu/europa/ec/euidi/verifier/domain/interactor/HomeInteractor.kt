@@ -16,6 +16,7 @@
 
 package eu.europa.ec.euidi.verifier.domain.interactor
 
+import eu.europa.ec.euidi.verifier.core.helper.AppCloser
 import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
 import eu.europa.ec.euidi.verifier.core.provider.UuidProvider
 import eu.europa.ec.euidi.verifier.presentation.component.AppIcons
@@ -39,9 +40,12 @@ interface HomeInteractor {
         requestedDocs: List<RequestedDocumentUi>,
         existingMainButtonData: ListItemDataUi
     ): ListItemDataUi
+
+    fun closeApp()
 }
 
 class HomeInteractorImpl(
+    private val appCloser: AppCloser,
     private val uuidProvider: UuidProvider,
     private val resourceProvider: ResourceProvider,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
@@ -85,6 +89,10 @@ class HomeInteractorImpl(
                 mainContentData = ListItemMainContentDataUi.Text(text = displayText)
             )
         }
+    }
+
+    override fun closeApp() {
+        appCloser.closeApp()
     }
 
 }

@@ -65,7 +65,6 @@ sealed interface HomeViewModelContract {
                 val route: NavItem
             ) : Navigation
 
-            data object Finish : Navigation
             data class NavigateToQrScanScreen(
                 val requestedDocs: RequestedDocsHolder
             ) : Navigation
@@ -79,6 +78,7 @@ class HomeViewModel(
 ) : MviViewModel<Event, State, Effect>() {
 
     override fun createInitialState(): State {
+        println("Giannis new")
         return State(
             isLoading = true,
         )
@@ -99,7 +99,7 @@ class HomeViewModel(
             }
 
             is Event.OnBackClicked -> {
-                setEffect { Effect.Navigation.Finish }
+                closeApp()
             }
 
             is Event.OnStickyButtonClicked -> {
@@ -173,6 +173,10 @@ class HomeViewModel(
                 }
             }
         }
+    }
+
+    private fun closeApp() {
+        interactor.closeApp()
     }
 
 }

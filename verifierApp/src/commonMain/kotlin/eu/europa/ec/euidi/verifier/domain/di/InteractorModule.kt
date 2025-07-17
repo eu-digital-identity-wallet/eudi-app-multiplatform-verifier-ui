@@ -17,6 +17,7 @@
 package eu.europa.ec.euidi.verifier.domain.di
 
 import eu.europa.ec.euidi.verifier.core.controller.DataStoreController
+import eu.europa.ec.euidi.verifier.core.helper.AppCloser
 import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
 import eu.europa.ec.euidi.verifier.core.provider.UuidProvider
 import eu.europa.ec.euidi.verifier.domain.interactor.HomeInteractor
@@ -37,9 +38,11 @@ class InteractorModule {
 
     @Factory
     fun provideHomeInteractor(
+        appCloser: AppCloser,
         uuidProvider: UuidProvider,
         resourceProvider: ResourceProvider,
     ): HomeInteractor = HomeInteractorImpl(
+        appCloser,
         uuidProvider,
         resourceProvider,
     )
