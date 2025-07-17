@@ -23,7 +23,6 @@ import eu.europa.ec.euidi.verifier.presentation.component.ListItemMainContentDat
 import eu.europa.ec.euidi.verifier.presentation.model.ReceivedDocumentUi
 import eu.europa.ec.euidi.verifier.presentation.ui.show_document.model.DocumentUi
 import eudiverifier.verifierapp.generated.resources.Res
-import eudiverifier.verifierapp.generated.resources.settings_screen_title
 import eudiverifier.verifierapp.generated.resources.show_documents_screen_title
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers

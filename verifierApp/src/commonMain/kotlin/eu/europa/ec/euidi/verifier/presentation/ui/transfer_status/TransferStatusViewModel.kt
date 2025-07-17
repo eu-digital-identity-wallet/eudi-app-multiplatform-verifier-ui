@@ -17,7 +17,6 @@
 package eu.europa.ec.euidi.verifier.presentation.ui.transfer_status
 
 import androidx.lifecycle.viewModelScope
-import eu.europa.ec.euidi.verifier.core.provider.UuidProvider
 import eu.europa.ec.euidi.verifier.domain.interactor.TransferStatusInteractor
 import eu.europa.ec.euidi.verifier.presentation.architecture.MviViewModel
 import eu.europa.ec.euidi.verifier.presentation.architecture.UiEffect
