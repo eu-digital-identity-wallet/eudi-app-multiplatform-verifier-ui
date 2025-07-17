@@ -20,8 +20,17 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import eu.europa.ec.euidi.verifier.presentation.navigation.NavItem
+import eu.europa.ec.euidi.verifier.presentation.navigation.noAnimation
+import eu.europa.ec.euidi.verifier.presentation.navigation.slideInFromEnd
+import eu.europa.ec.euidi.verifier.presentation.navigation.slideOutToEnd
 
-fun NavGraphBuilder.reverseEngagementScreen(navController: NavController) =
-    composable<NavItem.ReverseEngagement> {
+fun NavGraphBuilder.reverseEngagementScreen(navController: NavController) {
+    composable<NavItem.ReverseEngagement>(
+        enterTransition = slideInFromEnd(),
+        exitTransition = noAnimation(),
+        popEnterTransition = noAnimation(),
+        popExitTransition = slideOutToEnd()
+    ) {
         ReverseEngagementScreen(navController)
     }
+}

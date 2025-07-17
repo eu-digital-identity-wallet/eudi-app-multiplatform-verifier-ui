@@ -90,6 +90,8 @@ kotlin {
 
             implementation(libs.ktor.client.core)
             implementation(libs.kermit)
+
+            implementation(libs.qr.kit)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -106,7 +108,7 @@ kotlin {
     }
 
     ksp {
-        arg("KOIN_USE_COMPOSE_VIEWMODEL","true")
+        arg("KOIN_USE_COMPOSE_VIEWMODEL", "true")
     }
 }
 
