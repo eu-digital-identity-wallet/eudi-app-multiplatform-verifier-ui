@@ -16,24 +16,68 @@
 
 package eu.europa.ec.euidi.verifier.domain.config
 
-import eu.europa.ec.euidi.verifier.utils.CommonParcelable
-import eu.europa.ec.euidi.verifier.utils.CommonParcelize
+import eu.europa.ec.euidi.verifier.domain.config.model.ClaimItem
+import eu.europa.ec.euidi.verifier.presentation.utils.CommonParcelable
+import eu.europa.ec.euidi.verifier.presentation.utils.CommonParcelize
 
-enum class AttestationType(val displayName: String) {
-    PID("PID"),
-    MDL("Mdl"),
-    AGE_VERIFICATION("Age Verification")
+typealias NameSpace = String
+typealias Doctype = String
+
+@CommonParcelize
+sealed interface AttestationType : CommonParcelable {
+    val displayName: String
+    val namespace: NameSpace
+    val docType: Doctype
+
+    data object Pid : AttestationType {
+        override val displayName: String
+            get() = "PID"
+
+        override val namespace: String
+            get() = "eu.europa.ec.eudi.pid.1"
+
+        override val docType: String
+            get() = "eu.europa.ec.eudi.pid.1"
+    }
+
+    data object Mdl : AttestationType {
+        override val displayName: String
+            get() = "mDL"
+
+        override val namespace: String
+            get() = "org.iso.18013.5.1.mDL"
+
+        override val docType: String
+            get() = "org.iso.18013.5.1"
+    }
+
+    data object AgeVerification : AttestationType {
+        override val displayName: String
+            get() = "Age Verification"
+
+        override val namespace: String
+            get() = "eu.europa.ec.eudi.pseudonym.age_over_18.1"
+
+        override val docType: String
+            get() = "eu.europa.ec.eudi.pseudonym.age_over_18.1"
+    }
+
+    data object OTHER : AttestationType {
+        override val displayName: String
+            get() = "OTHER"
+
+        override val namespace: String
+            get() = ""
+
+        override val docType: String
+            get() = ""
+    }
 }
 
 enum class Mode(val displayName: String) {
     FULL(displayName = "Full"),
     CUSTOM(displayName = "Custom")
 }
-
-@CommonParcelize
-data class ClaimItem(
-    val label: String
-) : CommonParcelable
 
 data class SupportedDocuments(
     val documents: Map<AttestationType, List<ClaimItem>>
@@ -45,18 +89,19 @@ interface ConfigProvider {
     fun getDocumentModes(attestationType: AttestationType): List<Mode>
 }
 
-class ConfigProviderImpl() : ConfigProvider {
+class ConfigProviderImpl : ConfigProvider {
     override fun getDocumentModes(attestationType: AttestationType): List<Mode> {
         return when (attestationType) {
-            AttestationType.PID -> listOf(Mode.FULL, Mode.CUSTOM)
-            AttestationType.MDL -> listOf(Mode.FULL, Mode.CUSTOM)
-            AttestationType.AGE_VERIFICATION -> listOf(Mode.FULL)
+            AttestationType.Pid -> listOf(Mode.FULL, Mode.CUSTOM)
+            AttestationType.Mdl -> listOf(Mode.FULL, Mode.CUSTOM)
+            AttestationType.AgeVerification -> listOf(Mode.FULL, Mode.CUSTOM)
+            AttestationType.OTHER -> listOf()
         }
     }
 
     override val supportedDocuments = SupportedDocuments(
         mapOf(
-            AttestationType.PID to listOf(
+            AttestationType.Pid to listOf(
                 ClaimItem("family_name"),
                 ClaimItem("given_name"),
                 ClaimItem("birth_date"),
@@ -87,8 +132,7 @@ class ConfigProviderImpl() : ConfigProvider {
                 ClaimItem("place_of_birth"),
                 ClaimItem("trust_anchor")
             ),
-
-            AttestationType.MDL to listOf(
+            AttestationType.Mdl to listOf(
                 ClaimItem("family_name"),
                 ClaimItem("given_name"),
                 ClaimItem("birth_date"),
@@ -116,15 +160,21 @@ class ConfigProviderImpl() : ConfigProvider {
                 ClaimItem("eye_colour"),
                 ClaimItem("hair_colour"),
                 ClaimItem("birth_place"),
-                ClaimItem("resident_address"), // Permanent residence for MDL
+                ClaimItem("resident_address"),
                 ClaimItem("portrait_capture_date"),
                 ClaimItem("biometric_template_xx"),
                 ClaimItem("family_name_national_character"),
                 ClaimItem("given_name_national_character"),
                 ClaimItem("signature_usual_mark")
             ),
-
-            AttestationType.AGE_VERIFICATION to emptyList()
+            AttestationType.AgeVerification to listOf(
+                ClaimItem("age_over_18"),
+                ClaimItem("issuance_date"),
+                ClaimItem("user_pseudonym"),
+                ClaimItem("expiry_date"),
+                ClaimItem("issuing_authority"),
+                ClaimItem("issuing_country"),
+            )
         )
     )
 }

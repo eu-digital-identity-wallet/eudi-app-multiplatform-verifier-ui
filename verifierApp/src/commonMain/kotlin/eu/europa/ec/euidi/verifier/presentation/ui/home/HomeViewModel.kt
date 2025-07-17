@@ -24,6 +24,34 @@ import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocsHolder
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
 import org.koin.android.annotation.KoinViewModel
 
+sealed interface HomeViewModelContract {
+    data class State(
+        val requestedDocs: List<RequestedDocumentUi> = emptyList(),
+        val isScanQrCodeButtonEnabled: Boolean = false
+    ) : UiState
+
+    sealed interface Event : UiEvent {
+        data class Init(val docs: List<RequestedDocumentUi>?) : Event
+        data object OnSelectDocumentClick : Event
+        data object OnScanQrCodeClick : Event
+        data object OnSettingsClick : Event
+        data object OnReverseEngagementClick : Event
+        data object OnMenuClick : Event
+    }
+
+    sealed interface Effect : UiEffect {
+        sealed interface Navigation : Effect {
+            data object NavigateToDocToRequestScreen : Navigation
+            data class NavigateToTransferStatusScreen(
+                val requestedDocs: RequestedDocsHolder
+            ) : Navigation
+            data object NavigateToSettingsScreen : Navigation
+            data object NavigateToReverseEngagementScreen : Navigation
+            data object NavigateToMenuScreen : Navigation
+        }
+    }
+}
+
 @KoinViewModel
 class HomeViewModel() :
     MviViewModel<HomeViewModelContract.Event, HomeViewModelContract.State, HomeViewModelContract.Effect>() {
@@ -74,34 +102,6 @@ class HomeViewModel() :
                     HomeViewModelContract.Effect.Navigation.NavigateToMenuScreen
                 }
             }
-        }
-    }
-}
-
-interface HomeViewModelContract {
-    sealed interface Event : UiEvent {
-        data class Init(val docs: List<RequestedDocumentUi>?) : Event
-        data object OnSelectDocumentClick : Event
-        data object OnScanQrCodeClick : Event
-        data object OnSettingsClick : Event
-        data object OnReverseEngagementClick : Event
-        data object OnMenuClick : Event
-    }
-
-    data class State(
-        val requestedDocs: List<RequestedDocumentUi> = emptyList(),
-        val isScanQrCodeButtonEnabled: Boolean = false
-    ) : UiState
-
-    sealed interface Effect : UiEffect {
-        sealed interface Navigation : Effect {
-            data object NavigateToDocToRequestScreen : Navigation
-            data class NavigateToTransferStatusScreen(val requestedDocs: RequestedDocsHolder) :
-                Navigation
-
-            data object NavigateToSettingsScreen : Navigation
-            data object NavigateToReverseEngagementScreen : Navigation
-            data object NavigateToMenuScreen : Navigation
         }
     }
 }

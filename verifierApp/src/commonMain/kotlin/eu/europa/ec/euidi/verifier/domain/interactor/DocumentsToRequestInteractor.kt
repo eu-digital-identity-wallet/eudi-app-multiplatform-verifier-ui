@@ -17,23 +17,29 @@
 package eu.europa.ec.euidi.verifier.domain.interactor
 
 import eu.europa.ec.euidi.verifier.domain.config.AttestationType
-import eu.europa.ec.euidi.verifier.domain.config.ClaimItem
 import eu.europa.ec.euidi.verifier.domain.config.ConfigProvider
+import eu.europa.ec.euidi.verifier.domain.config.Mode
+import eu.europa.ec.euidi.verifier.domain.config.model.ClaimItem
 import eu.europa.ec.euidi.verifier.domain.model.SupportedDocumentUi
+import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
 interface DocumentsToRequestInteractor {
+
     fun getSupportedDocuments(): List<SupportedDocumentUi>
 
     fun getDocumentClaims(attestationType: AttestationType): List<ClaimItem>
 
     fun searchDocuments(query: String, documents: List<SupportedDocumentUi>): Flow<List<SupportedDocumentUi>>
+
+    fun checkDocumentMode(requestedDoc: RequestedDocumentUi): RequestedDocumentUi
 }
 
 class DocumentsToRequestInteractorImpl(
     private val configProvider: ConfigProvider,
 ): DocumentsToRequestInteractor {
+
     override fun getSupportedDocuments(): List<SupportedDocumentUi> =
         configProvider.supportedDocuments
             .documents
@@ -57,4 +63,18 @@ class DocumentsToRequestInteractorImpl(
 
             emit(filtered)
         }
+
+    override fun checkDocumentMode(requestedDoc: RequestedDocumentUi): RequestedDocumentUi {
+        val expectedClaimsCount = configProvider.supportedDocuments.documents
+            .filterKeys { it == requestedDoc.documentType }
+            .values
+            .flatten()
+            .size
+
+        return if (requestedDoc.claims.size == expectedClaimsCount) {
+            requestedDoc.copy(mode = Mode.FULL)
+        } else {
+            requestedDoc
+        }
+    }
 }

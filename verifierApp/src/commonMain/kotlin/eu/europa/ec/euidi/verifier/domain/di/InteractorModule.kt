@@ -19,8 +19,17 @@ package eu.europa.ec.euidi.verifier.domain.di
 import eu.europa.ec.euidi.verifier.core.controller.DataStoreController
 import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
 import eu.europa.ec.euidi.verifier.core.provider.UuidProvider
+import eu.europa.ec.euidi.verifier.domain.config.ConfigProvider
+import eu.europa.ec.euidi.verifier.domain.interactor.CustomRequestInteractor
+import eu.europa.ec.euidi.verifier.domain.interactor.CustomRequestInteractorImpl
+import eu.europa.ec.euidi.verifier.domain.interactor.DocumentsToRequestInteractor
+import eu.europa.ec.euidi.verifier.domain.interactor.DocumentsToRequestInteractorImpl
 import eu.europa.ec.euidi.verifier.domain.interactor.MenuInteractor
 import eu.europa.ec.euidi.verifier.domain.interactor.MenuInteractorImpl
+import eu.europa.ec.euidi.verifier.domain.interactor.ShowDocumentsInteractor
+import eu.europa.ec.euidi.verifier.domain.interactor.ShowDocumentsInteractorImpl
+import eu.europa.ec.euidi.verifier.domain.interactor.TransferStatusInteractor
+import eu.europa.ec.euidi.verifier.domain.interactor.TransferStatusInteractorImpl
 import eu.europa.ec.euidi.verifier.domain.interactor.SettingsInteractor
 import eu.europa.ec.euidi.verifier.domain.interactor.SettingsInteractorImpl
 import org.koin.core.annotation.Factory
@@ -28,6 +37,30 @@ import org.koin.core.annotation.Module
 
 @Module
 class InteractorModule {
+
+    @Factory
+    fun provideDocumentsToRequestInteractor(
+        configProvider: ConfigProvider,
+    ): DocumentsToRequestInteractor =
+        DocumentsToRequestInteractorImpl(configProvider)
+
+    @Factory
+    fun provideCustomRequestInteractor(
+        resourceProvider: ResourceProvider
+    ): CustomRequestInteractor =
+        CustomRequestInteractorImpl(resourceProvider)
+
+    @Factory
+    fun provideShowDocumentsInteractor(
+        resourceProvider: ResourceProvider
+    ): ShowDocumentsInteractor =
+        ShowDocumentsInteractorImpl(resourceProvider)
+
+    @Factory
+    fun provideTransferStatusInteractor(
+        resourceProvider: ResourceProvider,
+        uuidProvider: UuidProvider
+    ): TransferStatusInteractor = TransferStatusInteractorImpl(resourceProvider, uuidProvider)
 
     @Factory
     fun provideMenuInteractor(

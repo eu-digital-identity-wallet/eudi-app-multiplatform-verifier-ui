@@ -23,6 +23,7 @@
     <string name="generic_network_error_message">You are not connected to the internet</string>
     <string name="generic_error_retry">Please try again</string>
     <string name="generic_cancel">Cancel</string>
+    <string name="generic_done">Done</string>
 
     <!-- Content Description -->
     <string name="content_description_arrow_back_icon">Go Back</string>
@@ -68,5 +69,100 @@
     <string name="settings_screen_item_ble_central_client_description">BLE central client mode deactivated</string>
     <string name="settings_screen_item_ble_peripheral_server_title">BLE peripheral server mode</string>
     <string name="settings_screen_item_ble_peripheral_server_description">BLE peripheral server mode deactivated</string>
+
+    <!-- Documents To Request -->
+    <string name="documents_to_request_screen_title">Documents to request</string>
+    <string name="documents_to_request_screen_status_connecting">Connecting...</string>">
+    <string name="documents_to_request_screen_status_connected">Connected</string>">
+
+    <string name="documents_to_request_screen_search_placeholder">Search documents</string>
+    <string name="documents_to_request_screen_request_header">Request</string>
+
+    <!-- Custom Request -->
+    <string name="custom_request_screen_title">Custom %1$s request</string>
+
+    <!-- Show Documents -->
+    <string name="show_documents_screen_title">Show Documents</string>
+    <string name="show_documents_screen_positive_button_label">OK</string>
+    <string name="show_documents_screen_num_of_docs_description">Number of documents returned</string>
+    <string name="show_documents_screen_address_description">Address</string>
+    <string name="show_documents_screen_document_header">Doctype</string>
+
+    <!-- Transfer Status -->
+    <string name="transfer_status_screen_title">Transfer Status</string>
+
+    <!-- Document Claims -->
+
+
+    <!-- Document Claim Translations -->
+    <string name="pid_family_name">Family Name(s)</string>
+    <string name="pid_given_name">Given Name(s)</string>
+    <string name="pid_birth_date">Date of Birth</string>
+    <string name="pid_expiry_date">Expiry Date</string>
+    <string name="pid_issuing_country">Issuing Country</string>
+    <string name="pid_issuing_authority">Issuing Authority</string>
+    <string name="pid_document_number">Document Number</string>
+    <string name="pid_portrait">Portrait</string>
+    <string name="pid_sex">Sex</string>
+    <string name="pid_nationality">Nationality</string>
+    <string name="pid_issuing_jurisdiction">Issuing Jurisdiction</string>
+    <string name="pid_resident_address">Resident Address</string>
+    <string name="pid_resident_country">Resident Country</string>
+    <string name="pid_resident_state">Resident State</string>
+    <string name="pid_resident_city">Resident City</string>
+    <string name="pid_resident_postal_code">Postal Code</string>
+    <string name="pid_age_in_years">Age in Years</string>
+    <string name="pid_age_birth_year">Birth Year</string>
+    <string name="pid_age_over_18">Age Over 18</string>
+    <string name="pid_issuance_date">Issuance Date</string>
+    <string name="pid_email_address">Email Address</string>
+    <string name="pid_resident_street">Street</string>
+    <string name="pid_resident_house_number">House Number</string>
+    <string name="pid_personal_administrative_number">Personal Administrative Number</string>
+    <string name="pid_mobile_phone_number">Mobile Phone Number</string>
+    <string name="pid_birth_family_name">Birth Family Name</string>
+    <string name="pid_birth_given_name">Birth Given Name</string>
+    <string name="pid_place_of_birth">Place of Birth</string>
+    <string name="pid_trust_anchor">Trust Anchor</string>
+
+    <string name="mdl_family_name">Family Name(s)</string>
+    <string name="mdl_given_name">Given Name(s)</string>
+    <string name="mdl_birth_date">Date of Birth</string>
+    <string name="mdl_expiry_date">Expiry Date</string>
+    <string name="mdl_issuing_country">Issuing Country</string>
+    <string name="mdl_issuing_authority">Issuing Authority</string>
+    <string name="mdl_document_number">Document Number</string>
+    <string name="mdl_portrait">Portrait</string>
+    <string name="mdl_sex">Sex</string>
+    <string name="mdl_nationality">Nationality</string>
+    <string name="mdl_issuing_jurisdiction">Issuing Jurisdiction</string>
+    <string name="mdl_resident_address">Permanent Residence</string>
+    <string name="mdl_resident_country">Resident Country</string>
+    <string name="mdl_resident_state">Resident State</string>
+    <string name="mdl_resident_city">Resident City</string>
+    <string name="mdl_resident_postal_code">Postal Code</string>
+    <string name="mdl_age_in_years">Age in Years</string>
+    <string name="mdl_age_birth_year">Birth Year</string>
+    <string name="mdl_age_over_18">Age Over 18</string>
+    <string name="mdl_driving_privileges">Driving Privileges</string>
+    <string name="mdl_un_distinguishing_sign">UN Distinguishing Sign</string>
+    <string name="mdl_administrative_number">Administrative Number</string>
+    <string name="mdl_height">Height</string>
+    <string name="mdl_weight">Weight</string>
+    <string name="mdl_eye_colour">Eye Colour</string>
+    <string name="mdl_hair_colour">Hair Colour</string>
+    <string name="mdl_birth_place">Place of Birth</string>
+    <string name="mdl_portrait_capture_date">Portrait Capture Date</string>
+    <string name="mdl_biometric_template_xx">Biometric Template</string>
+    <string name="mdl_family_name_national_character">Family Name (National Characters)</string>
+    <string name="mdl_given_name_national_character">Given Name (National Characters)</string>
+    <string name="mdl_signature_usual_mark">Signature / Usual Mark</string>
+
+    <string name="age_verification_age_over_18">Age Over 18</string>
+    <string name="age_verification_expiry_date">Expiry Date</string>
+    <string name="age_verification_issuance_date">Issuance Date</string>
+    <string name="age_verification_issuing_authority">Issuing Authority</string>
+    <string name="age_verification_issuing_country">Issuing Country</string>
+    <string name="age_verification_user_pseudonym">User Pseudonym</string>
 
 </resources>

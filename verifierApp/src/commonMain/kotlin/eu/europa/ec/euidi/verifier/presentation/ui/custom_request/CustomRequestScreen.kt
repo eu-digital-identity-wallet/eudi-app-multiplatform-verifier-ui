@@ -16,29 +16,25 @@
 
 package eu.europa.ec.euidi.verifier.presentation.ui.custom_request
 
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
-import eu.europa.ec.euidi.verifier.presentation.navigation.getFromPreviousBackStack
-import eu.europa.ec.euidi.verifier.presentation.navigation.saveToPreviousBackStack
 import eu.europa.ec.euidi.verifier.presentation.component.ClickableArea
-import eu.europa.ec.euidi.verifier.presentation.component.ListItemDataUi
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemTrailingContentDataUi
 import eu.europa.ec.euidi.verifier.presentation.component.content.ContentScreen
 import eu.europa.ec.euidi.verifier.presentation.component.content.ScreenNavigateAction
 import eu.europa.ec.euidi.verifier.presentation.component.content.ToolbarConfig
+import eu.europa.ec.euidi.verifier.presentation.component.extension.withStickyBottomPadding
+import eu.europa.ec.euidi.verifier.presentation.component.utils.OneTimeLaunchedEffect
 import eu.europa.ec.euidi.verifier.presentation.component.utils.SPACING_MEDIUM
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.ButtonType
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.StickyBottomConfig
@@ -47,8 +43,14 @@ import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapListItems
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapStickyBottomContent
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.rememberButtonConfig
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
+import eu.europa.ec.euidi.verifier.presentation.navigation.getFromPreviousBackStack
+import eu.europa.ec.euidi.verifier.presentation.navigation.saveToPreviousBackStack
 import eu.europa.ec.euidi.verifier.presentation.utils.Constants
-import eu.europa.ec.euidi.verifier.presentation.utils.ToastManager
+import eudiverifier.verifierapp.generated.resources.Res
+import eudiverifier.verifierapp.generated.resources.generic_cancel
+import eudiverifier.verifierapp.generated.resources.generic_done
+import kotlinx.coroutines.flow.Flow
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -58,62 +60,29 @@ fun CustomRequestScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    val checkedCount by remember(state.items) {
-        derivedStateOf { state.items.count {
-            (it.trailingContentData as? ListItemTrailingContentDataUi.Checkbox)?.checkboxData?.isChecked == true
-        }}
-    }
-
     val stickyPrimaryButtonConfig = rememberButtonConfig(
         type = ButtonType.PRIMARY,
-        enabled = remember(state.items) {
-            derivedStateOf { checkedCount != state.items.size }
-        }.value,
         onClick = {
             viewModel.setEvent(CustomRequestContract.Event.OnDoneClick)
         },
-        content = { Text("Done") }
+        content = {
+            Text(stringResource(Res.string.generic_done))
+        }
     )
     val stickySecondaryButtonConfig = rememberButtonConfig(
         type = ButtonType.SECONDARY,
         onClick = {
             viewModel.setEvent(CustomRequestContract.Event.OnCancelClick)
         },
-        content = { Text("Cancel") }
-    )
-
-    LaunchedEffect(Unit) {
-        viewModel.setEvent(
-            CustomRequestContract.Event.Init(
-                doc = navController.getFromPreviousBackStack<RequestedDocumentUi>(Constants.REQUESTED_DOCUMENTS)
-            )
-        )
-    }
-
-    LaunchedEffect(viewModel.effect) {
-        viewModel.effect.collect { effect ->
-            when (effect) {
-                is CustomRequestContract.Effect.ShowToast -> {
-                    ToastManager().showToast(effect.message)
-                }
-
-                is CustomRequestContract.Effect.Navigation.GoBack -> {
-                    effect.requestedDocument?.let {
-                        navController.saveToPreviousBackStack(
-                            key = Constants.REQUESTED_DOCUMENTS,
-                            value = effect.requestedDocument
-                        )
-                    }
-                    navController.popBackStack()
-                }
-            }
+        content = {
+            Text(stringResource(Res.string.generic_cancel))
         }
-    }
+    )
 
     ContentScreen(
         navigatableAction = ScreenNavigateAction.BACKABLE,
         toolBarConfig = ToolbarConfig(
-            title = "Custom ${state.requestedDoc?.documentType?.displayName} request"
+            title = state.screenTitle
         ),
         onBack = {
             viewModel.setEvent(CustomRequestContract.Event.OnCancelClick)
@@ -130,19 +99,74 @@ fun CustomRequestScreen(
             )
         }
     ) { paddingValues ->
-        WrapListItems(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .verticalScroll(rememberScrollState()),
-            items = state.items,
-            onItemClick = {
-                val itemChecked = (it.trailingContentData as ListItemTrailingContentDataUi.Checkbox).checkboxData.isChecked
-
-                viewModel.setEvent(CustomRequestContract.Event.OnItemClicked(it.itemId, !itemChecked))
+        Content(
+            state = state,
+            effectFlow = viewModel.effect,
+            onEventSend = viewModel::setEvent,
+            onNavigationRequested = { navigationEffect ->
+                handleNavigationEffect(
+                    effect = navigationEffect,
+                    navController = navController
+                )
             },
-            clickableAreas = listOf(ClickableArea.TRAILING_CONTENT),
-            mainContentVerticalPadding = SPACING_MEDIUM.dp
+            paddingValues = paddingValues
         )
+    }
+
+    OneTimeLaunchedEffect {
+        viewModel.setEvent(
+            CustomRequestContract.Event.Init(
+                doc = navController.getFromPreviousBackStack<RequestedDocumentUi>(
+                    key = Constants.REQUESTED_DOCUMENTS
+                )
+            )
+        )
+    }
+}
+
+private fun handleNavigationEffect(
+    effect: CustomRequestContract.Effect,
+    navController: NavController,
+) {
+    when (effect) {
+        is CustomRequestContract.Effect.Navigation.GoBack -> {
+            effect.requestedDocument?.let {
+                navController.saveToPreviousBackStack(
+                    key = Constants.REQUESTED_DOCUMENTS,
+                    value = effect.requestedDocument
+                )
+            }
+            navController.popBackStack()
+        }
+    }
+}
+
+@Composable
+private fun Content(
+    state: CustomRequestContract.State,
+    effectFlow: Flow<CustomRequestContract.Effect>,
+    onEventSend: (CustomRequestContract.Event) -> Unit,
+    onNavigationRequested: (CustomRequestContract.Effect.Navigation) -> Unit,
+    paddingValues: PaddingValues
+) {
+    WrapListItems(
+        modifier = Modifier
+            .withStickyBottomPadding(paddingValues)
+            .verticalScroll(rememberScrollState()),
+        items = state.items,
+        onItemClick = {
+            val itemChecked = (it.trailingContentData as ListItemTrailingContentDataUi.Checkbox).checkboxData.isChecked
+            onEventSend(CustomRequestContract.Event.OnItemClicked(it.itemId, !itemChecked))
+        },
+        clickableAreas = listOf(ClickableArea.TRAILING_CONTENT),
+        mainContentVerticalPadding = SPACING_MEDIUM.dp
+    )
+
+    LaunchedEffect(Unit) {
+        effectFlow.collect { effect ->
+            when (effect) {
+                is CustomRequestContract.Effect.Navigation -> onNavigationRequested(effect)
+            }
+        }
     }
 }

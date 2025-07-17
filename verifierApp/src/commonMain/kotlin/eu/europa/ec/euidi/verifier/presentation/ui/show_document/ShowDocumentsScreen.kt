@@ -17,22 +17,13 @@
 package eu.europa.ec.euidi.verifier.presentation.ui.show_document
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,13 +31,37 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import eu.europa.ec.euidi.verifier.presentation.component.content.ContentScreen
+import eu.europa.ec.euidi.verifier.presentation.component.content.ScreenNavigateAction
+import eu.europa.ec.euidi.verifier.presentation.component.content.ToolbarConfig
+import eu.europa.ec.euidi.verifier.presentation.component.extension.withStickyBottomPadding
+import eu.europa.ec.euidi.verifier.presentation.component.utils.OneTimeLaunchedEffect
+import eu.europa.ec.euidi.verifier.presentation.component.utils.SPACING_MEDIUM
+import eu.europa.ec.euidi.verifier.presentation.component.utils.VSpacer
+import eu.europa.ec.euidi.verifier.presentation.component.wrap.ButtonConfig
+import eu.europa.ec.euidi.verifier.presentation.component.wrap.ButtonType
+import eu.europa.ec.euidi.verifier.presentation.component.wrap.StickyBottomConfig
+import eu.europa.ec.euidi.verifier.presentation.component.wrap.StickyBottomType
+import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapCard
+import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapListItems
+import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapStickyBottomContent
 import eu.europa.ec.euidi.verifier.presentation.model.ReceivedDocsHolder
 import eu.europa.ec.euidi.verifier.presentation.navigation.NavItem
 import eu.europa.ec.euidi.verifier.presentation.navigation.getFromPreviousBackStack
+import eu.europa.ec.euidi.verifier.presentation.ui.show_document.model.DocumentUi
 import eu.europa.ec.euidi.verifier.presentation.utils.Constants
+import eudiverifier.verifierapp.generated.resources.Res
+import eudiverifier.verifierapp.generated.resources.show_documents_screen_address_description
+import eudiverifier.verifierapp.generated.resources.show_documents_screen_document_header
+import eudiverifier.verifierapp.generated.resources.show_documents_screen_num_of_docs_description
+import eudiverifier.verifierapp.generated.resources.show_documents_screen_positive_button_label
+import eudiverifier.verifierapp.generated.resources.show_documents_screen_title
+import kotlinx.coroutines.flow.Flow
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -56,143 +71,169 @@ fun ShowDocumentsScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(Unit) {
-        val documents =
-            navController.getFromPreviousBackStack<ReceivedDocsHolder>(Constants.RECEIVED_DOCUMENTS)
-        documents?.let {
-            viewModel.setEvent(ShowDocumentViewModelContract.Event.Init(it.items))
-        }
-    }
-
-    LaunchedEffect(viewModel.effect) {
-        viewModel.effect.collect { effect ->
-            when (effect) {
-                ShowDocumentViewModelContract.Effect.Navigation.NavigateToHome -> {
-                    navController.navigate(NavItem.Home) {
-                        popUpTo(NavItem.Home) {
-                            inclusive = true
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .safeContentPadding()
-    ) {
-        IconButton(
-            modifier = Modifier.align(Alignment.TopStart),
-            onClick = {
-                viewModel.setEvent(ShowDocumentViewModelContract.Event.OnBackClick)
-            }
-        ) {
-            Text(
-                text = "Back"
-            )
-        }
-
-        Column(
-            modifier = Modifier.align(Alignment.Center),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = "Show documents",
-                style = MaterialTheme.typography.headlineMedium
-            )
-
-            Spacer(Modifier.height(36.dp))
-
-            Card(
-                modifier = Modifier
-                    .wrapContentHeight()
-                    .padding(8.dp),
-                elevation = CardDefaults.cardElevation(4.dp)
-            ) {
-                Column(
-                    modifier = Modifier.wrapContentHeight().padding(8.dp),
-                    horizontalAlignment = Alignment.Start,
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Text(
-                        text = "Number of documents returned: ${state.items.size}",
-                        style = MaterialTheme.typography.bodyMedium
+    ContentScreen(
+        navigatableAction = ScreenNavigateAction.BACKABLE,
+        toolBarConfig = ToolbarConfig(
+            title = stringResource(Res.string.show_documents_screen_title)
+        ),
+        onBack = {
+            viewModel.setEvent(ShowDocumentViewModelContract.Event.OnBackClick)
+        },
+        stickyBottom = { paddingValues ->
+            WrapStickyBottomContent(
+                stickyBottomModifier = Modifier.padding(paddingValues = paddingValues),
+                stickyBottomConfig = StickyBottomConfig(
+                    type = StickyBottomType.OneButton(
+                        config = ButtonConfig(
+                            onClick = {
+                                viewModel.setEvent(ShowDocumentViewModelContract.Event.OnDoneClick)
+                            },
+                            content = {
+                                Text(
+                                    text = stringResource(
+                                        Res.string.show_documents_screen_positive_button_label
+                                    )
+                                )
+                            },
+                            type = ButtonType.PRIMARY
+                        )
                     )
-
-                    Text(
-                        text = "Address:ognfoenrgiergieigwbegiwbrognfoenrgiergieigwbegiwbr",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-            }
-
-            Spacer(Modifier.height(36.dp))
-
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-            ) {
-                state.items.forEach {
-                    DocumentDetailsCard(data = it.claims)
-                }
-            }
-
-            Button(
-                content = {
-                    Text("OK")
-                },
-                onClick = {
-                    viewModel.setEvent(ShowDocumentViewModelContract.Event.OnDoneClick)
-                }
-            )
-        }
-    }
-}
-
-@Composable
-fun DocumentDetailsCard(
-    data: Map<String, String>
-) {
-    Card(
-        modifier = Modifier
-            .padding(8.dp),
-        elevation = CardDefaults.cardElevation(4.dp)
-    ) {
-        Column(modifier = Modifier.padding(12.dp)) {
-            data.forEach { field ->
-                DocumentDetailsTile(
-                    field = field,
-                    isLast = field.key == data.keys.last()
                 )
+            )
+        }
+    ) { padding ->
+        Content(
+            state = state,
+            effectFlow = viewModel.effect,
+            onNavigationRequested = { navigationEffect ->
+                handleNavigationEffect(
+                    navController = navController,
+                    navigationEffect = navigationEffect
+                )
+            },
+            paddingValues = padding
+        )
+
+        OneTimeLaunchedEffect {
+            navController
+                .getFromPreviousBackStack<ReceivedDocsHolder>(Constants.RECEIVED_DOCUMENTS)
+                ?.let { (address, items) ->
+                    viewModel.setEvent(
+                        ShowDocumentViewModelContract.Event.Init(
+                            items = items,
+                            address = address
+                        )
+                    )
+                }
+        }
+    }
+}
+
+private fun handleNavigationEffect(
+    navController: NavController,
+    navigationEffect: ShowDocumentViewModelContract.Effect.Navigation
+) {
+    when (navigationEffect) {
+        is ShowDocumentViewModelContract.Effect.Navigation.NavigateToHome -> {
+            navController.navigate(NavItem.Home) {
+                popUpTo(NavItem.Home) {
+                    inclusive = true
+                }
             }
         }
     }
 }
 
 @Composable
-fun DocumentDetailsTile(
-    field: Map.Entry<String, String>,
-    isLast: Boolean
+private fun Content(
+    state: ShowDocumentViewModelContract.State,
+    effectFlow: Flow<ShowDocumentViewModelContract.Effect>,
+    onNavigationRequested: (ShowDocumentViewModelContract.Effect.Navigation) -> Unit,
+    paddingValues: PaddingValues
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
+            .withStickyBottomPadding(paddingValues)
+            .verticalScroll(rememberScrollState())
     ) {
-        Text(
-            text = field.key,
-            style = MaterialTheme.typography.bodyMedium
-        )
-        Text(
-            text = field.value,
-            style = MaterialTheme.typography.bodySmall
+        DocumentsHeader(
+            size = state.items.size,
+            address = state.address
         )
 
-        if (!isLast) {
-            HorizontalDivider(modifier = Modifier.padding(top = 8.dp))
+        VSpacer.ExtraLarge()
+
+        state.items.forEach { document ->
+            DocumentDetails(document = document)
         }
     }
+
+    LaunchedEffect(Unit) {
+        effectFlow.collect { effect ->
+            when (effect) {
+                is ShowDocumentViewModelContract.Effect.Navigation -> onNavigationRequested(effect)
+            }
+        }
+    }
+}
+
+@Composable
+private fun DocumentsHeader(
+    size: Int,
+    address: String
+) {
+    WrapCard(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier.padding(SPACING_MEDIUM.dp),
+            verticalArrangement = Arrangement.spacedBy(SPACING_MEDIUM.dp),
+            horizontalAlignment = Alignment.Start
+        ) {
+            Text(
+                text = buildAnnotatedString {
+                    append(stringResource(Res.string.show_documents_screen_num_of_docs_description))
+                    append(": ")
+                    append(size.toString())
+                },
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            Text(
+                text = buildAnnotatedString {
+                    append(stringResource(Res.string.show_documents_screen_address_description))
+                    append(": ")
+                    append(address)
+                },
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+    }
+}
+
+@Composable
+private fun DocumentDetails(
+    document: DocumentUi
+) {
+    Text(
+        text = buildAnnotatedString {
+            append(stringResource(Res.string.show_documents_screen_document_header))
+            append(": ")
+            append(document.documentIso)
+        },
+        style = MaterialTheme.typography.labelLarge
+    )
+
+    VSpacer.Medium()
+
+    WrapListItems(
+        modifier = Modifier.fillMaxSize(),
+        items = document.uiClaims,
+        onItemClick = {},
+        clickableAreas = listOf(),
+        mainContentVerticalPadding = SPACING_MEDIUM.dp
+    )
+
+    VSpacer.Medium()
 }

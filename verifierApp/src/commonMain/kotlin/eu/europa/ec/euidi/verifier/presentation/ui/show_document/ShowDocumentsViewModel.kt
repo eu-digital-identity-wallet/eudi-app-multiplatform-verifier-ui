@@ -16,27 +16,34 @@
 
 package eu.europa.ec.euidi.verifier.presentation.ui.show_document
 
+import androidx.lifecycle.viewModelScope
+import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
+import eu.europa.ec.euidi.verifier.domain.interactor.ShowDocumentsInteractor
 import eu.europa.ec.euidi.verifier.presentation.architecture.MviViewModel
 import eu.europa.ec.euidi.verifier.presentation.architecture.UiEffect
 import eu.europa.ec.euidi.verifier.presentation.architecture.UiEvent
 import eu.europa.ec.euidi.verifier.presentation.architecture.UiState
 import eu.europa.ec.euidi.verifier.presentation.model.ReceivedDocumentUi
+import eu.europa.ec.euidi.verifier.presentation.ui.show_document.model.DocumentUi
+import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
-interface ShowDocumentViewModelContract {
+sealed interface ShowDocumentViewModelContract {
+    data class State(
+        val isLoading: Boolean = false,
+        val items: List<DocumentUi> = emptyList(),
+        val address: String = "",
+        val screenTitle: String = "",
+    ) : UiState
+
     sealed interface Event : UiEvent {
         data class Init(
+            val address: String,
             val items: List<ReceivedDocumentUi>
         ) : Event
-
         data object OnDoneClick : Event
         data object OnBackClick : Event
     }
-
-    data class State(
-        val message: String = "",
-        val items: List<ReceivedDocumentUi> = emptyList()
-    ) : UiState
 
     sealed interface Effect : UiEffect {
         sealed interface Navigation : Effect {
@@ -46,29 +53,51 @@ interface ShowDocumentViewModelContract {
 }
 
 @KoinViewModel
-class ShowDocumentsViewModel() :
-    MviViewModel<ShowDocumentViewModelContract.Event, ShowDocumentViewModelContract.State, ShowDocumentViewModelContract.Effect>() {
+class ShowDocumentsViewModel(
+    private val interactor: ShowDocumentsInteractor,
+    private val resourceProvider: ResourceProvider
+) : MviViewModel<ShowDocumentViewModelContract.Event, ShowDocumentViewModelContract.State, ShowDocumentViewModelContract.Effect>() {
+
     override fun createInitialState(): ShowDocumentViewModelContract.State =
         ShowDocumentViewModelContract.State()
 
     override fun handleEvent(event: ShowDocumentViewModelContract.Event) {
         when (event) {
             is ShowDocumentViewModelContract.Event.Init -> {
-                setState {
-                    copy(
-                        items = event.items
+                viewModelScope.launch {
+                    setState {
+                        copy(
+                            isLoading = true
+                        )
+                    }
+
+                    val title = interactor.getScreenTitle()
+                    val transformedItems = interactor.transformToUiItems(
+                        items = event.items,
+                        resourceProvider = resourceProvider
                     )
+
+                    setState {
+                        copy(
+                            screenTitle = title,
+                            address = event.address,
+                            items = transformedItems,
+                            isLoading = false
+                        )
+                    }
                 }
             }
 
-            ShowDocumentViewModelContract.Event.OnDoneClick -> {
+            is ShowDocumentViewModelContract.Event.OnDoneClick -> {
                 setEffect {
                     ShowDocumentViewModelContract.Effect.Navigation.NavigateToHome
                 }
             }
 
-            ShowDocumentViewModelContract.Event.OnBackClick -> {
-
+            is ShowDocumentViewModelContract.Event.OnBackClick -> {
+                setEffect {
+                    ShowDocumentViewModelContract.Effect.Navigation.NavigateToHome
+                }
             }
         }
     }

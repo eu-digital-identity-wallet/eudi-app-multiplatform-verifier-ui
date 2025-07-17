@@ -16,8 +16,6 @@
 
 package eu.europa.ec.euidi.verifier.core.di
 
-import eu.europa.ec.euidi.verifier.di.modules.ConfigModule
-import eu.europa.ec.euidi.verifier.di.modules.InteractorModule
 import eu.europa.ec.euidi.verifier.domain.di.InteractorModule
 import org.koin.core.context.startKoin
 import org.koin.dsl.KoinAppDeclaration

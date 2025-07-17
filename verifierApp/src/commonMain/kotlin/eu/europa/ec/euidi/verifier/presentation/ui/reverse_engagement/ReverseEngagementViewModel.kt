@@ -23,13 +23,14 @@ import eu.europa.ec.euidi.verifier.presentation.architecture.UiState
 import org.koin.android.annotation.KoinViewModel
 
 sealed interface ReverseEngagementViewModelContract {
+    data class State(val message: String = "") : UiState
+
     sealed interface Event : UiEvent {
         data object Init : Event
         data object OnCancelClick : Event
         data object OnBackClick : Event
     }
 
-    data class State(val message: String = "") : UiState
     sealed interface Effect : UiEffect {
         sealed interface Navigation : Effect {
             data object NavigateToHome : Navigation

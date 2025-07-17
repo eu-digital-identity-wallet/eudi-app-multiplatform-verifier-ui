@@ -16,39 +16,55 @@
 
 package eu.europa.ec.euidi.verifier.presentation.ui.doc_to_request
 
-import androidx.lifecycle.SavedStateHandle
-import eu.europa.ec.euidi.verifier.core.provider.UuidProvider
+import androidx.lifecycle.viewModelScope
+import eu.europa.ec.euidi.verifier.domain.config.AttestationType
+import eu.europa.ec.euidi.verifier.domain.config.Mode
+import eu.europa.ec.euidi.verifier.domain.interactor.DocumentsToRequestInteractor
+import eu.europa.ec.euidi.verifier.domain.model.SupportedDocumentUi
 import eu.europa.ec.euidi.verifier.presentation.architecture.MviViewModel
 import eu.europa.ec.euidi.verifier.presentation.architecture.UiEffect
 import eu.europa.ec.euidi.verifier.presentation.architecture.UiEvent
 import eu.europa.ec.euidi.verifier.presentation.architecture.UiState
-import androidx.lifecycle.viewModelScope
-import eu.europa.ec.euidi.verifier.domain.config.AttestationType
-import eu.europa.ec.euidi.verifier.domain.config.ClaimItem
-import eu.europa.ec.euidi.verifier.domain.config.Mode
-import eu.europa.ec.euidi.verifier.domain.interactor.DocumentsToRequestInteractor
-import eu.europa.ec.euidi.verifier.domain.model.SupportedDocumentUi
-import eu.europa.ec.euidi.verifier.mvi.BaseViewModel
-import eu.europa.ec.euidi.verifier.mvi.UiEffect
-import eu.europa.ec.euidi.verifier.mvi.UiEvent
-import eu.europa.ec.euidi.verifier.mvi.UiState
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
-import eu.europa.ec.euidi.verifier.presentation.model.SelectableClaimUi
-import eu.europa.ec.euidi.verifier.presentation.model.SupportedDocument
-import eu.europa.ec.euidi.verifier.presentation.model.SupportedDocument.AttestationType
-import eu.europa.ec.euidi.verifier.presentation.utils.Constants
-import eu.europa.ec.euidi.verifier.presentation.ui.docToRequest.DocToRequestContract.Effect.Navigation.NavigateToCustomRequestScreen
-import eu.europa.ec.euidi.verifier.presentation.ui.docToRequest.DocToRequestContract.Effect.Navigation.NavigateToHomeScreen
-import eu.europa.ec.euidi.verifier.provider.UuidProvider
-import eu.europa.ec.euidi.verifier.utils.Constants
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
+sealed interface DocToRequestContract {
+    data class State(
+        val requestedDocuments: List<RequestedDocumentUi> = emptyList(),
+        val allSupportedDocuments: List<SupportedDocumentUi> = emptyList(),
+        val filteredDocuments: List<SupportedDocumentUi> = emptyList(),
+        val searchTerm: String = "",
+        val isButtonEnabled: Boolean = false
+    ) : UiState
+
+    sealed interface Event : UiEvent {
+        data class Init(val requestedDoc: RequestedDocumentUi?) : Event
+        data class OnSearchQueryChanged(val query: String) : Event
+        data class OnDocOptionSelected(
+            val docId: String,
+            val docType: AttestationType,
+            val mode: Mode
+        ) : Event
+        data object OnBackClick : Event
+        data object OnDoneClick : Event
+    }
+
+    sealed interface Effect : UiEffect {
+        sealed interface Navigation : Effect {
+            data class NavigateToHomeScreen(
+                val requestedDocuments: List<RequestedDocumentUi> = emptyList()
+            ) : Navigation
+            data class NavigateToCustomRequestScreen(
+                val requestedDocuments: RequestedDocumentUi
+            ) : Navigation
+        }
+    }
+}
+
 @KoinViewModel
 class DocumentsToRequestViewModel(
-    private val savedStateHandle: SavedStateHandle,
     private val interactor: DocumentsToRequestInteractor,
-    private val uuidProvider: UuidProvider
 ) : MviViewModel<DocToRequestContract.Event, DocToRequestContract.State, DocToRequestContract.Effect>() {
 
     override fun createInitialState(): DocToRequestContract.State {
@@ -63,15 +79,19 @@ class DocumentsToRequestViewModel(
     override fun handleEvent(event: DocToRequestContract.Event) {
         when (event) {
             is DocToRequestContract.Event.Init -> {
-                val requestedDocs = event.requestedDoc
-                    ?.let { uiState.value.requestedDocuments + it }
-                    ?: uiState.value.requestedDocuments
+                viewModelScope.launch {
+                    val currentDocs = uiState.value.requestedDocuments
 
-                setState {
-                    copy(
-                        requestedDocuments = requestedDocs,
-                        isButtonEnabled = shouldEnableDoneButton(requestedDocs)
-                    )
+                    val updatedDocs = event.requestedDoc?.let { requestedDocUi ->
+                        currentDocs + interactor.checkDocumentMode(requestedDocUi)
+                    } ?: currentDocs
+
+                    setState {
+                        copy(
+                            requestedDocuments = updatedDocs,
+                            isButtonEnabled = shouldEnableDoneButton(updatedDocs)
+                        )
+                    }
                 }
             }
 
@@ -112,7 +132,9 @@ class DocumentsToRequestViewModel(
                         )
 
                         setEffect {
-                            NavigateToCustomRequestScreen(customDoc)
+                            DocToRequestContract.Effect.Navigation.NavigateToCustomRequestScreen(
+                                customDoc
+                            )
                         }
                     }
 
@@ -139,12 +161,12 @@ class DocumentsToRequestViewModel(
             }
 
             DocToRequestContract.Event.OnBackClick -> {
-                setEffect { NavigateToHomeScreen() }
+                setEffect { DocToRequestContract.Effect.Navigation.NavigateToHomeScreen() }
             }
 
             DocToRequestContract.Event.OnDoneClick -> {
                 setEffect {
-                    NavigateToHomeScreen(
+                    DocToRequestContract.Effect.Navigation.NavigateToHomeScreen(
                         requestedDocuments = uiState.value.requestedDocuments
                     )
                 }
@@ -170,53 +192,10 @@ class DocumentsToRequestViewModel(
         }
     }
 
-    override fun onCleared() {
-        super.onCleared()
-
-        uiState.value.requestedDocuments.takeIf { it.isNotEmpty() }?.let {
-            savedStateHandle.set(
-                key = Constants.SAVED_STATE_REQUESTED_DOCUMENTS,
-                value = uiState.value.requestedDocuments
-            )
+    private fun shouldEnableDoneButton(
+        requestedDocs: List<RequestedDocumentUi> = uiState.value.requestedDocuments
+    ): Boolean =
+        requestedDocs.any {
+            it.id in uiState.value.filteredDocuments.map { doc -> doc.id }
         }
-    }
-
-    private fun shouldEnableDoneButton(requestedDocs: List<RequestedDocumentUi> = uiState.value.requestedDocuments): Boolean {
-        return requestedDocs.any { it.id in uiState.value.filteredDocuments.map { doc -> doc.id } }
-    }
-}
-
-sealed interface DocToRequestContract {
-    sealed interface Event : UiEvent {
-        data class Init(val requestedDoc: RequestedDocumentUi?) : Event
-        data class OnSearchQueryChanged(val query: String) : Event
-
-        data class OnDocOptionSelected(
-            val docId: String,
-            val docType: AttestationType,
-            val mode: Mode
-        ) : Event
-
-        data object OnBackClick : Event
-
-        data object OnDoneClick : Event
-    }
-
-    data class State(
-        val requestedDocuments: List<RequestedDocumentUi> = emptyList(),
-        val allSupportedDocuments: List<SupportedDocumentUi> = emptyList(),
-        val filteredDocuments: List<SupportedDocumentUi> = emptyList(),
-        val searchTerm: String = "",
-        val isButtonEnabled: Boolean = false
-    ) : UiState
-
-    sealed interface Effect : UiEffect {
-        sealed interface Navigation : Effect {
-            data class NavigateToHomeScreen(val requestedDocuments: List<RequestedDocumentUi> = emptyList()) :
-                Navigation
-
-            data class NavigateToCustomRequestScreen(val requestedDocuments: RequestedDocumentUi) :
-                Navigation
-        }
-    }
 }

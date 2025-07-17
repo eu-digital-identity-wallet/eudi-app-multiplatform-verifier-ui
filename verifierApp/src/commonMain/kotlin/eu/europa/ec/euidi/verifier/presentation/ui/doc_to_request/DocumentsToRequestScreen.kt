@@ -19,6 +19,7 @@ package eu.europa.ec.euidi.verifier.presentation.ui.doc_to_request
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -29,21 +30,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import eu.europa.ec.euidi.verifier.domain.config.AttestationType
 import eu.europa.ec.euidi.verifier.domain.model.SupportedDocumentUi
-import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocsHolder
-import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
-import eu.europa.ec.euidi.verifier.presentation.model.SupportedDocument
-import eu.europa.ec.euidi.verifier.presentation.navigation.NavItem
-import eu.europa.ec.euidi.verifier.presentation.navigation.getFromCurrentBackStack
-import eu.europa.ec.euidi.verifier.presentation.navigation.popToAndSave
-import eu.europa.ec.euidi.verifier.presentation.navigation.saveToCurrentBackStack
 import eu.europa.ec.euidi.verifier.presentation.component.AppIcons
 import eu.europa.ec.euidi.verifier.presentation.component.content.ContentScreen
 import eu.europa.ec.euidi.verifier.presentation.component.content.ScreenNavigateAction
 import eu.europa.ec.euidi.verifier.presentation.component.content.ToolbarConfig
+import eu.europa.ec.euidi.verifier.presentation.component.extension.withStickyBottomPadding
+import eu.europa.ec.euidi.verifier.presentation.component.utils.OneTimeLaunchedEffect
 import eu.europa.ec.euidi.verifier.presentation.component.utils.SPACING_LARGE
 import eu.europa.ec.euidi.verifier.presentation.component.utils.SPACING_MEDIUM
 import eu.europa.ec.euidi.verifier.presentation.component.utils.VSpacer
@@ -57,7 +55,18 @@ import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapSearchBar
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapStickyBottomContent
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocsHolder
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
+import eu.europa.ec.euidi.verifier.presentation.navigation.NavItem
+import eu.europa.ec.euidi.verifier.presentation.navigation.getFromCurrentBackStack
+import eu.europa.ec.euidi.verifier.presentation.navigation.popToAndSave
+import eu.europa.ec.euidi.verifier.presentation.navigation.saveToCurrentBackStack
 import eu.europa.ec.euidi.verifier.presentation.utils.Constants
+import eudiverifier.verifierapp.generated.resources.Res
+import eudiverifier.verifierapp.generated.resources.documents_to_request_screen_request_header
+import eudiverifier.verifierapp.generated.resources.documents_to_request_screen_search_placeholder
+import eudiverifier.verifierapp.generated.resources.documents_to_request_screen_title
+import eudiverifier.verifierapp.generated.resources.generic_done
+import kotlinx.coroutines.flow.Flow
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -67,42 +76,10 @@ fun DocumentsToRequestScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(Unit) {
-        val docs = navController.getFromCurrentBackStack<RequestedDocumentUi>(Constants.REQUESTED_DOCUMENTS)
-        viewModel.setEvent(
-            DocToRequestContract.Event.Init(
-                requestedDoc = docs
-            )
-        )
-    }
-
-    LaunchedEffect(viewModel.effect) {
-        viewModel.effect.collect { effect ->
-            when (effect) {
-                is DocToRequestContract.Effect.Navigation.NavigateToHomeScreen -> {
-                    navController.popToAndSave<RequestedDocsHolder>(
-                        destination = NavItem.Home,
-                        key = Constants.REQUESTED_DOCUMENTS,
-                        value = RequestedDocsHolder(items = effect.requestedDocuments)
-                    )
-                }
-
-                is DocToRequestContract.Effect.Navigation.NavigateToCustomRequestScreen -> {
-                    navController.saveToCurrentBackStack<RequestedDocumentUi>(
-                        key = Constants.REQUESTED_DOCUMENTS,
-                        value = effect.requestedDocuments
-                    ).let {
-                        navController.navigate(route = NavItem.CustomRequest)
-                    }
-                }
-            }
-        }
-    }
-
     ContentScreen(
         navigatableAction = ScreenNavigateAction.BACKABLE,
         toolBarConfig = ToolbarConfig(
-            title = "Documents to request"
+            title = stringResource(Res.string.documents_to_request_screen_title)
         ),
         onBack = {
             viewModel.setEvent(DocToRequestContract.Event.OnBackClick)
@@ -119,7 +96,11 @@ fun DocumentsToRequestScreen(
                             },
                             enabled = state.isButtonEnabled,
                             content = {
-                                Text("Done")
+                                Text(
+                                    text = stringResource(
+                                        Res.string.generic_done
+                                    )
+                                )
                             }
                         )
                     )
@@ -127,34 +108,97 @@ fun DocumentsToRequestScreen(
             )
         }
     ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .verticalScroll(rememberScrollState())
-        ) {
-            WrapSearchBar(
-                text = state.searchTerm,
-                placeholder = "Search documents",
-                onValueChange = {
-                    viewModel.setEvent(DocToRequestContract.Event.OnSearchQueryChanged(it))
-                },
-                onClearClick = {
-                    viewModel.setEvent(DocToRequestContract.Event.OnSearchQueryChanged(""))
-                }
+        Content(
+            state = state,
+            effectFlow = viewModel.effect,
+            onEventSend = viewModel::setEvent,
+            onNavigationRequested = { navigationEffect ->
+                handleNavigationEffect(
+                    navigationEffect = navigationEffect,
+                    navController = navController
+                )
+            },
+            paddingValues = paddingValues
+        )
+    }
+
+    LaunchedEffect(Unit) {
+        val docs = navController.getFromCurrentBackStack<RequestedDocumentUi>(
+            key = Constants.REQUESTED_DOCUMENTS
+        )
+
+        viewModel.setEvent(
+            DocToRequestContract.Event.Init(requestedDoc = docs)
+        )
+    }
+}
+
+private fun handleNavigationEffect(
+    navigationEffect: DocToRequestContract.Effect.Navigation,
+    navController: NavController,
+) {
+    when (navigationEffect) {
+        is DocToRequestContract.Effect.Navigation.NavigateToHomeScreen -> {
+            navController.popToAndSave<RequestedDocsHolder>(
+                destination = NavItem.Home,
+                key = Constants.REQUESTED_DOCUMENTS,
+                value = RequestedDocsHolder(items = navigationEffect.requestedDocuments)
+            )
+        }
+
+        is DocToRequestContract.Effect.Navigation.NavigateToCustomRequestScreen -> {
+            navController.saveToCurrentBackStack<RequestedDocumentUi>(
+                key = Constants.REQUESTED_DOCUMENTS,
+                value = navigationEffect.requestedDocuments
+            ).let {
+                navController.navigate(route = NavItem.CustomRequest)
+            }
+        }
+    }
+}
+
+@Composable
+private fun Content(
+    state: DocToRequestContract.State,
+    effectFlow: Flow<DocToRequestContract.Effect>,
+    onEventSend: (DocToRequestContract.Event) -> Unit,
+    onNavigationRequested: (DocToRequestContract.Effect.Navigation) -> Unit,
+    paddingValues: PaddingValues,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .withStickyBottomPadding(paddingValues)
+            .verticalScroll(rememberScrollState())
+    ) {
+        WrapSearchBar(
+            text = state.searchTerm,
+            placeholder = stringResource(Res.string.documents_to_request_screen_search_placeholder),
+            onValueChange = {
+                onEventSend(DocToRequestContract.Event.OnSearchQueryChanged(it))
+            },
+            onClearClick = {
+                onEventSend(DocToRequestContract.Event.OnSearchQueryChanged(""))
+            }
+        )
+
+        VSpacer.Medium()
+
+        state.filteredDocuments.forEach { supportedDoc ->
+            SupportedDocumentItem(
+                supportedDoc = supportedDoc,
+                requestedDocuments = state.requestedDocuments,
+                onEvent = onEventSend
             )
 
-            VSpacer.Medium()
+            VSpacer.Large()
+        }
+    }
 
-            state.filteredDocuments.forEach { supportedDoc ->
-
-                SupportedDocumentItem(
-                    supportedDoc = supportedDoc,
-                    requestedDocuments = state.requestedDocuments,
-                    onEvent = viewModel::setEvent
-                )
-
-                VSpacer.Large()
+    LaunchedEffect(Unit) {
+        effectFlow.collect { effect ->
+            when (effect) {
+                is DocToRequestContract.Effect.Navigation -> onNavigationRequested(effect)
             }
         }
     }
@@ -167,7 +211,11 @@ fun SupportedDocumentItem(
     onEvent: (DocToRequestContract.Event) -> Unit,
 ) {
     Text(
-        text = "Request ${supportedDoc.documentType.displayName}"
+        text = buildAnnotatedString {
+            append(stringResource(Res.string.documents_to_request_screen_request_header))
+            append(" ")
+            append(supportedDoc.documentType.displayName)
+        }
     )
 
     VSpacer.ExtraSmall()
@@ -203,10 +251,16 @@ fun SupportedDocumentContentCard(
                     it.id == supportedDoc.id && it.mode == mode
                 }
 
+                val label = if (supportedDoc.documentType == AttestationType.AgeVerification) {
+                    mode.displayName
+                } else {
+                    "${mode.displayName} ${supportedDoc.documentType.displayName}"
+                }
+
                 WrapChip(
                     leadingIcon = if (isSelected) AppIcons.Check else null,
                     label = {
-                        Text(text = mode.displayName + " " + supportedDoc.documentType)
+                        Text(text = label)
                     },
                     selected = isSelected,
                     onClick = {

@@ -17,8 +17,8 @@
 package eu.europa.ec.euidi.verifier.presentation.model
 
 import eu.europa.ec.euidi.verifier.domain.config.AttestationType
-import eu.europa.ec.euidi.verifier.domain.config.ClaimItem
 import eu.europa.ec.euidi.verifier.domain.config.Mode
+import eu.europa.ec.euidi.verifier.domain.config.model.ClaimItem
 import eu.europa.ec.euidi.verifier.presentation.utils.CommonParcelable
 import eu.europa.ec.euidi.verifier.presentation.utils.CommonParcelize
 

@@ -14,16 +14,12 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier.core.di
+package eu.europa.ec.euidi.verifier.presentation.ui.show_document.model
 
-import eu.europa.ec.euidi.verifier.domain.config.ConfigProvider
-import eu.europa.ec.euidi.verifier.domain.config.ConfigProviderImpl
-import org.koin.core.annotation.Module
-import org.koin.core.annotation.Single
+import eu.europa.ec.euidi.verifier.presentation.component.ListItemDataUi
 
-@Module
-class ConfigModule {
-
-    @Single
-    fun provideConfigProvider(): ConfigProvider = ConfigProviderImpl()
-}
+data class DocumentUi(
+    val id: String,
+    val documentIso: String,
+    val uiClaims: List<ListItemDataUi>
+)

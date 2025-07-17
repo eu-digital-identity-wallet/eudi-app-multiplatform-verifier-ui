@@ -14,18 +14,17 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier.di.modules
+package eu.europa.ec.euidi.verifier.domain.config.utils
 
-import eu.europa.ec.euidi.verifier.domain.config.ConfigProvider
-import eu.europa.ec.euidi.verifier.domain.interactor.DocumentsToRequestInteractor
-import eu.europa.ec.euidi.verifier.domain.interactor.DocumentsToRequestInteractorImpl
-import org.koin.core.annotation.Factory
-import org.koin.core.annotation.Module
+import eu.europa.ec.euidi.verifier.domain.config.AttestationType
+import eu.europa.ec.euidi.verifier.domain.config.Doctype
 
-@Module
-class InteractorModule {
-
-    @Factory
-    fun provideDocumentsToRequestInteractor(configProvider: ConfigProvider): DocumentsToRequestInteractor =
-        DocumentsToRequestInteractorImpl(configProvider)
+/**
+ * @return An [AttestationType] from a docType.
+ */
+fun Doctype.toDocumentIdentifier(): AttestationType = when (this.lowercase()) {
+    AttestationType.Pid.docType.lowercase() -> AttestationType.Pid
+    AttestationType.Mdl.docType.lowercase() -> AttestationType.Mdl
+    AttestationType.AgeVerification.docType.lowercase() -> AttestationType.AgeVerification
+    else -> AttestationType.OTHER
 }
