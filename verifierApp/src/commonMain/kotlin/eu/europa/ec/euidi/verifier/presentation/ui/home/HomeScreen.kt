@@ -159,12 +159,12 @@ private fun handleNavigationEffect(
             navController.popBackStack()
         }
 
-        is Effect.Navigation.NavigateToTransferStatusScreen -> {
+        is Effect.Navigation.NavigateToQrScanScreen -> {
             navController.saveToCurrentBackStack<RequestedDocsHolder>(
                 key = Constants.REQUESTED_DOCUMENTS,
                 value = navigationEffect.requestedDocs
             )
-            navController.navigate(NavItem.TransferStatus)
+            navController.navigate(route = NavItem.QrScan)
         }
     }
 }

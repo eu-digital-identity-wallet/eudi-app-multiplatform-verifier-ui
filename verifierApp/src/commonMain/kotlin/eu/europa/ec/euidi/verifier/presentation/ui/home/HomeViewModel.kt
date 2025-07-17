@@ -66,7 +66,7 @@ sealed interface HomeViewModelContract {
             ) : Navigation
 
             data object Finish : Navigation
-            data class NavigateToTransferStatusScreen(
+            data class NavigateToQrScanScreen(
                 val requestedDocs: RequestedDocsHolder
             ) : Navigation
         }
@@ -104,7 +104,7 @@ class HomeViewModel(
 
             is Event.OnStickyButtonClicked -> {
                 setEffect {
-                    Effect.Navigation.NavigateToTransferStatusScreen(
+                    Effect.Navigation.NavigateToQrScanScreen(
                         requestedDocs = RequestedDocsHolder(
                             items = uiState.value.requestedDocs
                         )

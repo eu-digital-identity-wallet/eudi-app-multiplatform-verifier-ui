@@ -83,4 +83,7 @@
     <string name="reverse_engagement_screen_info_message">Scan QR code with the EUDI Proximity Verifier application.\n\nNOTE: This is not supported for ISO 18013-7, only 23220-4.</string>
     <string name="reverse_engagement_screen_placeholder_qr">EUDI Proximity Verifier</string>
 
+    <!-- Qr Scan -->
+    <string name="qr_scan_screen_title">Device Engagement</string>
+
 </resources>

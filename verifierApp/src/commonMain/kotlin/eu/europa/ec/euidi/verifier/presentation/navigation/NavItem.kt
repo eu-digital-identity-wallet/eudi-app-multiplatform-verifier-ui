@@ -44,4 +44,7 @@ sealed interface NavItem {
 
     @Serializable
     data object Settings : NavItem
+
+    @Serializable
+    data object QrScan : NavItem
 }

@@ -23,6 +23,8 @@ import eu.europa.ec.euidi.verifier.domain.interactor.HomeInteractor
 import eu.europa.ec.euidi.verifier.domain.interactor.HomeInteractorImpl
 import eu.europa.ec.euidi.verifier.domain.interactor.MenuInteractor
 import eu.europa.ec.euidi.verifier.domain.interactor.MenuInteractorImpl
+import eu.europa.ec.euidi.verifier.domain.interactor.QrScanInteractor
+import eu.europa.ec.euidi.verifier.domain.interactor.QrScanInteractorImpl
 import eu.europa.ec.euidi.verifier.domain.interactor.ReverseEngagementInteractor
 import eu.europa.ec.euidi.verifier.domain.interactor.ReverseEngagementInteractorImpl
 import eu.europa.ec.euidi.verifier.domain.interactor.SettingsInteractor
@@ -68,4 +70,12 @@ class InteractorModule {
     ): ReverseEngagementInteractor = ReverseEngagementInteractorImpl(
         resourceProvider,
     )
+
+    @Factory
+    fun provideQrScanInteractor(
+        resourceProvider: ResourceProvider,
+    ): QrScanInteractor = QrScanInteractorImpl(
+        resourceProvider,
+    )
+
 }

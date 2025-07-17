@@ -23,6 +23,7 @@ import eu.europa.ec.euidi.verifier.presentation.ui.custom_request.customRequestS
 import eu.europa.ec.euidi.verifier.presentation.ui.doc_to_request.docToRequestScreen
 import eu.europa.ec.euidi.verifier.presentation.ui.home.homeScreen
 import eu.europa.ec.euidi.verifier.presentation.ui.menu.menuScreen
+import eu.europa.ec.euidi.verifier.presentation.ui.qr_scan.qrScanScreen
 import eu.europa.ec.euidi.verifier.presentation.ui.reverse_engagement.reverseEngagementScreen
 import eu.europa.ec.euidi.verifier.presentation.ui.settings.settingsScreen
 import eu.europa.ec.euidi.verifier.presentation.ui.show_document.showDocumentsScreen
@@ -44,5 +45,6 @@ fun VerifierNavHost() {
         showDocumentsScreen(navController)
         reverseEngagementScreen(navController)
         settingsScreen(navController)
+        qrScanScreen(navController)
     }
 }
