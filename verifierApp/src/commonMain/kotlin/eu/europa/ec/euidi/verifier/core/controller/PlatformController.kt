@@ -14,10 +14,9 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier.core.helper
+package eu.europa.ec.euidi.verifier.core.controller
 
-class IosAppCloser : AppCloser {
-    override fun closeApp() {
-        // no-op
-    }
+interface PlatformController {
+    fun closeApp()
+    fun openAppSettings()
 }

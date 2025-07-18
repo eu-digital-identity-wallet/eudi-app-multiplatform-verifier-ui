@@ -19,10 +19,11 @@ package eu.europa.ec.euidi.verifier.core.di
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import eu.europa.ec.euidi.verifier.core.controller.AndroidPlatformController
 import eu.europa.ec.euidi.verifier.core.controller.DataStoreController.Companion.DATASTORE_FILENAME
 import eu.europa.ec.euidi.verifier.core.controller.DataStoreController.Companion.createDataStore
-import eu.europa.ec.euidi.verifier.core.helper.AndroidAppCloser
-import eu.europa.ec.euidi.verifier.core.helper.AppCloser
+import eu.europa.ec.euidi.verifier.core.controller.PlatformController
+import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
 actual fun platformModule() = module {
@@ -33,5 +34,7 @@ actual fun platformModule() = module {
         }
     }
 
-    single<AppCloser> { AndroidAppCloser() }
+    single<PlatformController> {
+        AndroidPlatformController(androidContext())
+    }
 }

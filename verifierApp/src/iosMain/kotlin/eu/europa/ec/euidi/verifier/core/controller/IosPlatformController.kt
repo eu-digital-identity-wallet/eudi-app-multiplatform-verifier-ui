@@ -14,13 +14,22 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier.core.helper
+package eu.europa.ec.euidi.verifier.core.controller
 
-/**
- * An interface for closing the application.
- *
- * This interface provides a method to close the application.
- */
-interface AppCloser {
-    fun closeApp()
+import platform.Foundation.NSURL
+import platform.UIKit.UIApplication
+import platform.UIKit.UIApplicationOpenSettingsURLString
+
+class IosPlatformController : PlatformController {
+
+    override fun closeApp() {
+        // no-op
+    }
+
+    override fun openAppSettings() {
+        val settingsUrl = NSURL.URLWithString(UIApplicationOpenSettingsURLString)
+        settingsUrl?.let {
+            UIApplication.sharedApplication.openURL(it)
+        }
+    }
 }

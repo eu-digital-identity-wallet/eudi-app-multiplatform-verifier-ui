@@ -16,7 +16,7 @@
 
 package eu.europa.ec.euidi.verifier.domain.interactor
 
-import eu.europa.ec.euidi.verifier.core.helper.AppCloser
+import eu.europa.ec.euidi.verifier.core.controller.PlatformController
 import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
 import eu.europa.ec.euidi.verifier.core.provider.UuidProvider
 import eu.europa.ec.euidi.verifier.domain.config.AttestationType.Companion.getDisplayName
@@ -46,7 +46,7 @@ interface HomeInteractor {
 }
 
 class HomeInteractorImpl(
-    private val appCloser: AppCloser,
+    private val platformController: PlatformController,
     private val uuidProvider: UuidProvider,
     private val resourceProvider: ResourceProvider,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
@@ -92,7 +92,7 @@ class HomeInteractorImpl(
     }
 
     override fun closeApp() {
-        appCloser.closeApp()
+        platformController.closeApp()
     }
 
 }

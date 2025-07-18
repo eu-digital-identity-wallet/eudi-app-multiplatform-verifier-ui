@@ -20,8 +20,8 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import eu.europa.ec.euidi.verifier.core.controller.DataStoreController.Companion.DATASTORE_FILENAME
 import eu.europa.ec.euidi.verifier.core.controller.DataStoreController.Companion.createDataStore
-import eu.europa.ec.euidi.verifier.core.helper.AppCloser
-import eu.europa.ec.euidi.verifier.core.helper.IosAppCloser
+import eu.europa.ec.euidi.verifier.core.controller.IosPlatformController
+import eu.europa.ec.euidi.verifier.core.controller.PlatformController
 import kotlinx.cinterop.ExperimentalForeignApi
 import org.koin.dsl.module
 import platform.Foundation.NSDocumentDirectory
@@ -44,5 +44,5 @@ actual fun platformModule() = module {
         }
     }
 
-    single<AppCloser> { IosAppCloser() }
+    single<PlatformController> { IosPlatformController() }
 }
