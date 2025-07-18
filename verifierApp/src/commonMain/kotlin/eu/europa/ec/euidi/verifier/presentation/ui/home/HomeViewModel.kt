@@ -78,7 +78,6 @@ class HomeViewModel(
 ) : MviViewModel<Event, State, Effect>() {
 
     override fun createInitialState(): State {
-        println("Giannis new")
         return State(
             isLoading = true,
         )
