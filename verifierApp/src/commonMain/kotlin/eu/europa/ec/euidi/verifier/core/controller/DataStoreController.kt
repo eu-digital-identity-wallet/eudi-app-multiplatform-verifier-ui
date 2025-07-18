@@ -22,8 +22,6 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.byteArrayPreferencesKey
 import androidx.datastore.preferences.core.edit
 import eu.europa.ec.euidi.verifier.core.crypto.KeyStore
-import eu.europa.ec.euidi.verifier.core.utils.fromBase64
-import eu.europa.ec.euidi.verifier.core.utils.toBase64
 import io.ktor.utils.io.core.toByteArray
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
@@ -79,15 +77,19 @@ class DataStoreController(
         suspend inline fun <reified T> serialize(value: T): ByteArray {
             return cryptoMutex.withLock {
                 val json = Json.Default.encodeToString(value)
+
                 val encrypted = KeyStore.encrypt(json.toByteArray())
-                encrypted.toBase64()
+
+                encrypted
             }
         }
 
         suspend inline fun <reified T> deserialize(value: ByteArray): T {
             return cryptoMutex.withLock {
-                val decryptedBytes = KeyStore.decrypt(value.fromBase64())
+                val decryptedBytes = KeyStore.decrypt(value)
+
                 val json = decryptedBytes.decodeToString()
+
                 Json.Default.decodeFromString(json)
             }
         }
