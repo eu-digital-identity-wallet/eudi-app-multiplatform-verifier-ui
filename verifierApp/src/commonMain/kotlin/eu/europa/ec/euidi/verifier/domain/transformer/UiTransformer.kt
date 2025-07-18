@@ -34,7 +34,7 @@ object UiTransformer {
         fields: List<ClaimItem>,
         attestationType: AttestationType,
         resourceProvider: ResourceProvider
-    ) : List<ListItemDataUi> {
+    ): List<ListItemDataUi> {
         return when (fields.isEmpty()) {
             true -> emptyList()
             false -> {
@@ -69,8 +69,8 @@ object UiTransformer {
         val allStringResources: Map<String, StringResource> = Res.allStringResources
         val resourceKey = "${attestationType.replace(" ", "_")}_${claimLabel}".lowercase()
 
-       return resourceProvider.getSharedString(
-            resource = allStringResources[resourceKey] ?: allStringResources.getValue("pid_family_name")
-        )
+        return allStringResources[resourceKey]?.let {
+            resourceProvider.getSharedString(it)
+        } ?: claimLabel
     }
 }
