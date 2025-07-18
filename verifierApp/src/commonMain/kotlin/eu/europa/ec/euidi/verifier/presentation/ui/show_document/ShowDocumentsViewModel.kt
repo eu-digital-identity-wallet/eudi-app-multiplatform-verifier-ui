@@ -17,13 +17,13 @@
 package eu.europa.ec.euidi.verifier.presentation.ui.show_document
 
 import androidx.lifecycle.viewModelScope
-import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
 import eu.europa.ec.euidi.verifier.domain.interactor.ShowDocumentsInteractor
 import eu.europa.ec.euidi.verifier.presentation.architecture.MviViewModel
 import eu.europa.ec.euidi.verifier.presentation.architecture.UiEffect
 import eu.europa.ec.euidi.verifier.presentation.architecture.UiEvent
 import eu.europa.ec.euidi.verifier.presentation.architecture.UiState
 import eu.europa.ec.euidi.verifier.presentation.model.ReceivedDocumentUi
+import eu.europa.ec.euidi.verifier.presentation.navigation.NavItem
 import eu.europa.ec.euidi.verifier.presentation.ui.show_document.model.DocumentUi
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
@@ -47,15 +47,18 @@ sealed interface ShowDocumentViewModelContract {
 
     sealed interface Effect : UiEffect {
         sealed interface Navigation : Effect {
-            data object NavigateToHome : Navigation
+            data class PushScreen(
+                val route: NavItem,
+                val popUpTo: NavItem,
+                val inclusive: Boolean,
+            ) : Navigation
         }
     }
 }
 
 @KoinViewModel
 class ShowDocumentsViewModel(
-    private val interactor: ShowDocumentsInteractor,
-    private val resourceProvider: ResourceProvider
+    private val interactor: ShowDocumentsInteractor
 ) : MviViewModel<ShowDocumentViewModelContract.Event, ShowDocumentViewModelContract.State, ShowDocumentViewModelContract.Effect>() {
 
     override fun createInitialState(): ShowDocumentViewModelContract.State =
@@ -73,8 +76,7 @@ class ShowDocumentsViewModel(
 
                     val title = interactor.getScreenTitle()
                     val transformedItems = interactor.transformToUiItems(
-                        items = event.items,
-                        resourceProvider = resourceProvider
+                        items = event.items
                     )
 
                     setState {
@@ -89,16 +91,30 @@ class ShowDocumentsViewModel(
             }
 
             is ShowDocumentViewModelContract.Event.OnDoneClick -> {
-                setEffect {
-                    ShowDocumentViewModelContract.Effect.Navigation.NavigateToHome
-                }
+               pushScreen(
+                   route = NavItem.Home,
+                   popUpTo = NavItem.Home,
+                   inclusive = true
+               )
             }
 
             is ShowDocumentViewModelContract.Event.OnBackClick -> {
-                setEffect {
-                    ShowDocumentViewModelContract.Effect.Navigation.NavigateToHome
-                }
+                pushScreen(
+                    route = NavItem.Home,
+                    popUpTo = NavItem.Home,
+                    inclusive = true
+                )
             }
+        }
+    }
+
+    private fun pushScreen(route: NavItem, popUpTo: NavItem, inclusive: Boolean) {
+        setEffect {
+            ShowDocumentViewModelContract.Effect.Navigation.PushScreen(
+                route = route,
+                popUpTo = popUpTo,
+                inclusive = inclusive,
+            )
         }
     }
 }

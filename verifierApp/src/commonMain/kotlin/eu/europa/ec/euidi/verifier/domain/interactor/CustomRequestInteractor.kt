@@ -17,9 +17,14 @@
 package eu.europa.ec.euidi.verifier.domain.interactor
 
 import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
+import eu.europa.ec.euidi.verifier.domain.config.AttestationType
+import eu.europa.ec.euidi.verifier.domain.config.AttestationType.Companion.getDisplayName
+import eu.europa.ec.euidi.verifier.domain.config.ConfigProvider
 import eu.europa.ec.euidi.verifier.domain.config.model.ClaimItem
+import eu.europa.ec.euidi.verifier.domain.transformer.UiTransformer
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemDataUi
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemTrailingContentDataUi
+import eu.europa.ec.euidi.verifier.presentation.component.wrap.CheckboxDataUi
 import eudiverifier.verifierapp.generated.resources.Res
 import eudiverifier.verifierapp.generated.resources.custom_request_screen_title
 import kotlinx.coroutines.CoroutineDispatcher
@@ -28,21 +33,41 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
 
 interface CustomRequestInteractor {
-    suspend fun getScreenTitle(attestationType: String): String
+
+    suspend fun getScreenTitle(attestationType: AttestationType): String
+
+    fun getDocumentClaims(attestationType: AttestationType): List<ClaimItem>
+
     fun transformToClaimItems(items: List<ListItemDataUi>): List<ClaimItem>
+
+    suspend fun transformToUiItems(
+        documentType: AttestationType,
+        claims: List<ClaimItem>
+    ): List<ListItemDataUi>
+
+    fun handleItemSelection(
+        items: List<ListItemDataUi>,
+        identifier: String,
+        isChecked: Boolean
+    ): List<ListItemDataUi>
 }
 
 class CustomRequestInteractorImpl(
+    private val configProvider: ConfigProvider,
     private val resourceProvider: ResourceProvider,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : CustomRequestInteractor {
-    override suspend fun getScreenTitle(attestationType: String): String {
+    override suspend fun getScreenTitle(attestationType: AttestationType): String {
         return withContext(dispatcher) {
             resourceProvider.getSharedString(
                 Res.string.custom_request_screen_title,
-                attestationType
+                attestationType.getDisplayName(resourceProvider)
             )
         }
+    }
+
+    override fun getDocumentClaims(attestationType: AttestationType): List<ClaimItem> {
+        return configProvider.supportedDocuments.documents[attestationType].orEmpty()
     }
 
     override fun transformToClaimItems(items: List<ListItemDataUi>): List<ClaimItem> {
@@ -56,4 +81,34 @@ class CustomRequestInteractorImpl(
                 ClaimItem(label = uiItem.itemId)
             }
     }
+
+    override suspend fun transformToUiItems(
+        documentType: AttestationType,
+        claims: List<ClaimItem>
+    ): List<ListItemDataUi> =
+        withContext(dispatcher) {
+            UiTransformer.transformToUiItems(
+                fields = claims,
+                attestationType = documentType,
+                resourceProvider = resourceProvider
+            )
+        }
+
+    override fun handleItemSelection(
+        items: List<ListItemDataUi>,
+        identifier: String,
+        isChecked: Boolean
+    ): List<ListItemDataUi> =
+        items.map { item ->
+            if (item.itemId == identifier) {
+                item.copy(
+                    trailingContentData = (item.trailingContentData as? ListItemTrailingContentDataUi.Checkbox)
+                        ?.copy(
+                            checkboxData = CheckboxDataUi(
+                                isChecked = isChecked
+                            )
+                        )
+                )
+            } else item
+        }
 }

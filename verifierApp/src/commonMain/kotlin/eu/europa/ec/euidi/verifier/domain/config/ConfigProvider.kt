@@ -16,22 +16,24 @@
 
 package eu.europa.ec.euidi.verifier.domain.config
 
+import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
 import eu.europa.ec.euidi.verifier.domain.config.model.ClaimItem
 import eu.europa.ec.euidi.verifier.presentation.utils.CommonParcelable
 import eu.europa.ec.euidi.verifier.presentation.utils.CommonParcelize
+import eudiverifier.verifierapp.generated.resources.Res
+import eudiverifier.verifierapp.generated.resources.document_type_age_verification
+import eudiverifier.verifierapp.generated.resources.document_type_mdl
+import eudiverifier.verifierapp.generated.resources.document_type_pid
 
 typealias NameSpace = String
 typealias Doctype = String
 
 @CommonParcelize
 sealed interface AttestationType : CommonParcelable {
-    val displayName: String
     val namespace: NameSpace
     val docType: Doctype
 
     data object Pid : AttestationType {
-        override val displayName: String
-            get() = "PID"
 
         override val namespace: String
             get() = "eu.europa.ec.eudi.pid.1"
@@ -41,8 +43,6 @@ sealed interface AttestationType : CommonParcelable {
     }
 
     data object Mdl : AttestationType {
-        override val displayName: String
-            get() = "mDL"
 
         override val namespace: String
             get() = "org.iso.18013.5.1.mDL"
@@ -52,8 +52,6 @@ sealed interface AttestationType : CommonParcelable {
     }
 
     data object AgeVerification : AttestationType {
-        override val displayName: String
-            get() = "Age Verification"
 
         override val namespace: String
             get() = "eu.europa.ec.eudi.pseudonym.age_over_18.1"
@@ -62,15 +60,16 @@ sealed interface AttestationType : CommonParcelable {
             get() = "eu.europa.ec.eudi.pseudonym.age_over_18.1"
     }
 
-    data object OTHER : AttestationType {
-        override val displayName: String
-            get() = "OTHER"
-
-        override val namespace: String
-            get() = ""
-
-        override val docType: String
-            get() = ""
+    companion object {
+        suspend fun AttestationType.getDisplayName(
+            resourceProvider: ResourceProvider
+        ): String {
+            return when (this) {
+                Pid -> resourceProvider.getSharedString(Res.string.document_type_pid)
+                Mdl -> resourceProvider.getSharedString(Res.string.document_type_mdl)
+                AgeVerification -> resourceProvider.getSharedString(Res.string.document_type_age_verification)
+            }
+        }
     }
 }
 
@@ -95,7 +94,6 @@ class ConfigProviderImpl : ConfigProvider {
             AttestationType.Pid -> listOf(Mode.FULL, Mode.CUSTOM)
             AttestationType.Mdl -> listOf(Mode.FULL, Mode.CUSTOM)
             AttestationType.AgeVerification -> listOf(Mode.FULL, Mode.CUSTOM)
-            AttestationType.OTHER -> listOf()
         }
     }
 

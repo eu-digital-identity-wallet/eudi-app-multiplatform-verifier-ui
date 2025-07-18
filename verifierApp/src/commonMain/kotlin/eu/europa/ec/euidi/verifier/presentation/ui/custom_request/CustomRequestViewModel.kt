@@ -17,17 +17,12 @@
 package eu.europa.ec.euidi.verifier.presentation.ui.custom_request
 
 import androidx.lifecycle.viewModelScope
-import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
 import eu.europa.ec.euidi.verifier.domain.interactor.CustomRequestInteractor
-import eu.europa.ec.euidi.verifier.domain.interactor.DocumentsToRequestInteractor
-import eu.europa.ec.euidi.verifier.domain.transformer.UiTransformer
 import eu.europa.ec.euidi.verifier.presentation.architecture.MviViewModel
 import eu.europa.ec.euidi.verifier.presentation.architecture.UiEffect
 import eu.europa.ec.euidi.verifier.presentation.architecture.UiEvent
 import eu.europa.ec.euidi.verifier.presentation.architecture.UiState
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemDataUi
-import eu.europa.ec.euidi.verifier.presentation.component.ListItemTrailingContentDataUi
-import eu.europa.ec.euidi.verifier.presentation.component.wrap.CheckboxDataUi
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
@@ -55,9 +50,7 @@ sealed interface CustomRequestContract {
 
 @KoinViewModel
 class CustomRequestViewModel(
-    private val documentsToRequestInteractor: DocumentsToRequestInteractor,
     private val interactor: CustomRequestInteractor,
-    private val resourceProvider: ResourceProvider
 ) : MviViewModel<CustomRequestContract.Event, CustomRequestContract.State, CustomRequestContract.Effect>() {
     override fun createInitialState(): CustomRequestContract.State = CustomRequestContract.State()
 
@@ -68,15 +61,15 @@ class CustomRequestViewModel(
                     val doc = event.doc
 
                     doc?.let {
-                        val claims = documentsToRequestInteractor.getDocumentClaims(attestationType = it.documentType)
+                        val attestationType = it.documentType
+                        val claims = interactor.getDocumentClaims(attestationType = attestationType)
 
-                        val uiItems = UiTransformer.transformToUiItems(
-                            fields = claims,
-                            attestationType = doc.documentType,
-                            resourceProvider = resourceProvider
+                        val uiItems = interactor.transformToUiItems(
+                            documentType = it.documentType,
+                            claims = claims
                         )
 
-                        val screenTitle = interactor.getScreenTitle(it.documentType.displayName)
+                        val screenTitle = interactor.getScreenTitle(attestationType = attestationType)
 
                         setState {
                             copy(
@@ -116,21 +109,13 @@ class CustomRequestViewModel(
             }
 
             is CustomRequestContract.Event.OnItemClicked -> {
-
                 setState {
                     copy(
-                        items = uiState.value.items.map { item ->
-                            if (item.itemId == event.identifier) {
-                                item.copy(
-                                    trailingContentData = (item.trailingContentData as? ListItemTrailingContentDataUi.Checkbox)
-                                        ?.copy(
-                                            checkboxData = CheckboxDataUi(
-                                                isChecked = event.isChecked
-                                            )
-                                        )
-                                )
-                            } else item
-                        }
+                        items = interactor.handleItemSelection(
+                            items = uiState.value.items,
+                            identifier = event.identifier,
+                            isChecked = event.isChecked
+                        )
                     )
                 }
             }

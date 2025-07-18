@@ -213,7 +213,7 @@ fun SupportedDocumentItem(
         text = buildAnnotatedString {
             append(stringResource(Res.string.documents_to_request_screen_request_header))
             append(" ")
-            append(supportedDoc.documentType.displayName)
+            append(supportedDoc.id)
         }
     )
 
@@ -253,7 +253,7 @@ fun SupportedDocumentContentCard(
                 val label = if (supportedDoc.documentType == AttestationType.AgeVerification) {
                     mode.displayName
                 } else {
-                    "${mode.displayName} ${supportedDoc.documentType.displayName}"
+                    "${mode.displayName} ${supportedDoc.id}"
                 }
 
                 WrapChip(

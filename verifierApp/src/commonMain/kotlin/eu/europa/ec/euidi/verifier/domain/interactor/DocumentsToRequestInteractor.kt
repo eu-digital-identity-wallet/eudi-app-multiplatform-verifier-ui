@@ -16,7 +16,9 @@
 
 package eu.europa.ec.euidi.verifier.domain.interactor
 
+import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
 import eu.europa.ec.euidi.verifier.domain.config.AttestationType
+import eu.europa.ec.euidi.verifier.domain.config.AttestationType.Companion.getDisplayName
 import eu.europa.ec.euidi.verifier.domain.config.ConfigProvider
 import eu.europa.ec.euidi.verifier.domain.config.Mode
 import eu.europa.ec.euidi.verifier.domain.config.model.ClaimItem
@@ -27,25 +29,26 @@ import kotlinx.coroutines.flow.flow
 
 interface DocumentsToRequestInteractor {
 
-    fun getSupportedDocuments(): List<SupportedDocumentUi>
+    suspend fun getSupportedDocuments(): List<SupportedDocumentUi>
 
     fun getDocumentClaims(attestationType: AttestationType): List<ClaimItem>
 
-    fun searchDocuments(query: String, documents: List<SupportedDocumentUi>): Flow<List<SupportedDocumentUi>>
+    suspend fun searchDocuments(query: String, documents: List<SupportedDocumentUi>): Flow<List<SupportedDocumentUi>>
 
     fun checkDocumentMode(requestedDoc: RequestedDocumentUi): RequestedDocumentUi
 }
 
 class DocumentsToRequestInteractorImpl(
     private val configProvider: ConfigProvider,
+    private val resourceProvider: ResourceProvider
 ): DocumentsToRequestInteractor {
 
-    override fun getSupportedDocuments(): List<SupportedDocumentUi> =
+    override suspend fun getSupportedDocuments(): List<SupportedDocumentUi> =
         configProvider.supportedDocuments
             .documents
             .map { (documentType, _) ->
                 SupportedDocumentUi(
-                    id = documentType.displayName,
+                    id = documentType.getDisplayName(resourceProvider),
                     documentType = documentType,
                     modes = configProvider.getDocumentModes(documentType)
                 )
@@ -54,10 +57,10 @@ class DocumentsToRequestInteractorImpl(
     override fun getDocumentClaims(attestationType: AttestationType): List<ClaimItem> =
         configProvider.supportedDocuments.documents[attestationType].orEmpty()
 
-    override fun searchDocuments(query: String, documents: List<SupportedDocumentUi>): Flow<List<SupportedDocumentUi>> =
+    override suspend fun searchDocuments(query: String, documents: List<SupportedDocumentUi>): Flow<List<SupportedDocumentUi>> =
         flow {
             val filtered = documents.filter {
-                it.documentType.displayName.contains(query, ignoreCase = true)
+                it.documentType.getDisplayName(resourceProvider).contains(query, ignoreCase = true)
                         || it.modes.any { mode -> mode.displayName.contains(query, ignoreCase = true) }
             }
 

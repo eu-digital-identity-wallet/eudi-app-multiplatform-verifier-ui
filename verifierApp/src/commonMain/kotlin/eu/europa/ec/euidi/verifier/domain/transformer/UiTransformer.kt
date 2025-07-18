@@ -18,6 +18,7 @@ package eu.europa.ec.euidi.verifier.domain.transformer
 
 import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
 import eu.europa.ec.euidi.verifier.domain.config.AttestationType
+import eu.europa.ec.euidi.verifier.domain.config.AttestationType.Companion.getDisplayName
 import eu.europa.ec.euidi.verifier.domain.config.model.ClaimItem
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemDataUi
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemMainContentDataUi
@@ -25,12 +26,11 @@ import eu.europa.ec.euidi.verifier.presentation.component.ListItemTrailingConten
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.CheckboxDataUi
 import eudiverifier.verifierapp.generated.resources.Res
 import eudiverifier.verifierapp.generated.resources.allStringResources
-import kotlinx.coroutines.runBlocking
 import org.jetbrains.compose.resources.StringResource
 
 object UiTransformer {
 
-    fun transformToUiItems(
+    suspend fun transformToUiItems(
         fields: List<ClaimItem>,
         attestationType: AttestationType,
         resourceProvider: ResourceProvider
@@ -39,13 +39,11 @@ object UiTransformer {
             true -> emptyList()
             false -> {
                 fields.map { claimItem ->
-                    val translation = runBlocking {
-                        getClaimTranslation(
-                            attestationType = attestationType.displayName,
-                            claimLabel = claimItem.label,
-                            resourceProvider = resourceProvider
-                        )
-                    }
+                    val translation = getClaimTranslation(
+                        attestationType = attestationType.getDisplayName(resourceProvider),
+                        claimLabel = claimItem.label,
+                        resourceProvider = resourceProvider
+                    )
 
                     ListItemDataUi(
                         itemId = claimItem.label,
@@ -72,7 +70,7 @@ object UiTransformer {
         val resourceKey = "${attestationType.replace(" ", "_")}_${claimLabel}".lowercase()
 
        return resourceProvider.getSharedString(
-            resource = allStringResources[resourceKey] ?: allStringResources.values.first()
+            resource = allStringResources[resourceKey] ?: allStringResources.getValue("pid_family_name")
         )
     }
 }

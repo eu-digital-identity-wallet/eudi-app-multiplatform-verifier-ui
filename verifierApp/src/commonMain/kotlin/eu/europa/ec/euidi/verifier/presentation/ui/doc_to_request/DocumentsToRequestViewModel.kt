@@ -67,19 +67,16 @@ class DocumentsToRequestViewModel(
     private val interactor: DocumentsToRequestInteractor,
 ) : MviViewModel<DocToRequestContract.Event, DocToRequestContract.State, DocToRequestContract.Effect>() {
 
-    override fun createInitialState(): DocToRequestContract.State {
-        val allSupportedDocuments = interactor.getSupportedDocuments()
-
-        return DocToRequestContract.State(
-            allSupportedDocuments = allSupportedDocuments,
-            filteredDocuments = allSupportedDocuments
-        )
-    }
+    override fun createInitialState(): DocToRequestContract.State = DocToRequestContract.State()
 
     override fun handleEvent(event: DocToRequestContract.Event) {
         when (event) {
             is DocToRequestContract.Event.Init -> {
                 viewModelScope.launch {
+                    val allSupportedDocuments = uiState.value.allSupportedDocuments.ifEmpty {
+                        interactor.getSupportedDocuments()
+                    }
+
                     val currentDocs = uiState.value.requestedDocuments
 
                     val updatedDocs = event.requestedDoc?.let { requestedDocUi ->
@@ -88,6 +85,8 @@ class DocumentsToRequestViewModel(
 
                     setState {
                         copy(
+                            allSupportedDocuments = allSupportedDocuments,
+                            filteredDocuments = allSupportedDocuments,
                             requestedDocuments = updatedDocs,
                             isButtonEnabled = shouldEnableDoneButton(updatedDocs)
                         )

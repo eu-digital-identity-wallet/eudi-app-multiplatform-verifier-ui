@@ -24,6 +24,7 @@
     <string name="generic_error_retry">Please try again</string>
     <string name="generic_cancel">Cancel</string>
     <string name="generic_done">Done</string>
+    <string name="generic_ok">OK</string>
 
     <!-- Content Description -->
     <string name="content_description_qr_code_image">QR code image</string>
@@ -76,7 +77,6 @@
     <string name="documents_to_request_screen_title">Documents to request</string>
     <string name="documents_to_request_screen_status_connecting">Connecting...</string>">
     <string name="documents_to_request_screen_status_connected">Connected</string>">
-
     <string name="documents_to_request_screen_search_placeholder">Search documents</string>
     <string name="documents_to_request_screen_request_header">Request</string>
 
@@ -85,16 +85,20 @@
 
     <!-- Show Documents -->
     <string name="show_documents_screen_title">Show Documents</string>
-    <string name="show_documents_screen_positive_button_label">OK</string>
     <string name="show_documents_screen_num_of_docs_description">Number of documents returned</string>
     <string name="show_documents_screen_address_description">Address</string>
     <string name="show_documents_screen_document_header">Doctype</string>
 
     <!-- Transfer Status -->
     <string name="transfer_status_screen_title">Transfer Status</string>
+    <string name="transfer_status_screen_status_connecting">Connecting...</string>
+    <string name="transfer_status_screen_status_connected">Connected</string>
+    <string name="transfer_status_screen_request_label">Requesting</string>
 
-    <!-- Document Claims -->
-
+    <!-- Document Types -->
+    <string name="document_type_pid">PID</string>
+    <string name="document_type_mdl">mDL</string>
+    <string name="document_type_age_verification">Age Verification</string>
 
     <!-- Document Claim Translations -->
     <string name="pid_family_name">Family Name(s)</string>

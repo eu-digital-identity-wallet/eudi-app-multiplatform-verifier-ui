@@ -19,6 +19,7 @@ package eu.europa.ec.euidi.verifier.presentation.ui.show_document
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -42,23 +43,22 @@ import eu.europa.ec.euidi.verifier.presentation.component.extension.withStickyBo
 import eu.europa.ec.euidi.verifier.presentation.component.utils.OneTimeLaunchedEffect
 import eu.europa.ec.euidi.verifier.presentation.component.utils.SPACING_MEDIUM
 import eu.europa.ec.euidi.verifier.presentation.component.utils.VSpacer
-import eu.europa.ec.euidi.verifier.presentation.component.wrap.ButtonConfig
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.ButtonType
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.StickyBottomConfig
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.StickyBottomType
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapCard
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapListItems
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapStickyBottomContent
+import eu.europa.ec.euidi.verifier.presentation.component.wrap.rememberButtonConfig
 import eu.europa.ec.euidi.verifier.presentation.model.ReceivedDocsHolder
-import eu.europa.ec.euidi.verifier.presentation.navigation.NavItem
 import eu.europa.ec.euidi.verifier.presentation.navigation.getFromPreviousBackStack
 import eu.europa.ec.euidi.verifier.presentation.ui.show_document.model.DocumentUi
 import eu.europa.ec.euidi.verifier.presentation.utils.Constants
 import eudiverifier.verifierapp.generated.resources.Res
+import eudiverifier.verifierapp.generated.resources.generic_ok
 import eudiverifier.verifierapp.generated.resources.show_documents_screen_address_description
 import eudiverifier.verifierapp.generated.resources.show_documents_screen_document_header
 import eudiverifier.verifierapp.generated.resources.show_documents_screen_num_of_docs_description
-import eudiverifier.verifierapp.generated.resources.show_documents_screen_positive_button_label
 import eudiverifier.verifierapp.generated.resources.show_documents_screen_title
 import kotlinx.coroutines.flow.Flow
 import org.jetbrains.compose.resources.stringResource
@@ -79,26 +79,15 @@ fun ShowDocumentsScreen(
         onBack = {
             viewModel.setEvent(ShowDocumentViewModelContract.Event.OnBackClick)
         },
-        stickyBottom = { paddingValues ->
-            WrapStickyBottomContent(
-                stickyBottomModifier = Modifier.padding(paddingValues = paddingValues),
-                stickyBottomConfig = StickyBottomConfig(
-                    type = StickyBottomType.OneButton(
-                        config = ButtonConfig(
-                            onClick = {
-                                viewModel.setEvent(ShowDocumentViewModelContract.Event.OnDoneClick)
-                            },
-                            content = {
-                                Text(
-                                    text = stringResource(
-                                        Res.string.show_documents_screen_positive_button_label
-                                    )
-                                )
-                            },
-                            type = ButtonType.PRIMARY
-                        )
-                    )
-                )
+        stickyBottom = { stickyBottomPaddings ->
+            StickyBottomSection(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(stickyBottomPaddings),
+                enabled = !state.isLoading,
+                onClick = {
+                    viewModel.setEvent(ShowDocumentViewModelContract.Event.OnDoneClick)
+                }
             )
         }
     ) { padding ->
@@ -134,13 +123,44 @@ private fun handleNavigationEffect(
     navigationEffect: ShowDocumentViewModelContract.Effect.Navigation
 ) {
     when (navigationEffect) {
-        is ShowDocumentViewModelContract.Effect.Navigation.NavigateToHome -> {
-            navController.navigate(NavItem.Home) {
-                popUpTo(NavItem.Home) {
-                    inclusive = true
+        is ShowDocumentViewModelContract.Effect.Navigation.PushScreen -> {
+            navController.navigate(route = navigationEffect.route) {
+                popUpTo(route = navigationEffect.popUpTo) {
+                    inclusive = navigationEffect.inclusive
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun StickyBottomSection(
+    modifier: Modifier = Modifier,
+    enabled: Boolean,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier = modifier
+    ) {
+        WrapStickyBottomContent(
+            stickyBottomModifier = Modifier.fillMaxWidth(),
+            stickyBottomConfig = StickyBottomConfig(
+                type = StickyBottomType.OneButton(
+                    config = rememberButtonConfig(
+                        type = ButtonType.PRIMARY,
+                        onClick = onClick,
+                        enabled = enabled,
+                        content = {
+                            Text(
+                                text = stringResource(
+                                    Res.string.generic_ok
+                                )
+                            )
+                        }
+                    )
+                )
+            )
+        )
     }
 }
 
@@ -220,7 +240,7 @@ private fun DocumentDetails(
         text = buildAnnotatedString {
             append(stringResource(Res.string.show_documents_screen_document_header))
             append(": ")
-            append(document.documentIso)
+            append(document.namespace)
         },
         style = MaterialTheme.typography.labelLarge
     )
@@ -230,8 +250,7 @@ private fun DocumentDetails(
     WrapListItems(
         modifier = Modifier.fillMaxSize(),
         items = document.uiClaims,
-        onItemClick = {},
-        clickableAreas = listOf(),
+        onItemClick = null,
         mainContentVerticalPadding = SPACING_MEDIUM.dp
     )
 

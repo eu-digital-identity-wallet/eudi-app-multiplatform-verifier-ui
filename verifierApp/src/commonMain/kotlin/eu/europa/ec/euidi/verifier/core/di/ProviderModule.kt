@@ -16,8 +16,6 @@
 
 package eu.europa.ec.euidi.verifier.core.di
 
-import eu.europa.ec.euidi.verifier.domain.config.ConfigProvider
-import eu.europa.ec.euidi.verifier.domain.config.ConfigProviderImpl
 import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
 import eu.europa.ec.euidi.verifier.core.provider.ResourceProviderImpl
 import eu.europa.ec.euidi.verifier.core.provider.UuidProvider
@@ -33,7 +31,4 @@ class ProviderModule {
 
     @Single
     fun provideResourceProvider(): ResourceProvider = ResourceProviderImpl()
-
-    @Single
-    fun provideConfigProvider(): ConfigProvider = ConfigProviderImpl()
 }

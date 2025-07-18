@@ -19,23 +19,35 @@ package eu.europa.ec.euidi.verifier.domain.interactor
 import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
 import eu.europa.ec.euidi.verifier.core.provider.UuidProvider
 import eu.europa.ec.euidi.verifier.domain.config.AttestationType
+import eu.europa.ec.euidi.verifier.domain.config.AttestationType.Companion.getDisplayName
 import eu.europa.ec.euidi.verifier.presentation.model.ClaimKey
 import eu.europa.ec.euidi.verifier.presentation.model.ClaimValue
 import eu.europa.ec.euidi.verifier.presentation.model.ReceivedDocumentUi
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
 import eudiverifier.verifierapp.generated.resources.Res
+import eudiverifier.verifierapp.generated.resources.transfer_status_screen_request_label
+import eudiverifier.verifierapp.generated.resources.transfer_status_screen_status_connected
+import eudiverifier.verifierapp.generated.resources.transfer_status_screen_status_connecting
 import eudiverifier.verifierapp.generated.resources.transfer_status_screen_title
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 
 interface TransferStatusInteractor {
-    fun getRequestedDocumentTypes(docs: List<RequestedDocumentUi>): String
 
     fun transformToReceivedDocumentsUi(claims: List<Map<ClaimKey, ClaimValue>>): List<ReceivedDocumentUi>
 
     suspend fun getScreenTitle(): String
+
+    fun getConnectionStatus(): Flow<String>
+
+    suspend fun getRequestData(
+        docs: List<RequestedDocumentUi>
+    ): String
 }
 
 class TransferStatusInteractorImpl(
@@ -43,13 +55,6 @@ class TransferStatusInteractorImpl(
     private val uuidProvider: UuidProvider,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : TransferStatusInteractor {
-    override fun getRequestedDocumentTypes(docs: List<RequestedDocumentUi>): String {
-        if (docs.isEmpty()) return ""
-
-        return docs.joinToString(separator = "; ") {
-            "${it.mode.displayName} ${it.documentType.displayName}"
-        }
-    }
 
     override fun transformToReceivedDocumentsUi(
         claims: List<Map<ClaimKey, ClaimValue>>
@@ -69,4 +74,51 @@ class TransferStatusInteractorImpl(
             resourceProvider.getSharedString(Res.string.transfer_status_screen_title)
         }
     }
+
+    override fun getConnectionStatus(): Flow<String> = flow {
+        emit(ConnectionStatus.Connecting.toUiText())
+
+        delay(3000)
+
+        emit(ConnectionStatus.Connected.toUiText())
+    }
+
+    override suspend fun getRequestData(
+        docs: List<RequestedDocumentUi>
+    ): String {
+        return withContext(dispatcher) {
+            val requestedDocTypes = getRequestedDocumentTypes(docs)
+            val requestLabel = resourceProvider.getSharedString(Res.string.transfer_status_screen_request_label)
+
+            "$requestLabel $requestedDocTypes"
+        }
+    }
+
+    private suspend fun getRequestedDocumentTypes(docs: List<RequestedDocumentUi>): String {
+        if (docs.isEmpty()) return ""
+
+        val parts = docs.map { doc ->
+            val displayName = doc.documentType.getDisplayName(resourceProvider)
+            "${doc.mode.displayName} $displayName"
+        }
+
+        return parts.joinToString(separator = "; ")
+    }
+
+    private suspend fun ConnectionStatus.toUiText(): String =
+        when (this) {
+            is ConnectionStatus.Connecting -> resourceProvider.getSharedString(
+                Res.string.transfer_status_screen_status_connecting
+            )
+            is ConnectionStatus.Connected -> resourceProvider.getSharedString(
+                Res.string.transfer_status_screen_status_connected
+            )
+            is ConnectionStatus.Failed -> "Failed: ${reason ?: "Unknown error"}"
+        }
+}
+
+sealed class ConnectionStatus {
+    data object Connecting : ConnectionStatus()
+    data object Connected : ConnectionStatus()
+    data class Failed(val reason: String? = null) : ConnectionStatus()
 }

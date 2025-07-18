@@ -19,7 +19,9 @@ package eu.europa.ec.euidi.verifier.presentation.ui.transfer_status
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -68,26 +70,14 @@ fun TransferStatusScreen(
         onBack = {
             viewModel.setEvent(TransferStatusViewModelContract.Event.OnCancelClick)
         },
-        stickyBottom = { paddingValues ->
-            WrapStickyBottomContent(
-                stickyBottomModifier = Modifier.padding(paddingValues = paddingValues),
-                stickyBottomConfig = StickyBottomConfig(
-                    type = StickyBottomType.OneButton(
-                        config = ButtonConfig(
-                            type = ButtonType.SECONDARY,
-                            content = {
-                                Text(
-                                    text = stringResource(
-                                        Res.string.generic_cancel
-                                    )
-                                )
-                            },
-                            onClick = {
-                                viewModel.setEvent(TransferStatusViewModelContract.Event.OnCancelClick)
-                            }
-                        )
-                    )
-                )
+        stickyBottom = { stickyBottomPaddings ->
+            StickyBottomSection(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(stickyBottomPaddings),
+                onClick = {
+                    viewModel.setEvent(TransferStatusViewModelContract.Event.OnCancelClick)
+                }
             )
         }
     ) { paddingValues ->
@@ -133,6 +123,33 @@ private fun handleNavigationEffect(
             )
             navController.navigate(NavItem.ShowDocuments)
         }
+    }
+}
+
+@Composable
+private fun StickyBottomSection(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier = modifier
+    ) {
+        WrapStickyBottomContent(
+            stickyBottomModifier = Modifier.fillMaxWidth(),
+            stickyBottomConfig = StickyBottomConfig(
+                type = StickyBottomType.OneButton(
+                    config = ButtonConfig(
+                        type = ButtonType.SECONDARY,
+                        onClick = onClick,
+                        content = {
+                            Text(
+                                text = stringResource(Res.string.generic_cancel)
+                            )
+                        }
+                    )
+                )
+            )
+        )
     }
 }
 

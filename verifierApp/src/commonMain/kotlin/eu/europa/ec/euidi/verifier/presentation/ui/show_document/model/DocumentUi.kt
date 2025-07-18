@@ -20,6 +20,6 @@ import eu.europa.ec.euidi.verifier.presentation.component.ListItemDataUi
 
 data class DocumentUi(
     val id: String,
-    val documentIso: String,
+    val namespace: String,
     val uiClaims: List<ListItemDataUi>
 )

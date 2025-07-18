@@ -24,7 +24,6 @@ import eu.europa.ec.euidi.verifier.presentation.architecture.UiEvent
 import eu.europa.ec.euidi.verifier.presentation.architecture.UiState
 import eu.europa.ec.euidi.verifier.presentation.model.ReceivedDocumentUi
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
@@ -92,23 +91,22 @@ class TransferStatusViewModel(
     override fun handleEvent(event: TransferStatusViewModelContract.Event) {
         when (event) {
             is TransferStatusViewModelContract.Event.Init -> {
-                val requestDocsTypes = transferStatusInteractor.getRequestedDocumentTypes(docs = event.docs)
-
-                setState {
-                    copy(
-                        requestedDocs = event.docs,
-                        connectionStatus = "Connecting...",
-                        requestedDocTypes = "Requesting $requestDocsTypes"
-                    )
-                }
-
                 viewModelScope.launch {
-                    delay(4000)
+                    val data = transferStatusInteractor.getRequestData(event.docs)
 
                     setState {
                         copy(
-                            connectionStatus = "Connected"
+                            requestedDocs = event.docs,
+                            requestedDocTypes = data
                         )
+                    }
+
+                    transferStatusInteractor.getConnectionStatus().collect { status ->
+                        setState {
+                            copy(
+                                connectionStatus = status
+                            )
+                        }
                     }
 
                     showDocumentResults()

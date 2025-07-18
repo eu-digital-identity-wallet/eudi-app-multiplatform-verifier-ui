@@ -17,6 +17,8 @@
 package eu.europa.ec.euidi.verifier.domain.interactor
 
 import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
+import eu.europa.ec.euidi.verifier.core.provider.UuidProvider
+import eu.europa.ec.euidi.verifier.domain.config.AttestationType.Companion.getDisplayName
 import eu.europa.ec.euidi.verifier.domain.transformer.UiTransformer
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemDataUi
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemMainContentDataUi
@@ -31,8 +33,7 @@ import kotlinx.coroutines.withContext
 
 interface ShowDocumentsInteractor {
     suspend fun transformToUiItems(
-        items: List<ReceivedDocumentUi>,
-        resourceProvider: ResourceProvider,
+        items: List<ReceivedDocumentUi>
     ): List<DocumentUi>
 
     suspend fun getScreenTitle(): String
@@ -40,20 +41,20 @@ interface ShowDocumentsInteractor {
 
 class ShowDocumentsInteractorImpl(
     private val resourceProvider: ResourceProvider,
+    private val uuidProvider: UuidProvider,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ShowDocumentsInteractor {
     override suspend fun transformToUiItems(
-        items: List<ReceivedDocumentUi>,
-        resourceProvider: ResourceProvider
+        items: List<ReceivedDocumentUi>
     ): List<DocumentUi> {
         if (items.isEmpty()) return emptyList()
 
         return items.map { document ->
             val claimsUi = document.claims.entries.mapIndexed { index, (claimKey, claimValue) ->
                 ListItemDataUi(
-                    itemId = "$index",
+                    itemId = uuidProvider.provideUuid(),
                     overlineText = UiTransformer.getClaimTranslation(
-                        attestationType = document.documentType.displayName,
+                        attestationType = document.documentType.getDisplayName(resourceProvider),
                         claimLabel = claimKey,
                         resourceProvider = resourceProvider
                     ),
@@ -63,7 +64,7 @@ class ShowDocumentsInteractorImpl(
 
             DocumentUi(
                 id = document.id,
-                documentIso = document.documentType.namespace,
+                namespace = document.documentType.namespace,
                 uiClaims = claimsUi
             )
         }

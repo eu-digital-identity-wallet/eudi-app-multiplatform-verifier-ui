@@ -43,20 +43,26 @@ class InteractorModule {
     @Factory
     fun provideDocumentsToRequestInteractor(
         configProvider: ConfigProvider,
+        resourceProvider: ResourceProvider
     ): DocumentsToRequestInteractor =
-        DocumentsToRequestInteractorImpl(configProvider)
+        DocumentsToRequestInteractorImpl(configProvider, resourceProvider)
 
     @Factory
     fun provideCustomRequestInteractor(
-        resourceProvider: ResourceProvider
+        resourceProvider: ResourceProvider,
+        configProvider: ConfigProvider,
     ): CustomRequestInteractor =
-        CustomRequestInteractorImpl(resourceProvider)
+        CustomRequestInteractorImpl(
+            resourceProvider = resourceProvider,
+            configProvider = configProvider
+        )
 
     @Factory
     fun provideShowDocumentsInteractor(
-        resourceProvider: ResourceProvider
+        resourceProvider: ResourceProvider,
+        uuidProvider: UuidProvider
     ): ShowDocumentsInteractor =
-        ShowDocumentsInteractorImpl(resourceProvider)
+        ShowDocumentsInteractorImpl(resourceProvider, uuidProvider)
 
     @Factory
     fun provideTransferStatusInteractor(
