@@ -16,37 +16,33 @@
 
 package eu.europa.ec.euidi.verifier.presentation.ui.qr_scan
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import eu.europa.ec.euidi.verifier.presentation.component.content.ContentScreen
 import eu.europa.ec.euidi.verifier.presentation.component.content.ScreenNavigateAction
 import eu.europa.ec.euidi.verifier.presentation.component.content.ToolbarConfig
+import eu.europa.ec.euidi.verifier.presentation.component.extension.qrBorderCanvas
 import eu.europa.ec.euidi.verifier.presentation.component.utils.OneTimeLaunchedEffect
-import eu.europa.ec.euidi.verifier.presentation.component.wrap.ButtonType
-import eu.europa.ec.euidi.verifier.presentation.component.wrap.StickyBottomConfig
-import eu.europa.ec.euidi.verifier.presentation.component.wrap.StickyBottomType
-import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapStickyBottomContent
-import eu.europa.ec.euidi.verifier.presentation.component.wrap.rememberButtonConfig
+import eu.europa.ec.euidi.verifier.presentation.component.utils.SIZE_EXTRA_SMALL
+import eu.europa.ec.euidi.verifier.presentation.component.utils.SIZE_LARGE
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocsHolder
 import eu.europa.ec.euidi.verifier.presentation.navigation.NavItem
 import eu.europa.ec.euidi.verifier.presentation.navigation.getFromPreviousBackStack
@@ -55,10 +51,7 @@ import eu.europa.ec.euidi.verifier.presentation.ui.qr_scan.QrScanViewModelContra
 import eu.europa.ec.euidi.verifier.presentation.ui.qr_scan.QrScanViewModelContract.Event
 import eu.europa.ec.euidi.verifier.presentation.ui.qr_scan.QrScanViewModelContract.State
 import eu.europa.ec.euidi.verifier.presentation.utils.Constants
-import eudiverifier.verifierapp.generated.resources.Res
-import eudiverifier.verifierapp.generated.resources.generic_cancel
 import kotlinx.coroutines.flow.Flow
-import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import qrscanner.CameraLens
 import qrscanner.QrScanner
@@ -81,15 +74,6 @@ fun QrScanScreen(
         toolBarConfig = toolbarConfig,
         navigatableAction = ScreenNavigateAction.BACKABLE,
         onBack = { viewModel.setEvent(Event.OnBackClicked) },
-        stickyBottom = { stickyBottomPaddings ->
-            StickyBottomSection(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(stickyBottomPaddings),
-                enabled = !state.isLoading,
-                onClick = { viewModel.setEvent(Event.OnStickyButtonClicked) }
-            )
-        },
         contentErrorConfig = state.error,
     ) { padding ->
         Content(
@@ -132,31 +116,6 @@ private fun handleNavigationEffect(
 }
 
 @Composable
-private fun StickyBottomSection(
-    modifier: Modifier = Modifier,
-    enabled: Boolean,
-    onClick: () -> Unit,
-) {
-    Row(modifier = modifier) {
-        WrapStickyBottomContent(
-            stickyBottomModifier = Modifier.fillMaxWidth(),
-            stickyBottomConfig = StickyBottomConfig(
-                type = StickyBottomType.OneButton(
-                    config = rememberButtonConfig(
-                        type = ButtonType.PRIMARY,
-                        enabled = enabled,
-                        onClick = onClick,
-                        content = {
-                            Text(text = stringResource(Res.string.generic_cancel))
-                        }
-                    )
-                )
-            )
-        )
-    }
-}
-
-@Composable
 private fun Content(
     state: State,
     onEventSend: (Event) -> Unit,
@@ -164,39 +123,51 @@ private fun Content(
     onNavigationRequested: (Effect.Navigation) -> Unit,
     paddingValues: PaddingValues,
 ) {
-    val layoutDirection = LocalLayoutDirection.current
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(
                 top = paddingValues.calculateTopPadding(),
                 bottom = 0.dp,
-                start = paddingValues.calculateStartPadding(layoutDirection),
-                end = paddingValues.calculateEndPadding(layoutDirection)
             ),
     ) {
         Box(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().background(Color.Black),
             contentAlignment = Alignment.Center
         )
         {
             if (!state.finishedScanning) {
                 QrScanner(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(1f),
+                    modifier = Modifier.fillMaxSize(),
                     onCompletion = {
                         onEventSend(Event.OnQrScanned(code = it))
                     },
                     onFailure = {
                         onEventSend(Event.OnQrScanFailed(error = it))
                     },
+                    overlayColor = Color.Transparent,
                     cameraLens = CameraLens.Back,
-                    //overlayColor = Color.Red,
-                    overlayBorderColor = MaterialTheme.colorScheme.primary,
+                    overlayBorderColor = Color.Transparent,
                     flashlightOn = false,
                     openImagePicker = false,
                     imagePickerHandler = {},
+                )
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 40.dp)
+                        .aspectRatio(1f)
+                        .drawWithContent {
+                            qrBorderCanvas(
+                                borderColor = Color.White,
+                                curve = 0.dp,
+                                strokeWidth = SIZE_EXTRA_SMALL.dp,
+                                capSize = SIZE_LARGE.dp,
+                                gapAngle = SIZE_EXTRA_SMALL,
+                                cap = StrokeCap.Square
+                            )
+                        }
                 )
             }
         }
