@@ -16,10 +16,8 @@
 
 package eu.europa.ec.euidi.verifier.core.helper
 
-import platform.posix.exit
-
 class IosAppCloser : AppCloser {
     override fun closeApp() {
-        exit(0) //TODO how is this done on iOS?
+        // no-op
     }
 }
