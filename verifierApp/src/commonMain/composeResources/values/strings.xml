@@ -48,6 +48,13 @@
     <string name="content_description_user_icon">User</string>
     <string name="content_description_image_or_placeholder_icon">Image or placeholder icon</string>
 
+    <!-- Home -->
+    <string name="home_screen_title">EUDI Proximity Verifier</string>
+    <string name="home_screen_sticky_bottom_text">Scan QR Code</string>
+    <string name="home_screen_main_button_text_default">Tap to create request</string>
+    <string name="home_screen_main_button_text_separator">; </string>
+    <string name="home_screen_nfc_title">NFC ready to tap</string>
+
     <!-- Menu -->
     <string name="menu_screen_title">Menu</string>
     <string name="menu_screen_item_home_name">Home</string>
@@ -175,5 +182,8 @@
     <string name="reverse_engagement_screen_title">Reverse Engagement</string>
     <string name="reverse_engagement_screen_info_message">Scan QR code with the EUDI Proximity Verifier application.\n\nNOTE: This is not supported for ISO 18013-7, only 23220-4.</string>
     <string name="reverse_engagement_screen_placeholder_qr">EUDI Proximity Verifier</string>
+
+    <!-- Qr Scan -->
+    <string name="qr_scan_screen_title">Device Engagement</string>
 
 </resources>

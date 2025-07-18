@@ -14,15 +14,12 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier.presentation.ui.home
+package eu.europa.ec.euidi.verifier.core.helper
 
-import androidx.navigation.NavController
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.compose.composable
-import eu.europa.ec.euidi.verifier.presentation.navigation.NavItem
+import platform.posix.exit
 
-fun NavGraphBuilder.homeScreen(navController: NavController) {
-    composable<NavItem.Home> {
-        HomeScreen(navController)
+class IosAppCloser : AppCloser {
+    override fun closeApp() {
+        exit(0) //TODO how is this done on iOS?
     }
 }

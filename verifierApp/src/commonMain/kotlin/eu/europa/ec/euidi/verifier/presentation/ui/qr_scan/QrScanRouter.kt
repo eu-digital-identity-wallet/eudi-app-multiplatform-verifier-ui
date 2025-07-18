@@ -14,15 +14,23 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier.presentation.ui.home
+package eu.europa.ec.euidi.verifier.presentation.ui.qr_scan
 
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import eu.europa.ec.euidi.verifier.presentation.navigation.NavItem
+import eu.europa.ec.euidi.verifier.presentation.navigation.noAnimation
+import eu.europa.ec.euidi.verifier.presentation.navigation.slideInFromEnd
+import eu.europa.ec.euidi.verifier.presentation.navigation.slideOutToEnd
 
-fun NavGraphBuilder.homeScreen(navController: NavController) {
-    composable<NavItem.Home> {
-        HomeScreen(navController)
+fun NavGraphBuilder.qrScanScreen(navController: NavController) {
+    composable<NavItem.QrScan>(
+        enterTransition = slideInFromEnd(),//TODO are these needed?
+        exitTransition = noAnimation(),//TODO are these needed?
+        popEnterTransition = noAnimation(),//TODO are these needed?
+        popExitTransition = slideOutToEnd()//TODO are these needed?
+    ) {
+        QrScanScreen(navController)
     }
 }

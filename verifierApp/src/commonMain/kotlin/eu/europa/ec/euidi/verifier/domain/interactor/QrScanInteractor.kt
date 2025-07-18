@@ -18,45 +18,38 @@ package eu.europa.ec.euidi.verifier.domain.interactor
 
 import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
 import eudiverifier.verifierapp.generated.resources.Res
-import eudiverifier.verifierapp.generated.resources.reverse_engagement_screen_info_message
-import eudiverifier.verifierapp.generated.resources.reverse_engagement_screen_placeholder_qr
-import eudiverifier.verifierapp.generated.resources.reverse_engagement_screen_title
+import eudiverifier.verifierapp.generated.resources.qr_scan_screen_title
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
-interface ReverseEngagementInteractor {
+interface QrScanInteractor {
     suspend fun getScreenTitle(): String
-    suspend fun getInformativeMessage(): String
-    suspend fun createQr(): CreateQrPartialState
+    suspend fun decodeQrCode(code: String): DecodeQrCodePartialState
 }
 
-class ReverseEngagementInteractorImpl(
+class QrScanInteractorImpl(
     private val resourceProvider: ResourceProvider,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
-) : ReverseEngagementInteractor {
+) : QrScanInteractor {
 
     override suspend fun getScreenTitle(): String {
         return withContext(dispatcher) {
-            resourceProvider.getSharedString(Res.string.reverse_engagement_screen_title)
+            resourceProvider.getSharedString(Res.string.qr_scan_screen_title)
         }
     }
 
-    override suspend fun getInformativeMessage(): String {
-        return withContext(dispatcher) {
-            resourceProvider.getSharedString(Res.string.reverse_engagement_screen_info_message)
-        }
-    }
-
-    override suspend fun createQr(): CreateQrPartialState {
+    override suspend fun decodeQrCode(code: String): DecodeQrCodePartialState {
+        //TODO
         return withContext(dispatcher) {
             runCatching {
-                CreateQrPartialState.Success(
-                    qr = resourceProvider.getSharedString(Res.string.reverse_engagement_screen_placeholder_qr)
-                )
+                delay(1500L)
+
+                DecodeQrCodePartialState.Success
             }.getOrElse {
-                CreateQrPartialState.Failure(
+                DecodeQrCodePartialState.Failure(
                     error = it.message ?: resourceProvider.genericErrorMessage()
                 )
             }
@@ -65,7 +58,7 @@ class ReverseEngagementInteractorImpl(
 
 }
 
-sealed interface CreateQrPartialState {
-    data class Success(val qr: String) : CreateQrPartialState
-    data class Failure(val error: String) : CreateQrPartialState
+sealed interface DecodeQrCodePartialState {
+    data object Success : DecodeQrCodePartialState
+    data class Failure(val error: String) : DecodeQrCodePartialState
 }

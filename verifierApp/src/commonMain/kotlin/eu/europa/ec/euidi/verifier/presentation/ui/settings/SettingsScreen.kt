@@ -108,8 +108,8 @@ fun SettingsScreen(
     ) { padding ->
         Content(
             state = state,
-            effectFlow = viewModel.effect,
             onEventSend = viewModel::setEvent,
+            effectFlow = viewModel.effect,
             onNavigationRequested = { navigationEffect ->
                 handleNavigationEffect(navigationEffect, navController)
             },
@@ -174,8 +174,8 @@ private fun StickyBottomSection(
 @Composable
 private fun Content(
     state: State,
-    effectFlow: Flow<Effect>,
     onEventSend: (Event) -> Unit,
+    effectFlow: Flow<Effect>,
     onNavigationRequested: (Effect.Navigation) -> Unit,
     paddingValues: PaddingValues,
 ) {
@@ -328,8 +328,8 @@ private fun ContentPreview() {
                 screenTitle = stringResource(Res.string.settings_screen_title),
                 settingsItems = settingsItems,
             ),
-            effectFlow = emptyFlow(),
             onEventSend = {},
+            effectFlow = emptyFlow(),
             onNavigationRequested = {},
             paddingValues = PaddingValues(SPACING_MEDIUM.dp),
         )

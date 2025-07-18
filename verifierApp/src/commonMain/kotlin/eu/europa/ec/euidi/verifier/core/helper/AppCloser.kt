@@ -14,15 +14,13 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier.presentation.ui.home
+package eu.europa.ec.euidi.verifier.core.helper
 
-import androidx.navigation.NavController
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.compose.composable
-import eu.europa.ec.euidi.verifier.presentation.navigation.NavItem
-
-fun NavGraphBuilder.homeScreen(navController: NavController) {
-    composable<NavItem.Home> {
-        HomeScreen(navController)
-    }
+/**
+ * An interface for closing the application.
+ *
+ * This interface provides a method to close the application.
+ */
+interface AppCloser {
+    fun closeApp()
 }

@@ -20,16 +20,28 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import eu.europa.ec.euidi.verifier.core.helper.AndroidAppCloser
+import eu.europa.ec.euidi.verifier.core.helper.AppCloser
 import eu.europa.ec.euidi.verifier.presentation.ui.container.ContainerView
+import org.koin.android.ext.android.inject
 
 class ContainerActivity : ComponentActivity() {
+
+    private val appCloser: AppCloser by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        registerActivityWithAppCloser()
+
         setContent {
             ContainerView()
         }
+    }
+
+    private fun registerActivityWithAppCloser() {
+        // Register activity after Koin is already started
+        (appCloser as? AndroidAppCloser)?.registerActivity(activity = this)
     }
 }
