@@ -80,6 +80,10 @@ class QrScanViewModel(
         when (event) {
             is Event.Init -> {
                 setScreenTitle()
+
+                event.docs?.let { safeDocs ->
+                    setDocuments(safeDocs)
+                } //TODO what happens if docs are null?
             }
 
             is Event.OnBackClicked -> {
@@ -191,6 +195,14 @@ class QrScanViewModel(
 
     private fun goBack() {
         setEffect { Effect.Navigation.Pop }
+    }
+
+    private fun setDocuments(docs: List<RequestedDocumentUi>) {
+        setState {
+            copy(
+                requestedDocs = docs
+            )
+        }
     }
 
 }

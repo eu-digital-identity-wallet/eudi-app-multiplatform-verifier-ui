@@ -19,6 +19,7 @@ package eu.europa.ec.euidi.verifier.domain.interactor
 import eu.europa.ec.euidi.verifier.core.helper.AppCloser
 import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
 import eu.europa.ec.euidi.verifier.core.provider.UuidProvider
+import eu.europa.ec.euidi.verifier.domain.config.AttestationType.Companion.getDisplayName
 import eu.europa.ec.euidi.verifier.presentation.component.AppIcons
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemDataUi
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemMainContentDataUi
@@ -78,12 +79,11 @@ class HomeInteractorImpl(
         return withContext(dispatcher) {
             val separator =
                 resourceProvider.getSharedString(Res.string.home_screen_main_button_text_separator)
-            val displayText = requestedDocs.joinToString(
-                separator = separator,
-                transform = {
-                    "${it.mode.name} ${it.documentType.name}"
-                }
-            )
+
+            val displayText = requestedDocs.map { doc ->
+                val displayName = doc.documentType.getDisplayName(resourceProvider)
+                "${doc.mode.displayName} $displayName"
+            }.joinToString(separator = separator)
 
             existingMainButtonData.copy(
                 mainContentData = ListItemMainContentDataUi.Text(text = displayText)

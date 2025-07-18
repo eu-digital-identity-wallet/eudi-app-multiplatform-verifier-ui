@@ -41,15 +41,15 @@ sealed interface ShowDocumentViewModelContract {
             val address: String,
             val items: List<ReceivedDocumentUi>
         ) : Event
+
         data object OnDoneClick : Event
         data object OnBackClick : Event
     }
 
     sealed interface Effect : UiEffect {
         sealed interface Navigation : Effect {
-            data class PushScreen(
+            data class PopTo(
                 val route: NavItem,
-                val popUpTo: NavItem,
                 val inclusive: Boolean,
             ) : Navigation
         }
@@ -91,28 +91,25 @@ class ShowDocumentsViewModel(
             }
 
             is ShowDocumentViewModelContract.Event.OnDoneClick -> {
-               pushScreen(
-                   route = NavItem.Home,
-                   popUpTo = NavItem.Home,
-                   inclusive = true
-               )
+                pushScreen(
+                    route = NavItem.Home,
+                    inclusive = false
+                )
             }
 
             is ShowDocumentViewModelContract.Event.OnBackClick -> {
                 pushScreen(
                     route = NavItem.Home,
-                    popUpTo = NavItem.Home,
-                    inclusive = true
+                    inclusive = false
                 )
             }
         }
     }
 
-    private fun pushScreen(route: NavItem, popUpTo: NavItem, inclusive: Boolean) {
+    private fun pushScreen(route: NavItem, inclusive: Boolean) {
         setEffect {
-            ShowDocumentViewModelContract.Effect.Navigation.PushScreen(
+            ShowDocumentViewModelContract.Effect.Navigation.PopTo(
                 route = route,
-                popUpTo = popUpTo,
                 inclusive = inclusive,
             )
         }

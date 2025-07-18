@@ -39,12 +39,26 @@ inline fun <reified T : CommonParcelable> NavController.saveToPreviousBackStack(
     previousBackStackEntry?.savedStateHandle?.set(key, value)
 }
 
-inline fun <reified T : CommonParcelable> NavController.getFromPreviousBackStack(key: String): T? {
-    return previousBackStackEntry?.savedStateHandle?.remove(key)
+inline fun <reified T : CommonParcelable> NavController.getFromPreviousBackStack(
+    key: String,
+    remove: Boolean = false
+): T? {
+    return if (remove) {
+        previousBackStackEntry?.savedStateHandle?.remove(key)
+    } else {
+        previousBackStackEntry?.savedStateHandle?.get(key)
+    }
 }
 
-inline fun <reified T : CommonParcelable> NavController.getFromCurrentBackStack(key: String): T? {
-    return currentBackStackEntry?.savedStateHandle?.remove(key)
+inline fun <reified T : CommonParcelable> NavController.getFromCurrentBackStack(
+    key: String,
+    remove: Boolean = false
+): T? {
+    return if (remove) {
+        currentBackStackEntry?.savedStateHandle?.remove(key)
+    } else {
+        currentBackStackEntry?.savedStateHandle?.get(key)
+    }
 }
 
 /**
@@ -61,6 +75,13 @@ inline fun <reified T : CommonParcelable> NavController.popToAndSave(
         route = destination,
         inclusive = inclusive
     )
+}
+
+inline fun <reified NavBackStackEntry : CommonParcelable> NavController.getDataFromRoute(
+    route: NavItem,
+    key: String,
+): NavBackStackEntry? {
+    return getBackStackEntry(route).savedStateHandle[key]
 }
 
 /**

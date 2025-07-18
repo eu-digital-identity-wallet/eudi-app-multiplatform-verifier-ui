@@ -123,12 +123,11 @@ private fun handleNavigationEffect(
     navigationEffect: ShowDocumentViewModelContract.Effect.Navigation
 ) {
     when (navigationEffect) {
-        is ShowDocumentViewModelContract.Effect.Navigation.PushScreen -> {
-            navController.navigate(route = navigationEffect.route) {
-                popUpTo(route = navigationEffect.popUpTo) {
-                    inclusive = navigationEffect.inclusive
-                }
-            }
+        is ShowDocumentViewModelContract.Effect.Navigation.PopTo -> {
+            navController.popBackStack(
+                route = navigationEffect.route,
+                inclusive = navigationEffect.inclusive
+            )
         }
     }
 }

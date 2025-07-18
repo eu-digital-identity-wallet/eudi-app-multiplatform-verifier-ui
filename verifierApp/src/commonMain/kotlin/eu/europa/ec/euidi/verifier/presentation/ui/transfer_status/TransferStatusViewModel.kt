@@ -113,13 +113,13 @@ class TransferStatusViewModel(
                 }
             }
 
-            TransferStatusViewModelContract.Event.OnCancelClick -> {
+            is TransferStatusViewModelContract.Event.OnCancelClick -> {
                 setEffect {
                     TransferStatusViewModelContract.Effect.Navigation.GoBack
                 }
             }
 
-            TransferStatusViewModelContract.Event.OnBackClick -> {
+            is TransferStatusViewModelContract.Event.OnBackClick -> {
                 setEffect {
                     TransferStatusViewModelContract.Effect.Navigation.GoBack
                 }
@@ -132,7 +132,8 @@ class TransferStatusViewModel(
         val allClaims = listOf(dummyClaims1, dummyClaims2)
         val address = "ble:peripheral_server_mode:uuid=4f0eacf2-963 4-4838-a6dc-65d740aadcf0"
 
-        val transformedDocuments = transferStatusInteractor.transformToReceivedDocumentsUi(allClaims)
+        val transformedDocuments =
+            transferStatusInteractor.transformToReceivedDocumentsUi(allClaims)
 
         setEffect {
             TransferStatusViewModelContract.Effect.Navigation.NavigateToShowDocumentsScreen(
