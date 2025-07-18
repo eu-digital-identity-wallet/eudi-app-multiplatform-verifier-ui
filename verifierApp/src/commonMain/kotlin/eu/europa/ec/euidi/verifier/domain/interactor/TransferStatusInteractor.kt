@@ -28,7 +28,6 @@ import eudiverifier.verifierapp.generated.resources.Res
 import eudiverifier.verifierapp.generated.resources.transfer_status_screen_request_label
 import eudiverifier.verifierapp.generated.resources.transfer_status_screen_status_connected
 import eudiverifier.verifierapp.generated.resources.transfer_status_screen_status_connecting
-import eudiverifier.verifierapp.generated.resources.transfer_status_screen_title
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -40,8 +39,6 @@ import kotlinx.coroutines.withContext
 interface TransferStatusInteractor {
 
     fun transformToReceivedDocumentsUi(claims: List<Map<ClaimKey, ClaimValue>>): List<ReceivedDocumentUi>
-
-    suspend fun getScreenTitle(): String
 
     fun getConnectionStatus(): Flow<String>
 
@@ -69,18 +66,12 @@ class TransferStatusInteractorImpl(
             }
     }
 
-    override suspend fun getScreenTitle(): String {
-        return withContext(dispatcher) {
-            resourceProvider.getSharedString(Res.string.transfer_status_screen_title)
-        }
-    }
-
     override fun getConnectionStatus(): Flow<String> = flow {
-        emit(ConnectionStatus.Connecting.toUiText())
+        emit(ConnectionStatus.Connecting.toUserFriendlyString())
 
         delay(3000)
 
-        emit(ConnectionStatus.Connected.toUiText())
+        emit(ConnectionStatus.Connected.toUserFriendlyString())
     }
 
     override suspend fun getRequestData(
@@ -88,7 +79,8 @@ class TransferStatusInteractorImpl(
     ): String {
         return withContext(dispatcher) {
             val requestedDocTypes = getRequestedDocumentTypes(docs)
-            val requestLabel = resourceProvider.getSharedString(Res.string.transfer_status_screen_request_label)
+            val requestLabel =
+                resourceProvider.getSharedString(Res.string.transfer_status_screen_request_label)
 
             "$requestLabel $requestedDocTypes"
         }
@@ -105,14 +97,16 @@ class TransferStatusInteractorImpl(
         return parts.joinToString(separator = "; ")
     }
 
-    private suspend fun ConnectionStatus.toUiText(): String =
+    private suspend fun ConnectionStatus.toUserFriendlyString(): String =
         when (this) {
             is ConnectionStatus.Connecting -> resourceProvider.getSharedString(
                 Res.string.transfer_status_screen_status_connecting
             )
+
             is ConnectionStatus.Connected -> resourceProvider.getSharedString(
                 Res.string.transfer_status_screen_status_connected
             )
+
             is ConnectionStatus.Failed -> "Failed: ${reason ?: "Unknown error"}"
         }
 }
