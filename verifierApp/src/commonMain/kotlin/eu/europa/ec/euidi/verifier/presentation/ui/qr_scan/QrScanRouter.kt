@@ -26,10 +26,10 @@ import eu.europa.ec.euidi.verifier.presentation.navigation.slideOutToEnd
 
 fun NavGraphBuilder.qrScanScreen(navController: NavController) {
     composable<NavItem.QrScan>(
-        enterTransition = slideInFromEnd(),//TODO are these needed?
-        exitTransition = noAnimation(),//TODO are these needed?
-        popEnterTransition = noAnimation(),//TODO are these needed?
-        popExitTransition = slideOutToEnd()//TODO are these needed?
+        enterTransition = slideInFromEnd(),
+        exitTransition = noAnimation(),
+        popEnterTransition = noAnimation(),
+        popExitTransition = slideOutToEnd()
     ) {
         QrScanScreen(navController)
     }
