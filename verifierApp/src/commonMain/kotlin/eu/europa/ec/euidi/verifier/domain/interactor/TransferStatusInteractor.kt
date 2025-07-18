@@ -28,6 +28,7 @@ import eudiverifier.verifierapp.generated.resources.Res
 import eudiverifier.verifierapp.generated.resources.transfer_status_screen_request_label
 import eudiverifier.verifierapp.generated.resources.transfer_status_screen_status_connected
 import eudiverifier.verifierapp.generated.resources.transfer_status_screen_status_connecting
+import eudiverifier.verifierapp.generated.resources.transfer_status_screen_status_failed
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -107,7 +108,9 @@ class TransferStatusInteractorImpl(
                 Res.string.transfer_status_screen_status_connected
             )
 
-            is ConnectionStatus.Failed -> "Failed: ${reason ?: "Unknown error"}"
+            is ConnectionStatus.Failed -> resourceProvider.getSharedString(
+                Res.string.transfer_status_screen_status_failed
+            )
         }
 }
 

@@ -100,6 +100,7 @@
     <string name="transfer_status_screen_title">Transfer Status</string>
     <string name="transfer_status_screen_status_connecting">Connecting...</string>
     <string name="transfer_status_screen_status_connected">Connected</string>
+    <string name="transfer_status_screen_status_failed">Failed: %1$s</string>
     <string name="transfer_status_screen_request_label">Requesting</string>
 
     <!-- Document Types -->
