@@ -54,10 +54,12 @@ sealed interface MenuViewModelContract {
                 val popUpTo: NavItem,
                 val inclusive: Boolean,
             ) : Navigation
+
             data class PopTo(
                 val route: NavItem,
                 val inclusive: Boolean,
             ) : Navigation
+
             data object Pop : Navigation
         }
     }

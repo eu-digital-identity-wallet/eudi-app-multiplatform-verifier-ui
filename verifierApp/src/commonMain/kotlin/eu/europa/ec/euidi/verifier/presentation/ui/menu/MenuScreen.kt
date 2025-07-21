@@ -183,7 +183,7 @@ private fun MenuOptions(
 
 @ThemeModePreviews
 @Composable
-private fun TestPreview() {
+private fun ContentPreview() {
     PreviewTheme {
         val chevronRightIcon = ListItemTrailingContentDataUi.Icon(
             iconData = AppIcons.ChevronRight
