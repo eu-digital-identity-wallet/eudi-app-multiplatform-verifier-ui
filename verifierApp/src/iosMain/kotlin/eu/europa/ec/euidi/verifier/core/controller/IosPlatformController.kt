@@ -27,9 +27,16 @@ class IosPlatformController : PlatformController {
     }
 
     override fun openAppSettings() {
-        val settingsUrl = NSURL.URLWithString(UIApplicationOpenSettingsURLString)
-        settingsUrl?.let {
-            UIApplication.sharedApplication.openURL(it)
-        }
+        NSURL
+            .URLWithString(UIApplicationOpenSettingsURLString)
+            ?.let { settingsUrl ->
+                UIApplication
+                    .sharedApplication
+                    .openURL(
+                        url = settingsUrl,
+                        options = mapOf<Any?, Any?>(),
+                        completionHandler = null,
+                    )
+            }
     }
 }
