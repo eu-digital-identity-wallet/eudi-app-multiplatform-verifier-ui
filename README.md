@@ -52,9 +52,9 @@ Alternatively, you can build it yourself using Xcode for iOS or Android Studio f
 3. Tap the "Authenticate" button on the first informative card. A modal with two options will appear.
 4. Select "In person".
 5. You will be prompted to enable Bluetooth (if it is not already enabled) and grant the necessary permissions for the app to use it (if you have not already done so).
-6. Select the document (e.g., PID, MDL, etc.) you want to request from the EUDI Wallet app.
+6. In the EUDI Verifier app, select the document (e.g., PID, MDL, etc.) you want to request from the EUDI Wallet app.
 7. Scan the presented QR code with the EUDI Verifier app.
-8. The EUDI Wallet app's "Request" screen will load. Here, you can select or deselect which attributes to share with the EUDI Verifier app. You must select at least one attribute to proceed.
+8. The EUDI Wallet app's "Request" screen will load. Here, you can select or deselect which attributes to share with the EUDI Verifier app. You must choose at least one attribute to proceed.
 9. Tap "Share".
 10. Enter the PIN you set up during the initial steps.
 11. Upon successful authentication, tap "Close".
