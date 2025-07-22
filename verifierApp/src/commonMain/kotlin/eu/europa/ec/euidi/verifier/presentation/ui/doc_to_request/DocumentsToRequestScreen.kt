@@ -34,7 +34,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import eu.europa.ec.euidi.verifier.domain.config.AttestationType
+import eu.europa.ec.euidi.verifier.domain.config.model.AttestationType
 import eu.europa.ec.euidi.verifier.domain.model.SupportedDocumentUi
 import eu.europa.ec.euidi.verifier.presentation.component.AppIcons
 import eu.europa.ec.euidi.verifier.presentation.component.content.ContentScreen
@@ -55,7 +55,7 @@ import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapStickyBottomC
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocsHolder
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
 import eu.europa.ec.euidi.verifier.presentation.navigation.NavItem
-import eu.europa.ec.euidi.verifier.presentation.navigation.getFromCurrentBackStack
+import eu.europa.ec.euidi.verifier.presentation.navigation.getFromRelevantBackStack
 import eu.europa.ec.euidi.verifier.presentation.navigation.popToAndSave
 import eu.europa.ec.euidi.verifier.presentation.navigation.saveToCurrentBackStack
 import eu.europa.ec.euidi.verifier.presentation.utils.Constants
@@ -122,13 +122,12 @@ fun DocumentsToRequestScreen(
     }
 
     LaunchedEffect(Unit) {
-        val docs = navController.getFromCurrentBackStack<RequestedDocumentUi>(
-            key = Constants.REQUESTED_DOCUMENTS
-        )
-
-        viewModel.setEvent(
-            DocToRequestContract.Event.Init(requestedDoc = docs)
-        )
+        navController.getFromRelevantBackStack<RequestedDocsHolder>(
+            key = Constants.REQUESTED_DOCUMENTS,
+            remove = true
+        )?.let { requestedDocs ->
+            viewModel.setEvent(DocToRequestContract.Event.Init(requestedDocs))
+        }
     }
 }
 

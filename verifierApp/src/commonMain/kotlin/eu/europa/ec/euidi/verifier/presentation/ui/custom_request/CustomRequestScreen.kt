@@ -130,12 +130,10 @@ private fun handleNavigationEffect(
 ) {
     when (effect) {
         is CustomRequestContract.Effect.Navigation.GoBack -> {
-            effect.requestedDocument?.let {
-                navController.saveToPreviousBackStack(
-                    key = Constants.REQUESTED_DOCUMENTS,
-                    value = effect.requestedDocument
-                )
-            }
+            navController.saveToPreviousBackStack(
+                key = Constants.REQUESTED_DOCUMENTS,
+                value = effect.requestedDocuments
+            )
             navController.popBackStack()
         }
     }

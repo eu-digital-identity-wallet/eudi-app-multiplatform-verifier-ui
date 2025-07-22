@@ -17,8 +17,8 @@
 package eu.europa.ec.euidi.verifier.domain.transformer
 
 import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
-import eu.europa.ec.euidi.verifier.domain.config.AttestationType
-import eu.europa.ec.euidi.verifier.domain.config.AttestationType.Companion.getDisplayName
+import eu.europa.ec.euidi.verifier.domain.config.model.AttestationType
+import eu.europa.ec.euidi.verifier.domain.config.model.AttestationType.Companion.getDisplayName
 import eu.europa.ec.euidi.verifier.domain.config.model.ClaimItem
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemDataUi
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemMainContentDataUi

@@ -65,6 +65,10 @@ sealed interface HomeViewModelContract {
                 val route: NavItem
             ) : Navigation
 
+            data class NavigateToDocsToRequestScreen(
+                val requestedDocs: RequestedDocsHolder
+            ) : Navigation
+
             data class NavigateToQrScanScreen(
                 val requestedDocs: RequestedDocsHolder
             ) : Navigation
@@ -121,8 +125,10 @@ class HomeViewModel(
 
             is Event.OnTapToCreateRequest -> {
                 setEffect {
-                    Effect.Navigation.PushScreen(
-                        route = NavItem.DocToRequest
+                    Effect.Navigation.NavigateToDocsToRequestScreen(
+                        requestedDocs = RequestedDocsHolder(
+                            items = uiState.value.requestedDocs
+                        )
                     )
                 }
             }

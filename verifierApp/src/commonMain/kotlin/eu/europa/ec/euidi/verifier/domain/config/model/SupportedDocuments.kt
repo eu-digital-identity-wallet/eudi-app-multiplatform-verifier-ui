@@ -14,13 +14,8 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier.domain.model
+package eu.europa.ec.euidi.verifier.domain.config.model
 
-import eu.europa.ec.euidi.verifier.domain.config.model.AttestationType
-import eu.europa.ec.euidi.verifier.domain.config.model.DocumentMode
-
-data class SupportedDocumentUi(
-    val id: String,
-    val documentType: AttestationType,
-    val modes: List<DocumentMode> = emptyList()
+data class SupportedDocuments(
+    val documents: Map<AttestationType, List<ClaimItem>>
 )

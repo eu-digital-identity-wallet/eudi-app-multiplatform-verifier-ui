@@ -17,14 +17,16 @@
 package eu.europa.ec.euidi.verifier.presentation.ui.doc_to_request
 
 import androidx.lifecycle.viewModelScope
-import eu.europa.ec.euidi.verifier.domain.config.AttestationType
-import eu.europa.ec.euidi.verifier.domain.config.Mode
+import eu.europa.ec.euidi.verifier.domain.config.model.AttestationType
+import eu.europa.ec.euidi.verifier.domain.config.model.DocumentMode
+import eu.europa.ec.euidi.verifier.domain.interactor.DocSelectionResult
 import eu.europa.ec.euidi.verifier.domain.interactor.DocumentsToRequestInteractor
 import eu.europa.ec.euidi.verifier.domain.model.SupportedDocumentUi
 import eu.europa.ec.euidi.verifier.presentation.architecture.MviViewModel
 import eu.europa.ec.euidi.verifier.presentation.architecture.UiEffect
 import eu.europa.ec.euidi.verifier.presentation.architecture.UiEvent
 import eu.europa.ec.euidi.verifier.presentation.architecture.UiState
+import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocsHolder
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
@@ -39,12 +41,12 @@ sealed interface DocToRequestContract {
     ) : UiState
 
     sealed interface Event : UiEvent {
-        data class Init(val requestedDoc: RequestedDocumentUi?) : Event
+        data class Init(val requestedDocs: RequestedDocsHolder?) : Event
         data class OnSearchQueryChanged(val query: String) : Event
         data class OnDocOptionSelected(
             val docId: String,
             val docType: AttestationType,
-            val mode: Mode
+            val mode: DocumentMode
         ) : Event
         data object OnBackClick : Event
         data object OnDoneClick : Event
@@ -79,80 +81,41 @@ class DocumentsToRequestViewModel(
 
                     val currentDocs = uiState.value.requestedDocuments
 
-                    val updatedDocs = event.requestedDoc?.let { requestedDocUi ->
-                        currentDocs + interactor.checkDocumentMode(requestedDocUi)
-                    } ?: currentDocs
+                    val updatedDocs = event.requestedDocs?.let { requestedDocsUi ->
+                        interactor.checkDocumentMode(currentDocs + requestedDocsUi.items)
+                    }.orEmpty()
 
                     setState {
                         copy(
                             allSupportedDocuments = allSupportedDocuments,
                             filteredDocuments = allSupportedDocuments,
-                            requestedDocuments = updatedDocs,
-                            isButtonEnabled = shouldEnableDoneButton(updatedDocs)
+                            requestedDocuments = updatedDocs
                         )
                     }
+
+                    checkEnableDoneButton(updatedDocs)
                 }
             }
 
             is DocToRequestContract.Event.OnDocOptionSelected -> {
-                val currentDocs = uiState.value.requestedDocuments
-                val isAlreadySelected = currentDocs.any {
-                    it.id == event.docId && it.mode == event.mode
-                }
+                val result = interactor.handleDocumentOptionSelection(
+                    currentDocs = uiState.value.requestedDocuments,
+                    docId = event.docId,
+                    docType = event.docType,
+                    mode = event.mode
+                )
 
-                when {
-                    isAlreadySelected -> {
-                        val updatedDocs = currentDocs.filterNot {
-                            it.documentType == event.docType && it.mode == event.mode
-                        }
-
-                        setState {
-                            copy(
-                                requestedDocuments = updatedDocs,
-                                isButtonEnabled = shouldEnableDoneButton(updatedDocs)
-                            )
-                        }
+                when (result) {
+                    is DocSelectionResult.Updated -> {
+                        setState { copy(requestedDocuments = result.docs) }
+                        checkEnableDoneButton(result.docs)
                     }
 
-                    event.mode == Mode.CUSTOM -> {
-                        val updatedDocs = if (currentDocs.any { it.id == event.docId && it.mode == Mode.FULL }) {
-                            currentDocs.filterNot { it.id == event.docId }
-                        } else {
-                            currentDocs
-                        }
-
-                        setState { copy(requestedDocuments = updatedDocs) }
-
-                        val customDoc = RequestedDocumentUi(
-                            id = event.docId,
-                            documentType = event.docType,
-                            mode = event.mode,
-                            claims = emptyList()
-                        )
-
+                    is DocSelectionResult.NavigateToCustomRequest -> {
+                        setState { copy(requestedDocuments = result.docs) }
                         setEffect {
                             DocToRequestContract.Effect.Navigation.NavigateToCustomRequestScreen(
-                                customDoc
-                            )
-                        }
-                    }
-
-                    else -> {
-                        val claims = interactor.getDocumentClaims(event.docType)
-
-                        // Add FULL doc directly
-                        val newDoc = RequestedDocumentUi(
-                            id = event.docId,
-                            documentType = event.docType,
-                            mode = event.mode,
-                            claims = claims
-                        )
-
-                        val updatedRequestedDocs =  currentDocs + newDoc
-                        setState {
-                            copy(
-                                requestedDocuments = updatedRequestedDocs,
-                                isButtonEnabled = shouldEnableDoneButton(updatedRequestedDocs)
+                                result.customDoc
                             )
                         }
                     }
@@ -191,10 +154,15 @@ class DocumentsToRequestViewModel(
         }
     }
 
-    private fun shouldEnableDoneButton(
+    private fun checkEnableDoneButton(
         requestedDocs: List<RequestedDocumentUi> = uiState.value.requestedDocuments
-    ): Boolean =
+    ) {
         requestedDocs.any {
             it.id in uiState.value.filteredDocuments.map { doc -> doc.id }
         }
+
+        setState {
+            copy(isButtonEnabled = requestedDocs.isNotEmpty())
+        }
+    }
 }

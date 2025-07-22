@@ -23,6 +23,7 @@ import eu.europa.ec.euidi.verifier.presentation.architecture.UiEffect
 import eu.europa.ec.euidi.verifier.presentation.architecture.UiEvent
 import eu.europa.ec.euidi.verifier.presentation.architecture.UiState
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemDataUi
+import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocsHolder
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
@@ -43,7 +44,7 @@ sealed interface CustomRequestContract {
 
     sealed interface Effect : UiEffect {
         sealed interface Navigation : Effect {
-            data class GoBack(val requestedDocument: RequestedDocumentUi?) : Navigation
+            data class GoBack(val requestedDocuments: RequestedDocsHolder) : Navigation
         }
     }
 }
@@ -97,14 +98,22 @@ class CustomRequestViewModel(
                     }
 
                     setEffect {
-                        CustomRequestContract.Effect.Navigation.GoBack(reqDoc)
+                        CustomRequestContract.Effect.Navigation.GoBack(
+                            RequestedDocsHolder(
+                                items = listOf(reqDoc)
+                            )
+                        )
                     }
                 }
             }
 
             is CustomRequestContract.Event.OnCancelClick -> {
                 setEffect {
-                    CustomRequestContract.Effect.Navigation.GoBack(null)
+                    CustomRequestContract.Effect.Navigation.GoBack(
+                        RequestedDocsHolder(
+                            items = emptyList()
+                        )
+                    )
                 }
             }
 

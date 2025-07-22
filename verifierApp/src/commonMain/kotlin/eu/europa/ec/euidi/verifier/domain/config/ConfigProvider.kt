@@ -16,84 +16,23 @@
 
 package eu.europa.ec.euidi.verifier.domain.config
 
-import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
+import eu.europa.ec.euidi.verifier.domain.config.model.AttestationType
 import eu.europa.ec.euidi.verifier.domain.config.model.ClaimItem
-import eu.europa.ec.euidi.verifier.presentation.utils.CommonParcelable
-import eu.europa.ec.euidi.verifier.presentation.utils.CommonParcelize
-import eudiverifier.verifierapp.generated.resources.Res
-import eudiverifier.verifierapp.generated.resources.document_type_age_verification
-import eudiverifier.verifierapp.generated.resources.document_type_mdl
-import eudiverifier.verifierapp.generated.resources.document_type_pid
-
-typealias NameSpace = String
-typealias Doctype = String
-
-@CommonParcelize
-sealed interface AttestationType : CommonParcelable {
-    val namespace: NameSpace
-    val docType: Doctype
-
-    data object Pid : AttestationType {
-
-        override val namespace: String
-            get() = "eu.europa.ec.eudi.pid.1"
-
-        override val docType: String
-            get() = "eu.europa.ec.eudi.pid.1"
-    }
-
-    data object Mdl : AttestationType {
-
-        override val namespace: String
-            get() = "org.iso.18013.5.1.mDL"
-
-        override val docType: String
-            get() = "org.iso.18013.5.1"
-    }
-
-    data object AgeVerification : AttestationType {
-
-        override val namespace: String
-            get() = "eu.europa.ec.eudi.pseudonym.age_over_18.1"
-
-        override val docType: String
-            get() = "eu.europa.ec.eudi.pseudonym.age_over_18.1"
-    }
-
-    companion object {
-        suspend fun AttestationType.getDisplayName(
-            resourceProvider: ResourceProvider
-        ): String {
-            return when (this) {
-                Pid -> resourceProvider.getSharedString(Res.string.document_type_pid)
-                Mdl -> resourceProvider.getSharedString(Res.string.document_type_mdl)
-                AgeVerification -> resourceProvider.getSharedString(Res.string.document_type_age_verification)
-            }
-        }
-    }
-}
-
-enum class Mode(val displayName: String) {
-    FULL(displayName = "Full"),
-    CUSTOM(displayName = "Custom")
-}
-
-data class SupportedDocuments(
-    val documents: Map<AttestationType, List<ClaimItem>>
-)
+import eu.europa.ec.euidi.verifier.domain.config.model.DocumentMode
+import eu.europa.ec.euidi.verifier.domain.config.model.SupportedDocuments
 
 interface ConfigProvider {
     val supportedDocuments: SupportedDocuments
 
-    fun getDocumentModes(attestationType: AttestationType): List<Mode>
+    fun getDocumentModes(attestationType: AttestationType): List<DocumentMode>
 }
 
 class ConfigProviderImpl : ConfigProvider {
-    override fun getDocumentModes(attestationType: AttestationType): List<Mode> {
+    override fun getDocumentModes(attestationType: AttestationType): List<DocumentMode> {
         return when (attestationType) {
-            AttestationType.Pid -> listOf(Mode.FULL, Mode.CUSTOM)
-            AttestationType.Mdl -> listOf(Mode.FULL, Mode.CUSTOM)
-            AttestationType.AgeVerification -> listOf(Mode.FULL, Mode.CUSTOM)
+            AttestationType.Pid -> listOf(DocumentMode.FULL, DocumentMode.CUSTOM)
+            AttestationType.Mdl -> listOf(DocumentMode.FULL, DocumentMode.CUSTOM)
+            AttestationType.AgeVerification -> listOf(DocumentMode.FULL, DocumentMode.CUSTOM)
         }
     }
 

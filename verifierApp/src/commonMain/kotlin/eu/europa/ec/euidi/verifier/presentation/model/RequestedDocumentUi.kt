@@ -16,9 +16,9 @@
 
 package eu.europa.ec.euidi.verifier.presentation.model
 
-import eu.europa.ec.euidi.verifier.domain.config.AttestationType
-import eu.europa.ec.euidi.verifier.domain.config.Mode
+import eu.europa.ec.euidi.verifier.domain.config.model.AttestationType
 import eu.europa.ec.euidi.verifier.domain.config.model.ClaimItem
+import eu.europa.ec.euidi.verifier.domain.config.model.DocumentMode
 import eu.europa.ec.euidi.verifier.presentation.utils.CommonParcelable
 import eu.europa.ec.euidi.verifier.presentation.utils.CommonParcelize
 
@@ -31,6 +31,6 @@ data class RequestedDocsHolder(
 data class RequestedDocumentUi(
     val id: String,
     val documentType: AttestationType,
-    val mode: Mode,
+    val mode: DocumentMode,
     val claims: List<ClaimItem> = emptyList()
 ) : CommonParcelable

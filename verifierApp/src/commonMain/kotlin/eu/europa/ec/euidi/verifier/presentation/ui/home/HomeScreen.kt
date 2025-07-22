@@ -162,6 +162,14 @@ private fun handleNavigationEffect(
             )
             navController.navigate(route = NavItem.QrScan)
         }
+
+        is Effect.Navigation.NavigateToDocsToRequestScreen -> {
+            navController.saveToCurrentBackStack<RequestedDocsHolder>(
+                key = Constants.REQUESTED_DOCUMENTS,
+                value = navigationEffect.requestedDocs
+            )
+            navController.navigate(route = NavItem.DocToRequest)
+        }
     }
 }
 

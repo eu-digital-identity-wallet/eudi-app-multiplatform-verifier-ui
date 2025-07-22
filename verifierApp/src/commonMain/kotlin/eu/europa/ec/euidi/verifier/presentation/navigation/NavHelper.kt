@@ -61,6 +61,16 @@ inline fun <reified T : CommonParcelable> NavController.getFromCurrentBackStack(
     }
 }
 
+inline fun <reified T : CommonParcelable> NavController.getFromRelevantBackStack(
+    key: String,
+    remove: Boolean = true
+): T? {
+    return listOfNotNull(
+        getFromCurrentBackStack<T>(key, remove),
+        getFromPreviousBackStack<T>(key, remove)
+    ).firstOrNull()
+}
+
 /**
  * Saves data to a specified destination's saved state handle.
  */
