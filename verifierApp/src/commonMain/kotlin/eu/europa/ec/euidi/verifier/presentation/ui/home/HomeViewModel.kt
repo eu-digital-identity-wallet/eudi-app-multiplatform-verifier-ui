@@ -65,11 +65,8 @@ sealed interface HomeViewModelContract {
                 val route: NavItem
             ) : Navigation
 
-            data class NavigateToDocsToRequestScreen(
-                val requestedDocs: RequestedDocsHolder
-            ) : Navigation
-
-            data class NavigateToQrScanScreen(
+            data class SaveDocsToBackstackAndGoTo(
+                val screen: NavItem,
                 val requestedDocs: RequestedDocsHolder
             ) : Navigation
         }
@@ -107,7 +104,8 @@ class HomeViewModel(
 
             is Event.OnStickyButtonClicked -> {
                 setEffect {
-                    Effect.Navigation.NavigateToQrScanScreen(
+                    Effect.Navigation.SaveDocsToBackstackAndGoTo(
+                        screen = NavItem.QrScan,
                         requestedDocs = RequestedDocsHolder(
                             items = uiState.value.requestedDocs
                         )
@@ -125,7 +123,8 @@ class HomeViewModel(
 
             is Event.OnTapToCreateRequest -> {
                 setEffect {
-                    Effect.Navigation.NavigateToDocsToRequestScreen(
+                    Effect.Navigation.SaveDocsToBackstackAndGoTo(
+                        screen = NavItem.DocToRequest,
                         requestedDocs = RequestedDocsHolder(
                             items = uiState.value.requestedDocs
                         )

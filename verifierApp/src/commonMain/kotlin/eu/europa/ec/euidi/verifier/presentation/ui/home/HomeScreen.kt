@@ -59,7 +59,6 @@ import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapListItem
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapStickyBottomContent
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.rememberButtonConfig
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocsHolder
-import eu.europa.ec.euidi.verifier.presentation.navigation.NavItem
 import eu.europa.ec.euidi.verifier.presentation.navigation.getFromCurrentBackStack
 import eu.europa.ec.euidi.verifier.presentation.navigation.saveToCurrentBackStack
 import eu.europa.ec.euidi.verifier.presentation.ui.home.HomeViewModelContract.Effect
@@ -155,20 +154,12 @@ private fun handleNavigationEffect(
             navController.navigate(route = navigationEffect.route)
         }
 
-        is Effect.Navigation.NavigateToQrScanScreen -> {
+        is Effect.Navigation.SaveDocsToBackstackAndGoTo -> {
             navController.saveToCurrentBackStack<RequestedDocsHolder>(
                 key = Constants.REQUESTED_DOCUMENTS,
                 value = navigationEffect.requestedDocs
             )
-            navController.navigate(route = NavItem.QrScan)
-        }
-
-        is Effect.Navigation.NavigateToDocsToRequestScreen -> {
-            navController.saveToCurrentBackStack<RequestedDocsHolder>(
-                key = Constants.REQUESTED_DOCUMENTS,
-                value = navigationEffect.requestedDocs
-            )
-            navController.navigate(route = NavItem.DocToRequest)
+            navController.navigate(route = navigationEffect.screen)
         }
     }
 }
