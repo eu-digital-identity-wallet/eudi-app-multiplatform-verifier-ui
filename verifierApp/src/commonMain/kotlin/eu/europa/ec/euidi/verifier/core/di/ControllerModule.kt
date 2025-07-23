@@ -19,14 +19,20 @@ package eu.europa.ec.euidi.verifier.core.di
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import eu.europa.ec.euidi.verifier.core.controller.DataStoreController
+import eu.europa.ec.euidi.verifier.core.controller.DataStoreControllerImpl
+import eu.europa.ec.euidi.verifier.core.controller.LoggerController
+import eu.europa.ec.euidi.verifier.core.controller.LoggerControllerImpl
 import org.koin.core.annotation.Module
 import org.koin.core.annotation.Single
 
 @Module
-class PreferencesModule {
+class ControllerModule {
 
     @Single
     fun provideDataStoreController(
         dataStore: DataStore<Preferences>
-    ): DataStoreController = DataStoreController(dataStore)
+    ): DataStoreController = DataStoreControllerImpl(dataStore)
+
+    @Single
+    fun provideLoggerController(): LoggerController = LoggerControllerImpl()
 }

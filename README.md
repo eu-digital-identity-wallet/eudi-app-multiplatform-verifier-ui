@@ -63,29 +63,29 @@ Alternatively, you can build it yourself using Xcode for iOS or Android Studio f
 
 ## Application configuration
 
-The Verifier App uses a ConfigProvider to define which credential types and claims are supported and which document modes (FULL, CUSTOM) are available for each credential type.
+The EUDI Verifier App uses a ConfigProvider (located at eu.europa.ec.euidi.verifier.domain.config) to define which credential types and claims are supported and which document modes (FULL, CUSTOM) are available for each credential type.
 This approach allows the app to dynamically retrieve and update document configuration.
 
 You can configure the supported documents and claims by:
 •	Adding a new attestation type and updating supportedDocuments with its respective list of claims:
 ```Kotlin
 sealed interface AttestationType {
-    val namespace: String
-    val docType: String
-
-    data object Pid : AttestationType {
+    data object YourDocument : AttestationType {
 
         override val namespace: String
-            get() = "eu.europa.ec.eudi.pid.1"
+            get() = "your_namespace"
 
         override val docType: String
-            get() = "eu.europa.ec.eudi.pid.1"
+            get() = "your_doctype"
     }
 }
 
 val supportedDocuments = SupportedDocuments(
     mapOf(
-        AttestationType.Pid to listOf(ClaimItem("claim_name"))
+        AttestationType.YourDocument to listOf(
+            ClaimItem("your_claim_1"),
+            ClaimItem("your_claim_2")
+        )
     )
 )
 ```
@@ -98,7 +98,7 @@ enum class DocumentMode(val displayName: String) {
 
 fun getDocumentModes(attestationType: AttestationType): List<DocumentMode> {
     return when (attestationType) {
-        AttestationType.Pid -> listOf(DocumentMode.FULL, DocumentMode.CUSTOM)
+        AttestationType.YourDocument -> listOf(DocumentMode.FULL, DocumentMode.CUSTOM)
     }
 }
 ```

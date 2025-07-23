@@ -18,8 +18,8 @@ package eu.europa.ec.euidi.verifier.core.di
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import eu.europa.ec.euidi.verifier.core.controller.DataStoreController.Companion.DATASTORE_FILENAME
-import eu.europa.ec.euidi.verifier.core.controller.DataStoreController.Companion.createDataStore
+import eu.europa.ec.euidi.verifier.core.controller.DataStoreControllerImpl.Companion.DATASTORE_FILENAME
+import eu.europa.ec.euidi.verifier.core.controller.DataStoreControllerImpl.Companion.createDataStore
 import eu.europa.ec.euidi.verifier.core.controller.IosPlatformController
 import eu.europa.ec.euidi.verifier.core.controller.PlatformController
 import kotlinx.cinterop.ExperimentalForeignApi

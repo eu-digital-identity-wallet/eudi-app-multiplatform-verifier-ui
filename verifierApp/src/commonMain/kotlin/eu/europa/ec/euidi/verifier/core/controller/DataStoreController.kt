@@ -19,17 +19,16 @@ package eu.europa.ec.euidi.verifier.core.controller
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.byteArrayPreferencesKey
+import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.datastore.preferences.core.edit
-import eu.europa.ec.euidi.verifier.core.crypto.KeyStore
-import io.ktor.utils.io.core.toByteArray
-import kotlinx.coroutines.flow.Flow
+import androidx.datastore.preferences.core.floatPreferencesKey
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
-import kotlinx.serialization.json.Json
 import okio.Path.Companion.toPath
 
 enum class PrefKey(val identifier: String) {
@@ -41,57 +40,91 @@ enum class PrefKey(val identifier: String) {
     BLE_PERIPHERAL_SERVER("ble_peripheral_server"),
 }
 
-class DataStoreController(
-    val dataStore: DataStore<Preferences>
-) {
+interface DataStoreController {
+    suspend fun putBoolean(key: PrefKey, value: Boolean)
+    suspend fun putInt(key: PrefKey, value: Int)
+    suspend fun putString(key: PrefKey, value: String)
+    suspend fun putDouble(key: PrefKey, value: Double)
+    suspend fun putFloat(key: PrefKey, value: Float)
+    suspend fun putByteArray(key: PrefKey, value: ByteArray)
+    suspend fun putLong(key: PrefKey, value: Long)
 
-    suspend inline fun <reified T> save(key: PrefKey, value: T) {
-        dataStore.edit { preferences ->
-            preferences[byteArrayPreferencesKey(key.identifier)] = serialize(value)
+    suspend fun getBoolean(key: PrefKey): Boolean?
+    suspend fun getInt(key: PrefKey): Int?
+    suspend fun getString(key: PrefKey): String?
+    suspend fun getDouble(key: PrefKey): Double?
+    suspend fun getFloat(key: PrefKey): Float?
+    suspend fun getByteArray(key: PrefKey): ByteArray?
+    suspend fun getLong(key: PrefKey): Long?
+}
+
+class DataStoreControllerImpl(
+    val dataStore: DataStore<Preferences>
+) : DataStoreController {
+    override suspend fun putBoolean(key: PrefKey, value: Boolean) =
+        savePreference(booleanPreferencesKey(key.identifier), value)
+
+    override suspend fun putInt(key: PrefKey, value: Int) =
+        savePreference(intPreferencesKey(key.identifier), value)
+
+    override suspend fun putString(key: PrefKey, value: String) =
+        savePreference(stringPreferencesKey(key.identifier), value)
+
+    override suspend fun putDouble(key: PrefKey, value: Double) =
+        savePreference(doublePreferencesKey(key.identifier), value)
+
+    override suspend fun putFloat(key: PrefKey, value: Float) =
+        savePreference(floatPreferencesKey(key.identifier), value)
+
+    override suspend fun putByteArray(key: PrefKey, value: ByteArray) =
+        savePreference(byteArrayPreferencesKey(key.identifier), value)
+
+    override suspend fun putLong(key: PrefKey, value: Long) =
+        savePreference(longPreferencesKey(key.identifier), value)
+
+    override suspend fun getBoolean(key: PrefKey): Boolean? =
+        readPreference(booleanPreferencesKey(key.identifier))
+
+    override suspend fun getInt(key: PrefKey): Int? =
+        readPreference(intPreferencesKey(key.identifier))
+
+    override suspend fun getString(key: PrefKey): String? =
+        readPreference(stringPreferencesKey(key.identifier))
+
+    override suspend fun getDouble(key: PrefKey): Double? =
+        readPreference(doublePreferencesKey(key.identifier))
+
+    override suspend fun getFloat(key: PrefKey): Float? =
+        readPreference(floatPreferencesKey(key.identifier))
+
+    override suspend fun getByteArray(key: PrefKey): ByteArray? =
+        readPreference(byteArrayPreferencesKey(key.identifier))
+
+    override suspend fun getLong(key: PrefKey): Long? =
+        readPreference(longPreferencesKey(key.identifier))
+
+    private suspend fun <T> savePreference(
+        key: Preferences.Key<T>,
+        value: T
+    ) {
+        dataStore.edit { prefs ->
+            prefs[key] = value
         }
     }
 
-    inline fun <reified T> retrieve(key: PrefKey): Flow<T?> = flow {
-        val value = dataStore.data.map { preferences ->
-            preferences[byteArrayPreferencesKey(key.identifier)]
-        }.firstOrNull()
-        value?.let {
-            emit(deserialize(it))
-        } ?: emit(null)
+    private suspend fun <T> readPreference(
+        preferencesKey: Preferences.Key<T>
+    ): T? {
+        return dataStore.data
+            .map { prefs -> prefs[preferencesKey] }
+            .firstOrNull()
     }
-
 
     companion object {
         const val DATASTORE_FILENAME = "verifier.preferences_pb"
 
-        /**
-         * Must be @PublishedApi+internal so that inline functions can see it
-         */
-        @PublishedApi
-        internal val cryptoMutex = Mutex()
-
         fun createDataStore(producePath: () -> String): DataStore<Preferences> {
             return PreferenceDataStoreFactory.createWithPath { producePath().toPath() }
-        }
-
-        suspend inline fun <reified T> serialize(value: T): ByteArray {
-            return cryptoMutex.withLock {
-                val json = Json.Default.encodeToString(value)
-
-                val encrypted = KeyStore.encrypt(json.toByteArray())
-
-                encrypted
-            }
-        }
-
-        suspend inline fun <reified T> deserialize(value: ByteArray): T {
-            return cryptoMutex.withLock {
-                val decryptedBytes = KeyStore.decrypt(value)
-
-                val json = decryptedBytes.decodeToString()
-
-                Json.Default.decodeFromString(json)
-            }
         }
     }
 }

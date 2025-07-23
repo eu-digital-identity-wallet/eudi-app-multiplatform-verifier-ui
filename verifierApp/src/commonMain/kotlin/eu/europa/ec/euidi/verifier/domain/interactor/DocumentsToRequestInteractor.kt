@@ -122,18 +122,17 @@ class DocumentsToRequestInteractorImpl(
 
     override suspend fun checkDocumentMode(requestedDocs: List<RequestedDocumentUi>): List<RequestedDocumentUi> =
         withContext(Dispatchers.Default) {
-            requestedDocs
-                .toMutableList().map { requestedDoc ->
-                    val expectedClaimsCount = configProvider.supportedDocuments.documents
-                        .filterKeys { it == requestedDoc.documentType }
-                        .values
-                        .flatten()
-                        .size
+            requestedDocs.map { requestedDoc ->
+                val expectedClaimsCount = configProvider.supportedDocuments.documents
+                    .filterKeys { it == requestedDoc.documentType }
+                    .values
+                    .flatten()
+                    .size
 
-                    if (requestedDoc.claims.size == expectedClaimsCount) {
-                        requestedDoc.copy(mode = DocumentMode.FULL)
-                    } else requestedDoc
-                }
+                if (requestedDoc.claims.size == expectedClaimsCount) {
+                    requestedDoc.copy(mode = DocumentMode.FULL)
+                } else requestedDoc
+            }
         }
 
     private fun handleFullDocumentSelection(
