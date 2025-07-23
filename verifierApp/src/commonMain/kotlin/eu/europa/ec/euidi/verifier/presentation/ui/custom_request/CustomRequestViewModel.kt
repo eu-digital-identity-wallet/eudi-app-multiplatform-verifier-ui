@@ -16,115 +16,120 @@
 
 package eu.europa.ec.euidi.verifier.presentation.ui.custom_request
 
-import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.viewModelScope
+import eu.europa.ec.euidi.verifier.domain.interactor.CustomRequestInteractor
 import eu.europa.ec.euidi.verifier.presentation.architecture.MviViewModel
 import eu.europa.ec.euidi.verifier.presentation.architecture.UiEffect
 import eu.europa.ec.euidi.verifier.presentation.architecture.UiEvent
 import eu.europa.ec.euidi.verifier.presentation.architecture.UiState
+import eu.europa.ec.euidi.verifier.presentation.component.ListItemDataUi
+import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocsHolder
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
-import eu.europa.ec.euidi.verifier.presentation.model.SelectableClaimUi
-import eu.europa.ec.euidi.verifier.presentation.model.SupportedDocument.AttestationType
-import eu.europa.ec.euidi.verifier.presentation.utils.Constants
+import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
+
+sealed interface CustomRequestContract {
+    data class State(
+        val screenTitle: String = "",
+        val requestedDoc: RequestedDocumentUi? = null,
+        val items: List<ListItemDataUi> = emptyList()
+    ) : UiState
+
+    sealed interface Event : UiEvent {
+        data class Init(val doc: RequestedDocumentUi? = null) : Event
+        data class OnItemClicked(val identifier: String, val isChecked: Boolean) : Event
+        data object OnDoneClick : Event
+        data object OnCancelClick : Event
+    }
+
+    sealed interface Effect : UiEffect {
+        sealed interface Navigation : Effect {
+            data class GoBack(val requestedDocuments: RequestedDocsHolder) : Navigation
+        }
+    }
+}
 
 @KoinViewModel
 class CustomRequestViewModel(
-    private val savedStateHandle: SavedStateHandle
+    private val interactor: CustomRequestInteractor,
 ) : MviViewModel<CustomRequestContract.Event, CustomRequestContract.State, CustomRequestContract.Effect>() {
     override fun createInitialState(): CustomRequestContract.State = CustomRequestContract.State()
 
     override fun handleEvent(event: CustomRequestContract.Event) {
         when (event) {
             is CustomRequestContract.Event.Init -> {
-                val doc =
-                    savedStateHandle.get<RequestedDocumentUi>(Constants.SAVED_STATE_REQUESTED_DOCUMENT)
-                        ?: event.doc
+                viewModelScope.launch {
+                    val doc = event.doc
 
-                setState {
-                    copy(
-                        requestedDoc = doc,
-                        fields = SelectableClaimUi.forType(doc?.documentType ?: AttestationType.PID)
-                    )
+                    doc?.let {
+                        val attestationType = it.documentType
+                        val claims = interactor.getDocumentClaims(attestationType = attestationType)
+
+                        val uiItems = interactor.transformToUiItems(
+                            documentType = it.documentType,
+                            claims = claims
+                        )
+
+                        val screenTitle = interactor.getScreenTitle(attestationType = attestationType)
+
+                        setState {
+                            copy(
+                                screenTitle = screenTitle,
+                                requestedDoc = doc,
+                                items = uiItems
+                            )
+                        }
+                    }
                 }
             }
 
             is CustomRequestContract.Event.OnDoneClick -> {
-                uiState.value.requestedDoc?.let {
-                    val reqDoc = it.copy(
-                        documentType = it.documentType,
-                        mode = it.mode,
-                        claims = uiState.value.fields
-                    )
-
-                    setState {
-                        copy(
-                            requestedDoc = reqDoc
+                viewModelScope.launch {
+                    uiState.value.requestedDoc?.let {
+                        val reqDoc = it.copy(
+                            documentType = it.documentType,
+                            mode = it.mode,
+                            claims = interactor.transformToClaimItems(uiState.value.items)
                         )
-                    }
 
-                    setEffect {
-                        CustomRequestContract.Effect.Navigation.GoBack(reqDoc)
+                        setState {
+                            copy(
+                                requestedDoc = reqDoc
+                            )
+                        }
+
+                        setEffect {
+                            CustomRequestContract.Effect.Navigation.GoBack(
+                                RequestedDocsHolder(
+                                    items = listOf(reqDoc)
+                                )
+                            )
+                        }
                     }
-                } ?: setEffect {
-                    CustomRequestContract.Effect.ShowToast("Something went wrong")
                 }
             }
 
             is CustomRequestContract.Event.OnCancelClick -> {
                 setEffect {
-                    CustomRequestContract.Effect.Navigation.GoBack(null)
-                }
-            }
-
-            is CustomRequestContract.Event.OnItemChecked -> {
-                setState {
-                    copy(
-                        fields = fields.map {
-                            if (it.claim.key == event.identifier) {
-                                it.copy(isSelected = event.checked)
-                            } else it
-                        }
+                    CustomRequestContract.Effect.Navigation.GoBack(
+                        RequestedDocsHolder(
+                            items = emptyList()
+                        )
                     )
                 }
             }
-        }
-    }
 
-    override fun onCleared() {
-        super.onCleared()
-
-        uiState.value.requestedDoc?.let {
-            savedStateHandle.set(
-                key = Constants.SAVED_STATE_REQUESTED_DOCUMENT,
-                value = RequestedDocumentUi(
-                    id = it.id,
-                    documentType = it.documentType,
-                    mode = it.mode,
-                    claims = uiState.value.fields
-                )
-            )
-        }
-    }
-}
-
-sealed interface CustomRequestContract {
-    sealed interface Event : UiEvent {
-        data class Init(val doc: RequestedDocumentUi? = null) : Event
-        data class OnItemChecked(val identifier: String, val checked: Boolean) : Event
-        data object OnDoneClick : Event
-        data object OnCancelClick : Event
-    }
-
-    data class State(
-        val requestedDoc: RequestedDocumentUi? = null,
-        val fields: List<SelectableClaimUi> = emptyList(),
-        val docType: AttestationType = AttestationType.PID
-    ) : UiState
-
-    sealed interface Effect : UiEffect {
-        data class ShowToast(val message: String) : Effect
-        sealed interface Navigation : Effect {
-            data class GoBack(val requestedDocument: RequestedDocumentUi?) : Navigation
+            is CustomRequestContract.Event.OnItemClicked -> {
+                setState {
+                    copy(
+                        items = interactor.handleItemSelection(
+                            items = uiState.value.items,
+                            identifier = event.identifier,
+                            isChecked = event.isChecked
+                        )
+                    )
+                }
+            }
         }
     }
 }

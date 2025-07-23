@@ -4,5 +4,9 @@
 <dict>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
+    <key>NSCameraUsageDescription</key>
+    <string>$(PRODUCT_NAME) requests to access your camera.</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>$(PRODUCT_NAME) requests to access your photos library.</string>
 </dict>
 </plist>

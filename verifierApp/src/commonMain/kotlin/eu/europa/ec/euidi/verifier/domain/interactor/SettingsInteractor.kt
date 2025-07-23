@@ -35,7 +35,6 @@ import eudiverifier.verifierapp.generated.resources.settings_screen_title
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.StringResource
 
@@ -76,7 +75,7 @@ class SettingsInteractorImpl(
      * @return The boolean value of the preference, or `false` if the preference is not set.
      */
     override suspend fun getPrefBoolean(key: PrefKey): Boolean {
-        return dataStoreController.retrieve<Boolean>(key).firstOrNull() ?: false
+        return dataStoreController.getBoolean(key)?: false
     }
 
     /**
@@ -85,7 +84,7 @@ class SettingsInteractorImpl(
      * @param key The [PrefKey] of the preference to toggle.
      */
     override suspend fun togglePrefBoolean(key: PrefKey) {
-        dataStoreController.save(key, !getPrefBoolean(key))
+        dataStoreController.putBoolean(key, !getPrefBoolean(key))
     }
 
     override suspend fun getScreenTitle(): String {

@@ -16,33 +16,41 @@
 
 package eu.europa.ec.euidi.verifier.presentation.ui.custom_request
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import eu.europa.ec.euidi.verifier.presentation.component.ClickableArea
+import eu.europa.ec.euidi.verifier.presentation.component.ListItemTrailingContentDataUi
+import eu.europa.ec.euidi.verifier.presentation.component.content.ContentScreen
+import eu.europa.ec.euidi.verifier.presentation.component.content.ScreenNavigateAction
+import eu.europa.ec.euidi.verifier.presentation.component.content.ToolbarConfig
+import eu.europa.ec.euidi.verifier.presentation.component.extension.withStickyBottomPadding
+import eu.europa.ec.euidi.verifier.presentation.component.utils.OneTimeLaunchedEffect
+import eu.europa.ec.euidi.verifier.presentation.component.utils.SPACING_MEDIUM
+import eu.europa.ec.euidi.verifier.presentation.component.wrap.ButtonType
+import eu.europa.ec.euidi.verifier.presentation.component.wrap.StickyBottomConfig
+import eu.europa.ec.euidi.verifier.presentation.component.wrap.StickyBottomType
+import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapListItems
+import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapStickyBottomContent
+import eu.europa.ec.euidi.verifier.presentation.component.wrap.rememberButtonConfig
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
 import eu.europa.ec.euidi.verifier.presentation.navigation.getFromPreviousBackStack
 import eu.europa.ec.euidi.verifier.presentation.navigation.saveToPreviousBackStack
 import eu.europa.ec.euidi.verifier.presentation.utils.Constants
-import eu.europa.ec.euidi.verifier.presentation.utils.ToastManager
+import eudiverifier.verifierapp.generated.resources.Res
+import eudiverifier.verifierapp.generated.resources.generic_cancel
+import eudiverifier.verifierapp.generated.resources.generic_done
+import kotlinx.coroutines.flow.Flow
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -52,99 +60,110 @@ fun CustomRequestScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(Unit) {
+    val stickyPrimaryButtonConfig = rememberButtonConfig(
+        type = ButtonType.PRIMARY,
+        onClick = {
+            viewModel.setEvent(CustomRequestContract.Event.OnDoneClick)
+        },
+        content = {
+            Text(stringResource(Res.string.generic_done))
+        }
+    )
+    val stickySecondaryButtonConfig = rememberButtonConfig(
+        type = ButtonType.SECONDARY,
+        onClick = {
+            viewModel.setEvent(CustomRequestContract.Event.OnCancelClick)
+        },
+        content = {
+            Text(stringResource(Res.string.generic_cancel))
+        }
+    )
+
+    ContentScreen(
+        navigatableAction = ScreenNavigateAction.BACKABLE,
+        toolBarConfig = ToolbarConfig(
+            title = state.screenTitle
+        ),
+        onBack = {
+            viewModel.setEvent(CustomRequestContract.Event.OnCancelClick)
+        },
+        stickyBottom = { paddingValues ->
+            WrapStickyBottomContent(
+                stickyBottomModifier = Modifier.padding(paddingValues = paddingValues),
+                stickyBottomConfig = StickyBottomConfig(
+                    type = StickyBottomType.TwoButtons(
+                        primaryButtonConfig = stickyPrimaryButtonConfig,
+                        secondaryButtonConfig = stickySecondaryButtonConfig
+                    )
+                )
+            )
+        }
+    ) { paddingValues ->
+        Content(
+            state = state,
+            effectFlow = viewModel.effect,
+            onEventSend = viewModel::setEvent,
+            onNavigationRequested = { navigationEffect ->
+                handleNavigationEffect(
+                    effect = navigationEffect,
+                    navController = navController
+                )
+            },
+            paddingValues = paddingValues
+        )
+    }
+
+    OneTimeLaunchedEffect {
         viewModel.setEvent(
             CustomRequestContract.Event.Init(
-                doc = navController.getFromPreviousBackStack<RequestedDocumentUi>(Constants.REQUESTED_DOCUMENTS)
+                doc = navController.getFromPreviousBackStack<RequestedDocumentUi>(
+                    key = Constants.REQUESTED_DOCUMENTS
+                )
             )
         )
     }
+}
 
-    LaunchedEffect(viewModel.effect) {
-        viewModel.effect.collect { effect ->
-            when (effect) {
-                is CustomRequestContract.Effect.ShowToast -> {
-                    ToastManager().showToast(effect.message)
-                }
-
-                is CustomRequestContract.Effect.Navigation.GoBack -> {
-                    effect.requestedDocument?.let {
-                        navController.saveToPreviousBackStack(
-                            key = Constants.REQUESTED_DOCUMENTS,
-                            value = effect.requestedDocument
-                        )
-                    }
-                    navController.popBackStack()
-                }
-            }
+private fun handleNavigationEffect(
+    effect: CustomRequestContract.Effect,
+    navController: NavController,
+) {
+    when (effect) {
+        is CustomRequestContract.Effect.Navigation.GoBack -> {
+            navController.saveToPreviousBackStack(
+                key = Constants.REQUESTED_DOCUMENTS,
+                value = effect.requestedDocuments
+            )
+            navController.popBackStack()
         }
     }
+}
 
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(
-            text = "Custom request",
-            style = MaterialTheme.typography.headlineMedium
-        )
+@Composable
+private fun Content(
+    state: CustomRequestContract.State,
+    effectFlow: Flow<CustomRequestContract.Effect>,
+    onEventSend: (CustomRequestContract.Event) -> Unit,
+    onNavigationRequested: (CustomRequestContract.Effect.Navigation) -> Unit,
+    paddingValues: PaddingValues
+) {
+    WrapListItems(
+        modifier = Modifier
+            .withStickyBottomPadding(paddingValues)
+            .verticalScroll(rememberScrollState()),
+        items = state.items,
+        onItemClick = {
+            val itemChecked = (it.trailingContentData as ListItemTrailingContentDataUi.Checkbox).checkboxData.isChecked
+            onEventSend(CustomRequestContract.Event.OnItemClicked(it.itemId, !itemChecked))
+        },
+        clickableAreas = listOf(ClickableArea.TRAILING_CONTENT),
+        mainContentVerticalPadding = SPACING_MEDIUM.dp
+    )
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        LazyColumn(
-            modifier = Modifier
-                .weight(1f)
-                .padding(16.dp)
-        ) {
-            items(
-                items = state.fields,
-                key = { it.claim.key }
-            ) { item ->
-
-                ListItem(
-                    headlineContent = {
-                        Text(
-                            text = item.claim.displayTitle,
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    },
-                    trailingContent = {
-                        Checkbox(
-                            checked = item.isSelected,
-                            onCheckedChange = { checked ->
-                                viewModel.setEvent(
-                                    CustomRequestContract.Event.OnItemChecked(
-                                        item.claim.key,
-                                        checked
-                                    )
-                                )
-                            }
-                        )
-                    }
-                )
-            }
-        }
-
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Button(
-                onClick = {
-                    viewModel.setEvent(
-                        CustomRequestContract.Event.OnDoneClick
-                    )
-                }
-            ) {
-                Text("Done")
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = {}
-            ) {
-                Text("Cancel")
+    LaunchedEffect(Unit) {
+        effectFlow.collect { effect ->
+            when (effect) {
+                is CustomRequestContract.Effect.Navigation -> onNavigationRequested(effect)
             }
         }
     }

@@ -20,16 +20,28 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import eu.europa.ec.euidi.verifier.core.controller.AndroidPlatformController
+import eu.europa.ec.euidi.verifier.core.controller.PlatformController
 import eu.europa.ec.euidi.verifier.presentation.ui.container.ContainerView
+import org.koin.android.ext.android.inject
 
 class ContainerActivity : ComponentActivity() {
+
+    private val platformController: PlatformController by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        registerActivityWithPlatformController()
+
         setContent {
             ContainerView()
         }
+    }
+
+    private fun registerActivityWithPlatformController() {
+        // Register activity after Koin is already started
+        (platformController as? AndroidPlatformController)?.registerActivity(this)
     }
 }

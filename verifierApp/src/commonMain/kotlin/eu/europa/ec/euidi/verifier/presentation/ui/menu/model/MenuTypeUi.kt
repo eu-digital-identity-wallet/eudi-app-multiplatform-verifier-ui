@@ -14,15 +14,10 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier.presentation.ui.home
+package eu.europa.ec.euidi.verifier.presentation.ui.menu.model
 
-import androidx.navigation.NavController
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.compose.composable
-import eu.europa.ec.euidi.verifier.presentation.navigation.NavItem
-
-fun NavGraphBuilder.homeScreen(navController: NavController) {
-    composable<NavItem.Home> {
-        HomeScreen(navController)
-    }
+enum class MenuTypeUi {
+    HOME,
+    REVERSE_ENGAGEMENT,
+    SETTINGS,
 }

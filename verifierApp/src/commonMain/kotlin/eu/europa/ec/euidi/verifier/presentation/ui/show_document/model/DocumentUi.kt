@@ -14,19 +14,12 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier.core.di
+package eu.europa.ec.euidi.verifier.presentation.ui.show_document.model
 
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import eu.europa.ec.euidi.verifier.core.controller.DataStoreController
-import org.koin.core.annotation.Module
-import org.koin.core.annotation.Single
+import eu.europa.ec.euidi.verifier.presentation.component.ListItemDataUi
 
-@Module
-class PreferencesModule {
-
-    @Single
-    fun provideDataStoreController(
-        dataStore: DataStore<Preferences>
-    ): DataStoreController = DataStoreController(dataStore)
-}
+data class DocumentUi(
+    val id: String,
+    val namespace: String,
+    val uiClaims: List<ListItemDataUi>
+)

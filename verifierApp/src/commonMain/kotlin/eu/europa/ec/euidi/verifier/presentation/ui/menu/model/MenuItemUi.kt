@@ -22,9 +22,3 @@ data class MenuItemUi(
     val type: MenuTypeUi,
     val data: ListItemDataUi,
 )
-
-enum class MenuTypeUi {
-    HOME,
-    REVERSE_ENGAGEMENT,
-    SETTINGS,
-}

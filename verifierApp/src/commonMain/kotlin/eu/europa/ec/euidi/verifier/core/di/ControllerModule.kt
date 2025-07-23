@@ -16,24 +16,23 @@
 
 package eu.europa.ec.euidi.verifier.core.di
 
-import eu.europa.ec.euidi.verifier.domain.di.InteractorModule
-import org.koin.core.context.startKoin
-import org.koin.dsl.KoinAppDeclaration
-import org.koin.ksp.generated.defaultModule
-import org.koin.ksp.generated.module
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import eu.europa.ec.euidi.verifier.core.controller.DataStoreController
+import eu.europa.ec.euidi.verifier.core.controller.DataStoreControllerImpl
+import eu.europa.ec.euidi.verifier.core.controller.LoggerController
+import eu.europa.ec.euidi.verifier.core.controller.LoggerControllerImpl
+import org.koin.core.annotation.Module
+import org.koin.core.annotation.Single
 
-fun initKoin(appDeclaration: KoinAppDeclaration = {}) =
-    startKoin {
-        appDeclaration()
+@Module
+class ControllerModule {
 
-        modules(
-            platformModule(),
-            ConfigModule().module,
-            ProviderModule().module,
-            ControllerModule().module,
-            InteractorModule().module,
-            defaultModule // needed for generated viewModels
-        )
-    }
+    @Single
+    fun provideDataStoreController(
+        dataStore: DataStore<Preferences>
+    ): DataStoreController = DataStoreControllerImpl(dataStore)
 
-fun initKoin() = initKoin {} // called by iOS
+    @Single
+    fun provideLoggerController(): LoggerController = LoggerControllerImpl()
+}

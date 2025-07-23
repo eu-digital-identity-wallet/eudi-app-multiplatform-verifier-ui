@@ -14,28 +14,12 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier.presentation.model
+package eu.europa.ec.euidi.verifier.domain.config.model
 
 import eu.europa.ec.euidi.verifier.presentation.utils.CommonParcelable
 import eu.europa.ec.euidi.verifier.presentation.utils.CommonParcelize
 
-typealias ClaimKey = String
-typealias ClaimValue = String
-
 @CommonParcelize
-data class ReceivedDocsHolder(
-    val items: List<ReceivedDocumentUi>
+data class ClaimItem(
+    val label: String
 ) : CommonParcelable
-
-@CommonParcelize
-data class ReceivedDocumentUi(
-    val id: String,
-    val documentType: DocumentType,
-    val claims: Map<ClaimKey, ClaimValue> = emptyMap()
-) : CommonParcelable
-
-enum class DocumentType(val displayName: String) {
-    PID("PID"),
-    MDL("org.iso.18013.5.1.mDL"),
-    AGE_VERIFICATION("Age Verification")
-}

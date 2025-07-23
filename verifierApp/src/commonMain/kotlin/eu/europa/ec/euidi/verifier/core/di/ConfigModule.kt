@@ -16,18 +16,14 @@
 
 package eu.europa.ec.euidi.verifier.core.di
 
-import android.content.Context
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import eu.europa.ec.euidi.verifier.core.controller.DataStoreController.Companion.DATASTORE_FILENAME
-import eu.europa.ec.euidi.verifier.core.controller.DataStoreController.Companion.createDataStore
-import org.koin.dsl.module
+import eu.europa.ec.euidi.verifier.domain.config.ConfigProvider
+import eu.europa.ec.euidi.verifier.domain.config.ConfigProviderImpl
+import org.koin.core.annotation.Module
+import org.koin.core.annotation.Single
 
-actual fun platformModule() = module {
-    single<DataStore<Preferences>> {
-        val context = get<Context>()
-        createDataStore {
-            context.filesDir.resolve(DATASTORE_FILENAME).absolutePath
-        }
-    }
+@Module
+class ConfigModule {
+
+    @Single
+    fun provideConfigProvider(): ConfigProvider = ConfigProviderImpl()
 }

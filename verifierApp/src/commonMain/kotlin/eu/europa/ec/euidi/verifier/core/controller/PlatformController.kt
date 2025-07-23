@@ -14,16 +14,9 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier.core.di
+package eu.europa.ec.euidi.verifier.core.controller
 
-import eu.europa.ec.euidi.verifier.core.controller.LoggerController
-import eu.europa.ec.euidi.verifier.core.controller.LoggerControllerImpl
-import org.koin.core.annotation.Module
-import org.koin.core.annotation.Single
-
-@Module
-class LoggerModule {
-
-    @Single
-    fun provideLoggerController(): LoggerController = LoggerControllerImpl()
+interface PlatformController {
+    fun closeApp()
+    fun openAppSettings()
 }

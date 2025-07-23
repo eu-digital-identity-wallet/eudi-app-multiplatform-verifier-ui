@@ -18,31 +18,21 @@ package eu.europa.ec.euidi.verifier.core.di
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import eu.europa.ec.euidi.verifier.core.controller.AndroidPlatformController
 import eu.europa.ec.euidi.verifier.core.controller.DataStoreControllerImpl.Companion.DATASTORE_FILENAME
 import eu.europa.ec.euidi.verifier.core.controller.DataStoreControllerImpl.Companion.createDataStore
-import eu.europa.ec.euidi.verifier.core.controller.IosPlatformController
 import eu.europa.ec.euidi.verifier.core.controller.PlatformController
-import kotlinx.cinterop.ExperimentalForeignApi
+import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
-import platform.Foundation.NSDocumentDirectory
-import platform.Foundation.NSFileManager
-import platform.Foundation.NSURL
-import platform.Foundation.NSUserDomainMask
 
-@OptIn(ExperimentalForeignApi::class)
 actual fun platformModule() = module {
     single<DataStore<Preferences>> {
         createDataStore {
-            val documentDirectory: NSURL? = NSFileManager.defaultManager.URLForDirectory(
-                directory = NSDocumentDirectory,
-                inDomain = NSUserDomainMask,
-                appropriateForURL = null,
-                create = false,
-                error = null
-            )
-            requireNotNull(documentDirectory).path + "/$DATASTORE_FILENAME"
+            androidContext().filesDir.resolve(DATASTORE_FILENAME).absolutePath
         }
     }
 
-    single<PlatformController> { IosPlatformController() }
+    single<PlatformController> {
+        AndroidPlatformController(androidContext())
+    }
 }

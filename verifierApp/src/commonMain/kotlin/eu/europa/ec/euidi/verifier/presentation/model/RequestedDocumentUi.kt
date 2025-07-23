@@ -16,7 +16,9 @@
 
 package eu.europa.ec.euidi.verifier.presentation.model
 
-import eu.europa.ec.euidi.verifier.presentation.model.SupportedDocument.AttestationType
+import eu.europa.ec.euidi.verifier.domain.config.model.AttestationType
+import eu.europa.ec.euidi.verifier.domain.config.model.ClaimItem
+import eu.europa.ec.euidi.verifier.domain.config.model.DocumentMode
 import eu.europa.ec.euidi.verifier.presentation.utils.CommonParcelable
 import eu.europa.ec.euidi.verifier.presentation.utils.CommonParcelize
 
@@ -29,29 +31,6 @@ data class RequestedDocsHolder(
 data class RequestedDocumentUi(
     val id: String,
     val documentType: AttestationType,
-    val mode: SupportedDocument.Mode,
-    val format: SupportedDocument.DocumentFormat? = null,
-    val claims: List<SelectableClaimUi> = emptyList()
+    val mode: DocumentMode,
+    val claims: List<ClaimItem> = emptyList()
 ) : CommonParcelable
-
-@CommonParcelize
-data class SelectableClaimUi(
-    val claim: ClaimUi,
-    val isSelected: Boolean
-) : CommonParcelable {
-    companion object {
-        fun forType(type: AttestationType): List<SelectableClaimUi> {
-            return when (type) {
-                AttestationType.PID -> forPid()
-                AttestationType.MDL -> forMdl()
-                AttestationType.AGE_VERIFICATION -> emptyList()
-            }
-        }
-
-        fun forPid(): List<SelectableClaimUi> =
-            ClaimUi.pidClaims.map { SelectableClaimUi(it, true) }
-
-        fun forMdl(): List<SelectableClaimUi> =
-            ClaimUi.mdlClaims.map { SelectableClaimUi(it, true) }
-    }
-}

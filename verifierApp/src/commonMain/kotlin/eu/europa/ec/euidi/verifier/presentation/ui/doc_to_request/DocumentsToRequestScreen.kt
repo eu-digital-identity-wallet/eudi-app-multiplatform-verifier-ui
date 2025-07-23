@@ -16,45 +16,56 @@
 
 package eu.europa.ec.euidi.verifier.presentation.ui.doc_to_request
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import eu.europa.ec.euidi.verifier.domain.config.model.AttestationType
+import eu.europa.ec.euidi.verifier.domain.model.SupportedDocumentUi
+import eu.europa.ec.euidi.verifier.presentation.component.AppIcons
+import eu.europa.ec.euidi.verifier.presentation.component.content.ContentScreen
+import eu.europa.ec.euidi.verifier.presentation.component.content.ScreenNavigateAction
+import eu.europa.ec.euidi.verifier.presentation.component.content.ToolbarConfig
+import eu.europa.ec.euidi.verifier.presentation.component.extension.withStickyBottomPadding
+import eu.europa.ec.euidi.verifier.presentation.component.utils.SPACING_LARGE
+import eu.europa.ec.euidi.verifier.presentation.component.utils.SPACING_MEDIUM
+import eu.europa.ec.euidi.verifier.presentation.component.utils.VSpacer
+import eu.europa.ec.euidi.verifier.presentation.component.wrap.ButtonConfig
+import eu.europa.ec.euidi.verifier.presentation.component.wrap.ButtonType
+import eu.europa.ec.euidi.verifier.presentation.component.wrap.StickyBottomConfig
+import eu.europa.ec.euidi.verifier.presentation.component.wrap.StickyBottomType
+import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapCard
+import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapChip
+import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapSearchBar
+import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapStickyBottomContent
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocsHolder
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
-import eu.europa.ec.euidi.verifier.presentation.model.SupportedDocument
 import eu.europa.ec.euidi.verifier.presentation.navigation.NavItem
-import eu.europa.ec.euidi.verifier.presentation.navigation.getFromCurrentBackStack
+import eu.europa.ec.euidi.verifier.presentation.navigation.getFromRelevantBackStack
 import eu.europa.ec.euidi.verifier.presentation.navigation.popToAndSave
 import eu.europa.ec.euidi.verifier.presentation.navigation.saveToCurrentBackStack
 import eu.europa.ec.euidi.verifier.presentation.utils.Constants
+import eudiverifier.verifierapp.generated.resources.Res
+import eudiverifier.verifierapp.generated.resources.documents_to_request_screen_request_header
+import eudiverifier.verifierapp.generated.resources.documents_to_request_screen_search_placeholder
+import eudiverifier.verifierapp.generated.resources.documents_to_request_screen_title
+import eudiverifier.verifierapp.generated.resources.generic_done
+import kotlinx.coroutines.flow.Flow
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -64,166 +75,202 @@ fun DocumentsToRequestScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(Unit) {
-        val doc =
-            navController.getFromCurrentBackStack<RequestedDocumentUi>(Constants.REQUESTED_DOCUMENTS)
-        viewModel.setEvent(
-            DocToRequestContract.Event.Init(
-                requestedDoc = doc
+    ContentScreen(
+        navigatableAction = ScreenNavigateAction.BACKABLE,
+        toolBarConfig = ToolbarConfig(
+            title = stringResource(Res.string.documents_to_request_screen_title)
+        ),
+        onBack = {
+            viewModel.setEvent(DocToRequestContract.Event.OnBackClick)
+        },
+        stickyBottom = {
+            WrapStickyBottomContent(
+                stickyBottomModifier = Modifier.padding(it),
+                stickyBottomConfig = StickyBottomConfig(
+                    type = StickyBottomType.OneButton(
+                        config = ButtonConfig(
+                            type = ButtonType.PRIMARY,
+                            onClick = {
+                                viewModel.setEvent(DocToRequestContract.Event.OnDoneClick)
+                            },
+                            enabled = state.isButtonEnabled,
+                            content = {
+                                Text(
+                                    text = stringResource(
+                                        Res.string.generic_done
+                                    )
+                                )
+                            }
+                        )
+                    )
+                )
             )
+        }
+    ) { paddingValues ->
+        Content(
+            state = state,
+            effectFlow = viewModel.effect,
+            onEventSend = viewModel::setEvent,
+            onNavigationRequested = { navigationEffect ->
+                handleNavigationEffect(
+                    navigationEffect = navigationEffect,
+                    navController = navController
+                )
+            },
+            paddingValues = paddingValues
         )
     }
 
-    LaunchedEffect(viewModel.effect) {
-        viewModel.effect.collect { effect ->
-            when (effect) {
-                is DocToRequestContract.Effect.Navigation.NavigateToHomeScreen -> {
-                    navController.popToAndSave<RequestedDocsHolder>(
-                        destination = NavItem.Home,
-                        key = Constants.REQUESTED_DOCUMENTS,
-                        value = RequestedDocsHolder(items = effect.requestedDocuments)
-                    )
-                }
-
-                is DocToRequestContract.Effect.Navigation.NavigateToCustomRequestScreen -> {
-                    navController.saveToCurrentBackStack<RequestedDocumentUi>(
-                        key = Constants.REQUESTED_DOCUMENTS,
-                        value = effect.requestedDocuments
-                    ).let {
-                        navController.navigate(route = NavItem.CustomRequest)
-                    }
-                }
-            }
+    LaunchedEffect(Unit) {
+        navController.getFromRelevantBackStack<RequestedDocsHolder>(
+            key = Constants.REQUESTED_DOCUMENTS,
+            remove = true
+        )?.let { requestedDocs ->
+            viewModel.setEvent(DocToRequestContract.Event.Init(requestedDocs))
         }
     }
+}
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .safeContentPadding()
-    ) {
-        IconButton(
-            modifier = Modifier.align(Alignment.TopStart),
-            onClick = {
-                viewModel.setEvent(DocToRequestContract.Event.OnBackClick)
-            }
-        ) {
-            Text("Back")
+private fun handleNavigationEffect(
+    navigationEffect: DocToRequestContract.Effect.Navigation,
+    navController: NavController,
+) {
+    when (navigationEffect) {
+        is DocToRequestContract.Effect.Navigation.NavigateToHomeScreen -> {
+            navController.popToAndSave<RequestedDocsHolder>(
+                destination = NavItem.Home,
+                key = Constants.REQUESTED_DOCUMENTS,
+                value = RequestedDocsHolder(items = navigationEffect.requestedDocuments)
+            )
         }
 
-        LazyColumn(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .padding(32.dp)
-        ) {
-            items(
-                items = state.supportedDocuments,
-                key = { it.id }
-            ) { supportedDoc ->
-                val isSelected = remember(state.requestedDocuments) {
-                    state.requestedDocuments.any { it.documentType == supportedDoc.documentType }
-                }
-
-                Text(
-                    text = "Request ${supportedDoc.documentType.displayName}",
-                    style = MaterialTheme.typography.titleMedium
-                )
-
-                Spacer(Modifier.height(8.dp))
-
-                SupportedDocumentCard(
-                    supportedDoc = supportedDoc,
-                    state = state,
-                    isSelected = isSelected,
-                    onEvent = viewModel::setEvent
-                )
+        is DocToRequestContract.Effect.Navigation.NavigateToCustomRequestScreen -> {
+            navController.saveToCurrentBackStack<RequestedDocumentUi>(
+                key = Constants.REQUESTED_DOCUMENTS,
+                value = navigationEffect.requestedDocuments
+            ).let {
+                navController.navigate(route = NavItem.CustomRequest)
             }
-        }
-
-        Button(
-            modifier = Modifier.align(Alignment.BottomCenter),
-            onClick = {
-                viewModel.setEvent(DocToRequestContract.Event.OnDoneClick)
-            },
-            enabled = state.isButtonEnabled
-        ) {
-            Text("Done")
         }
     }
 }
 
 @Composable
-fun SupportedDocumentCard(
-    supportedDoc: SupportedDocument,
+private fun Content(
     state: DocToRequestContract.State,
-    isSelected: Boolean,
-    onEvent: (DocToRequestContract.Event) -> Unit
+    effectFlow: Flow<DocToRequestContract.Effect>,
+    onEventSend: (DocToRequestContract.Event) -> Unit,
+    onNavigationRequested: (DocToRequestContract.Effect.Navigation) -> Unit,
+    paddingValues: PaddingValues,
 ) {
-    Card(
+    Column(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        shape = RoundedCornerShape(12.dp)
+            .fillMaxSize()
+            .withStickyBottomPadding(paddingValues)
+            .verticalScroll(rememberScrollState())
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                supportedDoc.modes.forEach { mode ->
-                    val isModeSelected = remember(state.requestedDocuments) {
-                        state.requestedDocuments.any {
-                            it.documentType == supportedDoc.documentType && it.mode == mode
-                        }
-                    }
-
-                    FilterChip(
-                        selected = isModeSelected,
-                        onClick = {
-                            onEvent(
-                                DocToRequestContract.Event.OnDocOptionSelected(
-                                    docId = supportedDoc.id,
-                                    docType = supportedDoc.documentType,
-                                    mode = mode
-                                )
-                            )
-                        },
-                        label = { Text(mode.displayName) }
-                    )
-                }
+        WrapSearchBar(
+            text = state.searchTerm,
+            placeholder = stringResource(Res.string.documents_to_request_screen_search_placeholder),
+            onValueChange = {
+                onEventSend(DocToRequestContract.Event.OnSearchQueryChanged(it))
+            },
+            onClearClick = {
+                onEventSend(DocToRequestContract.Event.OnSearchQueryChanged(""))
             }
+        )
 
-            Spacer(Modifier.height(24.dp))
+        VSpacer.Medium()
 
-            AnimatedVisibility(visible = isSelected) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    supportedDoc.formats.forEach { format ->
-                        val isFormatSelected = remember(state.requestedDocuments) {
-                            state.requestedDocuments.any {
-                                it.id == supportedDoc.id && it.format == format
-                            }
-                        }
+        state.filteredDocuments.forEach { supportedDoc ->
+            SupportedDocumentItem(
+                supportedDoc = supportedDoc,
+                requestedDocuments = state.requestedDocuments,
+                onEvent = onEventSend
+            )
 
-                        Row(
-                            modifier = Modifier.weight(1f),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            RadioButton(
-                                selected = isFormatSelected,
-                                onClick = {
-                                    onEvent(
-                                        DocToRequestContract.Event.OnDocFormatSelected(
-                                            docId = supportedDoc.id,
-                                            format = format
-                                        )
-                                    )
-                                }
-                            )
-                            Text(text = format.displayName)
-                        }
-                    }
+            VSpacer.Large()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        effectFlow.collect { effect ->
+            when (effect) {
+                is DocToRequestContract.Effect.Navigation -> onNavigationRequested(effect)
+            }
+        }
+    }
+}
+
+@Composable
+fun SupportedDocumentItem(
+    supportedDoc: SupportedDocumentUi,
+    requestedDocuments: List<RequestedDocumentUi>,
+    onEvent: (DocToRequestContract.Event) -> Unit,
+) {
+    Text(
+        text = buildAnnotatedString {
+            append(stringResource(Res.string.documents_to_request_screen_request_header))
+            append(" ")
+            append(supportedDoc.id)
+        }
+    )
+
+    VSpacer.ExtraSmall()
+
+    SupportedDocumentContentCard(
+        supportedDoc = supportedDoc,
+        requestedDocuments = requestedDocuments,
+        onEvent = onEvent
+    )
+}
+
+@Composable
+fun SupportedDocumentContentCard(
+    supportedDoc: SupportedDocumentUi,
+    requestedDocuments: List<RequestedDocumentUi>,
+    onEvent: (DocToRequestContract.Event) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    WrapCard(
+        modifier = modifier.fillMaxWidth()
+    ) {
+        FlowRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    vertical = SPACING_LARGE.dp,
+                    horizontal = SPACING_MEDIUM.dp
+                ),
+            horizontalArrangement = Arrangement.spacedBy(SPACING_MEDIUM.dp)
+        ) {
+            supportedDoc.modes.forEach { mode ->
+                val isSelected = requestedDocuments.any {
+                    it.id == supportedDoc.id && it.mode == mode
                 }
+
+                val label = if (supportedDoc.documentType == AttestationType.AgeVerification) {
+                    mode.displayName
+                } else {
+                    "${mode.displayName} ${supportedDoc.id}"
+                }
+
+                WrapChip(
+                    leadingIcon = if (isSelected) AppIcons.Check else null,
+                    label = {
+                        Text(text = label)
+                    },
+                    selected = isSelected,
+                    onClick = {
+                        onEvent(
+                            DocToRequestContract.Event.OnDocOptionSelected(
+                                docId = supportedDoc.id,
+                                docType = supportedDoc.documentType,
+                                mode = mode
+                            )
+                        )
+                    }
+                )
             }
         }
     }
