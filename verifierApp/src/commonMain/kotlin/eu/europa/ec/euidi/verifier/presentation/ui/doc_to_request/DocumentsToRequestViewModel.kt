@@ -98,25 +98,27 @@ class DocumentsToRequestViewModel(
             }
 
             is DocToRequestContract.Event.OnDocOptionSelected -> {
-                val result = interactor.handleDocumentOptionSelection(
-                    currentDocs = uiState.value.requestedDocuments,
-                    docId = event.docId,
-                    docType = event.docType,
-                    mode = event.mode
-                )
+                viewModelScope.launch {
+                    val result = interactor.handleDocumentOptionSelection(
+                        currentDocs = uiState.value.requestedDocuments,
+                        docId = event.docId,
+                        docType = event.docType,
+                        mode = event.mode
+                    )
 
-                when (result) {
-                    is DocSelectionResult.Updated -> {
-                        setState { copy(requestedDocuments = result.docs) }
-                        checkEnableDoneButton(result.docs)
-                    }
+                    when (result) {
+                        is DocSelectionResult.Updated -> {
+                            setState { copy(requestedDocuments = result.docs) }
+                            checkEnableDoneButton(result.docs)
+                        }
 
-                    is DocSelectionResult.NavigateToCustomRequest -> {
-                        setState { copy(requestedDocuments = result.docs) }
-                        setEffect {
-                            DocToRequestContract.Effect.Navigation.NavigateToCustomRequestScreen(
-                                result.customDoc
-                            )
+                        is DocSelectionResult.NavigateToCustomRequest -> {
+                            setState { copy(requestedDocuments = result.docs) }
+                            setEffect {
+                                DocToRequestContract.Effect.Navigation.NavigateToCustomRequestScreen(
+                                    result.customDoc
+                                )
+                            }
                         }
                     }
                 }

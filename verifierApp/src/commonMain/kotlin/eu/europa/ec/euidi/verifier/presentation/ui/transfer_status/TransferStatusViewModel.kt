@@ -128,7 +128,7 @@ class TransferStatusViewModel(
         }
     }
 
-    private fun showDocumentResults() {
+    private suspend fun showDocumentResults() {
         val allClaims = listOf(dummyClaims1, dummyClaims2)
         val address = "ble:peripheral_server_mode:uuid=4f0eacf2-963 4-4838-a6dc-65d740aadcf0"
 

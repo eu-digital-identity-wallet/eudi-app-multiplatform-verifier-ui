@@ -38,7 +38,7 @@ interface CustomRequestInteractor {
 
     fun getDocumentClaims(attestationType: AttestationType): List<ClaimItem>
 
-    fun transformToClaimItems(items: List<ListItemDataUi>): List<ClaimItem>
+    suspend fun transformToClaimItems(items: List<ListItemDataUi>): List<ClaimItem>
 
     suspend fun transformToUiItems(
         documentType: AttestationType,
@@ -70,17 +70,18 @@ class CustomRequestInteractorImpl(
         return configProvider.supportedDocuments.documents[attestationType].orEmpty()
     }
 
-    override fun transformToClaimItems(items: List<ListItemDataUi>): List<ClaimItem> {
-        return items
-            .filter { uiItem ->
-                (uiItem.trailingContentData as? ListItemTrailingContentDataUi.Checkbox)
-                    ?.checkboxData
-                    ?.isChecked != false
-            }
-            .map { uiItem ->
-                ClaimItem(label = uiItem.itemId)
-            }
-    }
+    override suspend fun transformToClaimItems(items: List<ListItemDataUi>): List<ClaimItem> =
+        withContext(Dispatchers.Default) {
+            items
+                .filter { uiItem ->
+                    (uiItem.trailingContentData as? ListItemTrailingContentDataUi.Checkbox)
+                        ?.checkboxData
+                        ?.isChecked != false
+                }
+                .map { uiItem ->
+                    ClaimItem(label = uiItem.itemId)
+                }
+        }
 
     override suspend fun transformToUiItems(
         documentType: AttestationType,

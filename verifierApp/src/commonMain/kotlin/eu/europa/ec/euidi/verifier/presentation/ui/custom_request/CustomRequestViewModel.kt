@@ -84,25 +84,27 @@ class CustomRequestViewModel(
             }
 
             is CustomRequestContract.Event.OnDoneClick -> {
-                uiState.value.requestedDoc?.let {
-                    val reqDoc = it.copy(
-                        documentType = it.documentType,
-                        mode = it.mode,
-                        claims = interactor.transformToClaimItems(uiState.value.items)
-                    )
-
-                    setState {
-                        copy(
-                            requestedDoc = reqDoc
+                viewModelScope.launch {
+                    uiState.value.requestedDoc?.let {
+                        val reqDoc = it.copy(
+                            documentType = it.documentType,
+                            mode = it.mode,
+                            claims = interactor.transformToClaimItems(uiState.value.items)
                         )
-                    }
 
-                    setEffect {
-                        CustomRequestContract.Effect.Navigation.GoBack(
-                            RequestedDocsHolder(
-                                items = listOf(reqDoc)
+                        setState {
+                            copy(
+                                requestedDoc = reqDoc
                             )
-                        )
+                        }
+
+                        setEffect {
+                            CustomRequestContract.Effect.Navigation.GoBack(
+                                RequestedDocsHolder(
+                                    items = listOf(reqDoc)
+                                )
+                            )
+                        }
                     }
                 }
             }

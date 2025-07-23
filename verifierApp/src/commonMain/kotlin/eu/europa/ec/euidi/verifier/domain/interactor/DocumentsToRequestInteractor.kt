@@ -24,8 +24,10 @@ import eu.europa.ec.euidi.verifier.domain.config.model.ClaimItem
 import eu.europa.ec.euidi.verifier.domain.config.model.DocumentMode
 import eu.europa.ec.euidi.verifier.domain.model.SupportedDocumentUi
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.withContext
 
 interface DocumentsToRequestInteractor {
 
@@ -33,7 +35,7 @@ interface DocumentsToRequestInteractor {
 
     fun getDocumentClaims(attestationType: AttestationType): List<ClaimItem>
 
-    fun handleDocumentOptionSelection(
+    suspend fun handleDocumentOptionSelection(
         currentDocs: List<RequestedDocumentUi>,
         docId: String,
         docType: AttestationType,
@@ -42,7 +44,7 @@ interface DocumentsToRequestInteractor {
 
     suspend fun searchDocuments(query: String, documents: List<SupportedDocumentUi>): Flow<List<SupportedDocumentUi>>
 
-    fun checkDocumentMode(requestedDocs: List<RequestedDocumentUi>): List<RequestedDocumentUi>
+    suspend fun checkDocumentMode(requestedDocs: List<RequestedDocumentUi>): List<RequestedDocumentUi>
 }
 
 class DocumentsToRequestInteractorImpl(
@@ -64,49 +66,49 @@ class DocumentsToRequestInteractorImpl(
     override fun getDocumentClaims(attestationType: AttestationType): List<ClaimItem> =
         configProvider.supportedDocuments.documents[attestationType].orEmpty()
 
-    override fun handleDocumentOptionSelection(
+    override suspend fun handleDocumentOptionSelection(
         currentDocs: List<RequestedDocumentUi>,
         docId: String,
         docType: AttestationType,
         mode: DocumentMode
-    ): DocSelectionResult {
-
-        // Case 1: already selected → remove it
-        if (currentDocs.any { it.id == docId && it.mode == mode }) {
-            val updated = currentDocs.filterNot {
-                it.documentType == docType && it.mode == mode
-            }
-            return DocSelectionResult.Updated(updated)
-        }
-
-        // Case 2: Custom mode → remove FULL if exists, then navigate
-        if (mode == DocumentMode.CUSTOM) {
-            val updated = if (currentDocs.any { it.id == docId && it.mode == DocumentMode.FULL }) {
-                currentDocs.filterNot { it.id == docId }
-            } else {
-                currentDocs
+    ): DocSelectionResult =
+        withContext(Dispatchers.Default) {
+            // Case 1: already selected → remove it
+            if (currentDocs.any { it.id == docId && it.mode == mode }) {
+                val updated = currentDocs.filterNot {
+                    it.documentType == docType && it.mode == mode
+                }
+                return@withContext DocSelectionResult.Updated(updated)
             }
 
-            val customDoc = RequestedDocumentUi(
-                id = docId,
-                documentType = docType,
-                mode = mode,
-                claims = emptyList()
+            // Case 2: Custom mode → remove FULL if exists, then navigate
+            if (mode == DocumentMode.CUSTOM) {
+                val updated = if (currentDocs.any { it.id == docId && it.mode == DocumentMode.FULL }) {
+                    currentDocs.filterNot { it.id == docId }
+                } else {
+                    currentDocs
+                }
+
+                val customDoc = RequestedDocumentUi(
+                    id = docId,
+                    documentType = docType,
+                    mode = mode,
+                    claims = emptyList()
+                )
+
+                return@withContext DocSelectionResult.NavigateToCustomRequest(updated, customDoc)
+            }
+
+            // Case 3: Full mode → handle Full Mode selection
+            val updatedDocs = handleFullDocumentSelection(
+                currentDocs = currentDocs,
+                docId = docId,
+                docType = docType,
+                mode = mode
             )
 
-            return DocSelectionResult.NavigateToCustomRequest(updated, customDoc)
+            return@withContext DocSelectionResult.Updated(updatedDocs)
         }
-
-        // Case 3: Full mode → handle Full Mode selection
-        val updatedDocs = handleFullDocumentSelection(
-            currentDocs = currentDocs,
-            docId = docId,
-            docType = docType,
-            mode = mode
-        )
-
-        return DocSelectionResult.Updated(updatedDocs)
-    }
 
     override suspend fun searchDocuments(query: String, documents: List<SupportedDocumentUi>): Flow<List<SupportedDocumentUi>> =
         flow {
@@ -118,18 +120,20 @@ class DocumentsToRequestInteractorImpl(
             emit(filtered)
         }
 
-    override fun checkDocumentMode(requestedDocs: List<RequestedDocumentUi>): List<RequestedDocumentUi> =
-        requestedDocs
-            .toMutableList().map { requestedDoc ->
-            val expectedClaimsCount = configProvider.supportedDocuments.documents
-                .filterKeys { it == requestedDoc.documentType }
-                .values
-                .flatten()
-                .size
+    override suspend fun checkDocumentMode(requestedDocs: List<RequestedDocumentUi>): List<RequestedDocumentUi> =
+        withContext(Dispatchers.Default) {
+            requestedDocs
+                .toMutableList().map { requestedDoc ->
+                    val expectedClaimsCount = configProvider.supportedDocuments.documents
+                        .filterKeys { it == requestedDoc.documentType }
+                        .values
+                        .flatten()
+                        .size
 
-            if (requestedDoc.claims.size == expectedClaimsCount) {
-                requestedDoc.copy(mode = DocumentMode.FULL)
-            } else requestedDoc
+                    if (requestedDoc.claims.size == expectedClaimsCount) {
+                        requestedDoc.copy(mode = DocumentMode.FULL)
+                    } else requestedDoc
+                }
         }
 
     private fun handleFullDocumentSelection(

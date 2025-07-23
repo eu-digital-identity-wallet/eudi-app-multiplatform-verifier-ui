@@ -39,7 +39,7 @@ import kotlinx.coroutines.withContext
 
 interface TransferStatusInteractor {
 
-    fun transformToReceivedDocumentsUi(claims: List<Map<ClaimKey, ClaimValue>>): List<ReceivedDocumentUi>
+    suspend fun transformToReceivedDocumentsUi(claims: List<Map<ClaimKey, ClaimValue>>): List<ReceivedDocumentUi>
 
     fun getConnectionStatus(): Flow<String>
 
@@ -54,18 +54,19 @@ class TransferStatusInteractorImpl(
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : TransferStatusInteractor {
 
-    override fun transformToReceivedDocumentsUi(
+    override suspend fun transformToReceivedDocumentsUi(
         claims: List<Map<ClaimKey, ClaimValue>>
-    ): List<ReceivedDocumentUi> {
-        return claims.filter { it.isNotEmpty() }
-            .map { claims ->
-                ReceivedDocumentUi(
-                    id = uuidProvider.provideUuid(),
-                    documentType = AttestationType.Pid,
-                    claims = claims
-                )
-            }
-    }
+    ): List<ReceivedDocumentUi> =
+        withContext(Dispatchers.Default) {
+            claims.filter { it.isNotEmpty() }
+                .map { claims ->
+                    ReceivedDocumentUi(
+                        id = uuidProvider.provideUuid(),
+                        documentType = AttestationType.Pid,
+                        claims = claims
+                    )
+                }
+        }
 
     override fun getConnectionStatus(): Flow<String> = flow {
         emit(ConnectionStatus.Connecting.toUserFriendlyString())
