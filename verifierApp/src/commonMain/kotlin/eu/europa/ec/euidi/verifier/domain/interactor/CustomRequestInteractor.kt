@@ -48,8 +48,7 @@ interface CustomRequestInteractor {
     fun handleItemSelection(
         items: List<ListItemDataUi>,
         identifier: String,
-        isChecked: Boolean
-    ): List<ListItemDataUi>
+    ): HandleItemSelectionPartialState
 }
 
 class CustomRequestInteractorImpl(
@@ -98,18 +97,35 @@ class CustomRequestInteractorImpl(
     override fun handleItemSelection(
         items: List<ListItemDataUi>,
         identifier: String,
-        isChecked: Boolean
-    ): List<ListItemDataUi> =
-        items.map { item ->
-            if (item.itemId == identifier) {
+    ): HandleItemSelectionPartialState {
+        val updatedItems = items.map { item ->
+            if (item.itemId == identifier && item.trailingContentData is ListItemTrailingContentDataUi.Checkbox) {
                 item.copy(
-                    trailingContentData = (item.trailingContentData as? ListItemTrailingContentDataUi.Checkbox)
-                        ?.copy(
+                    trailingContentData = (item.trailingContentData)
+                        .copy(
                             checkboxData = CheckboxDataUi(
-                                isChecked = isChecked
+                                isChecked = !item.trailingContentData.checkboxData.isChecked
                             )
                         )
                 )
             } else item
         }
+
+        val hasSelectedItems = updatedItems.any { item ->
+            item.trailingContentData is ListItemTrailingContentDataUi.Checkbox
+                    && item.trailingContentData.checkboxData.isChecked
+        }
+
+        return HandleItemSelectionPartialState.Updated(
+            items = updatedItems,
+            hasSelectedItems = hasSelectedItems,
+        )
+    }
+}
+
+sealed class HandleItemSelectionPartialState {
+    data class Updated(
+        val items: List<ListItemDataUi>,
+        val hasSelectedItems: Boolean,
+    ) : HandleItemSelectionPartialState()
 }

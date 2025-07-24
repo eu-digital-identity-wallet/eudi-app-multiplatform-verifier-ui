@@ -62,6 +62,7 @@ fun CustomRequestScreen(
 
     val stickyPrimaryButtonConfig = rememberButtonConfig(
         type = ButtonType.PRIMARY,
+        enabled = state.primaryButtonEnabled,
         onClick = {
             viewModel.setEvent(CustomRequestContract.Event.OnDoneClick)
         },
@@ -153,8 +154,7 @@ private fun Content(
             .verticalScroll(rememberScrollState()),
         items = state.items,
         onItemClick = {
-            val itemChecked = (it.trailingContentData as ListItemTrailingContentDataUi.Checkbox).checkboxData.isChecked
-            onEventSend(CustomRequestContract.Event.OnItemClicked(it.itemId, !itemChecked))
+            onEventSend(CustomRequestContract.Event.OnItemClicked(it.itemId))
         },
         clickableAreas = listOf(ClickableArea.TRAILING_CONTENT),
         mainContentVerticalPadding = SPACING_MEDIUM.dp

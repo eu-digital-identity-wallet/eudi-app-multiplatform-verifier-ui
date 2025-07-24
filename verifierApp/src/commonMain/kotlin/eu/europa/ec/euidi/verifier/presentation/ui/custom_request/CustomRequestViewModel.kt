@@ -18,11 +18,13 @@ package eu.europa.ec.euidi.verifier.presentation.ui.custom_request
 
 import androidx.lifecycle.viewModelScope
 import eu.europa.ec.euidi.verifier.domain.interactor.CustomRequestInteractor
+import eu.europa.ec.euidi.verifier.domain.interactor.HandleItemSelectionPartialState
 import eu.europa.ec.euidi.verifier.presentation.architecture.MviViewModel
 import eu.europa.ec.euidi.verifier.presentation.architecture.UiEffect
 import eu.europa.ec.euidi.verifier.presentation.architecture.UiEvent
 import eu.europa.ec.euidi.verifier.presentation.architecture.UiState
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemDataUi
+import eu.europa.ec.euidi.verifier.presentation.component.ListItemTrailingContentDataUi
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocsHolder
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
 import kotlinx.coroutines.launch
@@ -32,12 +34,13 @@ sealed interface CustomRequestContract {
     data class State(
         val screenTitle: String = "",
         val requestedDoc: RequestedDocumentUi? = null,
-        val items: List<ListItemDataUi> = emptyList()
+        val items: List<ListItemDataUi> = emptyList(),
+        val primaryButtonEnabled: Boolean = false,
     ) : UiState
 
     sealed interface Event : UiEvent {
         data class Init(val doc: RequestedDocumentUi? = null) : Event
-        data class OnItemClicked(val identifier: String, val isChecked: Boolean) : Event
+        data class OnItemClicked(val identifier: String) : Event
         data object OnDoneClick : Event
         data object OnCancelClick : Event
     }
@@ -70,13 +73,20 @@ class CustomRequestViewModel(
                             claims = claims
                         )
 
-                        val screenTitle = interactor.getScreenTitle(attestationType = attestationType)
+                        val primaryButtonEnabled = uiItems.any { item ->
+                            item.trailingContentData is ListItemTrailingContentDataUi.Checkbox
+                                    && item.trailingContentData.checkboxData.isChecked
+                        }
+
+                        val screenTitle =
+                            interactor.getScreenTitle(attestationType = attestationType)
 
                         setState {
                             copy(
                                 screenTitle = screenTitle,
                                 requestedDoc = doc,
-                                items = uiItems
+                                items = uiItems,
+                                primaryButtonEnabled = primaryButtonEnabled,
                             )
                         }
                     }
@@ -120,14 +130,21 @@ class CustomRequestViewModel(
             }
 
             is CustomRequestContract.Event.OnItemClicked -> {
-                setState {
-                    copy(
-                        items = interactor.handleItemSelection(
-                            items = uiState.value.items,
-                            identifier = event.identifier,
-                            isChecked = event.isChecked
-                        )
-                    )
+                val result = interactor.handleItemSelection(
+                    items = uiState.value.items,
+                    identifier = event.identifier,
+                )
+
+                when (result) {
+                    is HandleItemSelectionPartialState.Updated -> {
+                        setState {
+                            copy(
+                                items = result.items,
+                                primaryButtonEnabled = result.hasSelectedItems,
+                            )
+                        }
+
+                    }
                 }
             }
         }
