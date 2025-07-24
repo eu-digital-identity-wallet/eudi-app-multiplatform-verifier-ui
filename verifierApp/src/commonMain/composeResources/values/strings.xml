@@ -134,8 +134,8 @@
     <string name="pid_resident_house_number">House Number</string>
     <string name="pid_personal_administrative_number">Personal Administrative Number</string>
     <string name="pid_mobile_phone_number">Mobile Phone Number</string>
-    <string name="pid_birth_family_name">Birth Family Name</string>
-    <string name="pid_birth_given_name">Birth Given Name</string>
+    <string name="pid_family_name_birth">Birth Family Name(s)</string>
+    <string name="pid_given_name_birth">Birth Given Name(s)</string>
     <string name="pid_place_of_birth">Place of Birth</string>
     <string name="pid_trust_anchor">Trust Anchor</string>
 
@@ -143,6 +143,7 @@
     <string name="mdl_given_name">Given Name(s)</string>
     <string name="mdl_birth_date">Date of Birth</string>
     <string name="mdl_expiry_date">Expiry Date</string>
+    <string name="mdl_issue_date">Date of issue</string>
     <string name="mdl_issuing_country">Issuing Country</string>
     <string name="mdl_issuing_authority">Issuing Authority</string>
     <string name="mdl_document_number">Document Number</string>
