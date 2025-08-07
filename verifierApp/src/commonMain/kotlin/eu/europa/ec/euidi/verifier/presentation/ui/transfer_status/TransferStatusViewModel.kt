@@ -55,35 +55,6 @@ sealed interface TransferStatusViewModelContract {
 class TransferStatusViewModel(
     private val transferStatusInteractor: TransferStatusInteractor,
 ) : MviViewModel<TransferStatusViewModelContract.Event, TransferStatusViewModelContract.State, TransferStatusViewModelContract.Effect>() {
-    val dummyClaims1: Map<String, String> = mapOf(
-        "family_name" to "Doe",
-        "given_name" to "John",
-        "birth_date" to "1985-07-12",
-        "sex" to "Male",
-        "nationality" to "US",
-        "document_number" to "AA1234567",
-        "issuing_country" to "US",
-        "expiry_date" to "2030-01-15",
-        "resident_address" to "123 Main Street, Springfield",
-        "mobile_phone_number" to "+1 555 0001111",
-        "email_address" to "john.doe@example.com",
-        "place_of_birth" to "Springfield, Illinois"
-    )
-
-    val dummyClaims2: Map<String, String> = mapOf(
-        "family_name" to "Smith",
-        "given_name" to "Jane",
-        "birth_date" to "1990-03-22",
-        "sex" to "Female",
-        "nationality" to "CA",
-        "document_number" to "BB7654321",
-        "issuing_country" to "CA",
-        "expiry_date" to "2031-05-10",
-        "resident_address" to "456 Maple Avenue, Toronto",
-        "mobile_phone_number" to "+1 416 5552222",
-        "email_address" to "jane.smith@example.com",
-        "place_of_birth" to "Toronto, Ontario"
-    )
 
     override fun createInitialState(): TransferStatusViewModelContract.State =
         TransferStatusViewModelContract.State()
@@ -129,11 +100,13 @@ class TransferStatusViewModel(
     }
 
     private suspend fun showDocumentResults() {
-        val allClaims = listOf(dummyClaims1, dummyClaims2)
+        val allDocuments = transferStatusInteractor.getAvailableDocuments()
         val address = "ble:peripheral_server_mode:uuid=4f0eacf2-963 4-4838-a6dc-65d740aadcf0"
 
-        val transformedDocuments =
-            transferStatusInteractor.transformToReceivedDocumentsUi(allClaims)
+        val transformedDocuments = transferStatusInteractor.transformToReceivedDocumentsUi(
+            requestedDocuments = uiState.value.requestedDocs,
+            allDocuments = allDocuments
+        )
 
         setEffect {
             TransferStatusViewModelContract.Effect.Navigation.NavigateToShowDocumentsScreen(
