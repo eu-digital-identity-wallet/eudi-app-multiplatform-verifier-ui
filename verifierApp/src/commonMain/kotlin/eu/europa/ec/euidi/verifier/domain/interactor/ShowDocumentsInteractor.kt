@@ -55,7 +55,7 @@ class ShowDocumentsInteractorImpl(
                     itemId = uuidProvider.provideUuid(),
                     overlineText = UiTransformer.getClaimTranslation(
                         attestationType = document.documentType.getDisplayName(resourceProvider),
-                        claimLabel = claimKey,
+                        claimLabel = claimKey.label,
                         resourceProvider = resourceProvider
                     ),
                     mainContentData = ListItemMainContentDataUi.Text(text = claimValue)
