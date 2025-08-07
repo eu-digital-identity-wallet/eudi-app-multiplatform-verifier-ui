@@ -41,7 +41,7 @@ Currently, the project supports building both Android and iOS applications. Howe
 
 ### Prerequisites
 
-You can download the application (apk file) through GitHub releases [here](https://github.com/eu-digital-identity-wallet/eudi-app-multiplatform-verifier-ui/releases)
+You can download the application (APK file) through GitHub releases [here](https://github.com/eu-digital-identity-wallet/eudi-app-multiplatform-verifier-ui/releases)
 
 Alternatively, you can build it yourself using Xcode for iOS or Android Studio for Android.
 
@@ -108,8 +108,8 @@ fun getDocumentModes(attestationType: AttestationType): List<DocumentMode> {
 ## Disclaimer
 
 The released software is an initial development release version: 
--  The initial development release is an early endeavor reflecting the efforts of a short time-boxed period, and by no means can be considered as the final product.  
--  The initial development release may be changed substantially over time and might introduce new features but also may change or remove existing ones, potentially breaking compatibility with your existing code.
+-  The initial development release is an early endeavor reflecting the efforts of a short time-boxed period, and by no means can it be considered the final product.  
+-  The initial development release may be changed substantially over time and might introduce new features, but also may change or remove existing ones, potentially breaking compatibility with your existing code.
 -  The initial development release is limited in functional scope.
 -  The initial development release may contain errors or design flaws and other problems that could cause system or other failures and data loss.
 -  The initial development release has reduced security, privacy, availability, and reliability standards relative to future releases. This could make the software slower, less reliable, or more vulnerable to attacks than mature software.
