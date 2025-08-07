@@ -49,7 +49,6 @@ sealed interface QrScanViewModelContract {
         ) : Event
 
         data object OnBackClicked : Event
-        data object OnStickyButtonClicked : Event
         data object DismissError : Event
         data class OnQrScanned(val code: String) : Event
         data class OnQrScanFailed(val error: String) : Event
@@ -87,10 +86,6 @@ class QrScanViewModel(
             }
 
             is Event.OnBackClicked -> {
-                goBack()
-            }
-
-            is Event.OnStickyButtonClicked -> {
                 goBack()
             }
 
