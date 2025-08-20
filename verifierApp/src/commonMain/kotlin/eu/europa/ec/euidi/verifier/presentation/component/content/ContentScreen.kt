@@ -21,12 +21,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -115,7 +113,7 @@ fun ContentScreen(
                 Box(
                     modifier = Modifier
                         .wrapContentSize()
-                        .windowInsetsPadding(WindowInsets.statusBars)
+                        .statusBarsPadding()
                 ) {
                     topBar()
                 }
@@ -135,7 +133,7 @@ fun ContentScreen(
                 Box(
                     modifier = Modifier
                         .wrapContentSize()
-                        .windowInsetsPadding(WindowInsets.navigationBars)
+                        .navigationBarsPadding()
                 ) {
                     bottomBar()
                 }
