@@ -42,6 +42,7 @@ internal fun stickyBottomPaddings(
 ): PaddingValues {
     return PaddingValues(
         start = contentScreenPaddings.calculateStartPadding(layoutDirection),
+        top = contentScreenPaddings.calculateBottomPadding(),
         end = contentScreenPaddings.calculateEndPadding(layoutDirection),
         bottom = contentScreenPaddings.calculateBottomPadding()
     )
