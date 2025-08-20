@@ -22,6 +22,9 @@ import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 
+private const val BOTTOM_SCREEN_PADDING = SIZE_MEDIUM
+private const val HORIZONTAL_SCREEN_PADDING = SPACING_LARGE
+
 enum class TopSpacing {
     WithToolbar, WithoutToolbar
 }
@@ -30,10 +33,10 @@ internal fun screenPaddings(
     append: PaddingValues? = null,
     topSpacing: TopSpacing = TopSpacing.WithToolbar
 ) = PaddingValues(
-    start = SPACING_LARGE.dp,
+    start = HORIZONTAL_SCREEN_PADDING.dp,
     top = calculateTopSpacing(topSpacing).dp + (append?.calculateTopPadding() ?: 0.dp),
-    end = SPACING_LARGE.dp,
-    bottom = SIZE_MEDIUM.dp + (append?.calculateBottomPadding() ?: 0.dp)
+    end = HORIZONTAL_SCREEN_PADDING.dp,
+    bottom = BOTTOM_SCREEN_PADDING.dp + (append?.calculateBottomPadding() ?: 0.dp)
 )
 
 internal fun stickyBottomPaddings(
@@ -42,7 +45,7 @@ internal fun stickyBottomPaddings(
 ): PaddingValues {
     return PaddingValues(
         start = contentScreenPaddings.calculateStartPadding(layoutDirection),
-        top = contentScreenPaddings.calculateBottomPadding(),
+        top = BOTTOM_SCREEN_PADDING.dp,
         end = contentScreenPaddings.calculateEndPadding(layoutDirection),
         bottom = contentScreenPaddings.calculateBottomPadding()
     )
