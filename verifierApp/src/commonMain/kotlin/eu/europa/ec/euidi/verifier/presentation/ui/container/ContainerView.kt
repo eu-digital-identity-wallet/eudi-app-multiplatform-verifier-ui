@@ -19,6 +19,7 @@ package eu.europa.ec.euidi.verifier.presentation.ui.container
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -53,6 +54,7 @@ fun ContainerView(
                 .fillMaxSize()
                 .background(Color.Transparent) //TODO This is the color of the status bar. Do we want to change it?
                 .statusBarsPadding()
+                .navigationBarsPadding()
         ) {
             VerifierNavHost()
         }

@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.DropdownMenu
@@ -55,6 +54,7 @@ import eu.europa.ec.euidi.verifier.presentation.component.utils.MAX_TOOLBAR_ACTI
 import eu.europa.ec.euidi.verifier.presentation.component.utils.TopSpacing
 import eu.europa.ec.euidi.verifier.presentation.component.utils.Z_STICKY
 import eu.europa.ec.euidi.verifier.presentation.component.utils.screenPaddings
+import eu.europa.ec.euidi.verifier.presentation.component.utils.stickyBottomPaddings
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapIcon
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapIconButton
 
@@ -149,14 +149,9 @@ fun ContentScreen(
                             contentAlignment = Alignment.Center
                         ) {
                             stickyBottomContent(
-                                PaddingValues(
-                                    start = screenPaddings.calculateStartPadding(
-                                        LocalLayoutDirection.current
-                                    ),
-                                    end = screenPaddings.calculateStartPadding(
-                                        LocalLayoutDirection.current
-                                    ),
-                                    bottom = screenPaddings.calculateBottomPadding()
+                                stickyBottomPaddings(
+                                    contentScreenPaddings = screenPaddings,
+                                    layoutDirection = LocalLayoutDirection.current
                                 )
                             )
                         }
