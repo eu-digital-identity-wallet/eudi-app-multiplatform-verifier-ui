@@ -146,7 +146,9 @@ fun ContentScreen(
         snackbarHost = snackbarHost,
     ) { padding ->
 
-        val screenPaddings = screenPaddings(padding)
+        val screenPaddings = remember(padding) {
+            screenPaddings(padding)
+        }
 
         Box(
             modifier = modifier
