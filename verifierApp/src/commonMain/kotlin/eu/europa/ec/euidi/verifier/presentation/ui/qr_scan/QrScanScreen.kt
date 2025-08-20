@@ -127,8 +127,7 @@ private fun Content(
         modifier = Modifier
             .fillMaxSize()
             .padding(
-                top = paddingValues.calculateTopPadding(),
-                bottom = 0.dp,
+                top = paddingValues.calculateTopPadding()
             ),
     ) {
         Box(

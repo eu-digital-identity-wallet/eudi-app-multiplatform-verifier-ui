@@ -203,7 +203,6 @@ private fun Content(
             .fillMaxSize()
             .padding(
                 top = paddingValues.calculateTopPadding(),
-                bottom = 0.dp,
                 start = paddingValues.calculateStartPadding(layoutDirection),
                 end = paddingValues.calculateEndPadding(layoutDirection)
             ),
