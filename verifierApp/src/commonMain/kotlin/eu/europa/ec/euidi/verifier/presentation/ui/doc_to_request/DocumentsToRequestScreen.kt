@@ -40,7 +40,6 @@ import eu.europa.ec.euidi.verifier.presentation.component.AppIcons
 import eu.europa.ec.euidi.verifier.presentation.component.content.ContentScreen
 import eu.europa.ec.euidi.verifier.presentation.component.content.ScreenNavigateAction
 import eu.europa.ec.euidi.verifier.presentation.component.content.ToolbarConfig
-import eu.europa.ec.euidi.verifier.presentation.component.extension.withStickyBottomPadding
 import eu.europa.ec.euidi.verifier.presentation.component.utils.SPACING_LARGE
 import eu.europa.ec.euidi.verifier.presentation.component.utils.SPACING_MEDIUM
 import eu.europa.ec.euidi.verifier.presentation.component.utils.VSpacer
@@ -166,7 +165,7 @@ private fun Content(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .withStickyBottomPadding(paddingValues)
+            .padding(paddingValues)
             .verticalScroll(rememberScrollState())
     ) {
         WrapSearchBar(

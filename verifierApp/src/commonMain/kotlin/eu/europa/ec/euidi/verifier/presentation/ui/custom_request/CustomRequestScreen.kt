@@ -32,7 +32,6 @@ import eu.europa.ec.euidi.verifier.presentation.component.ClickableArea
 import eu.europa.ec.euidi.verifier.presentation.component.content.ContentScreen
 import eu.europa.ec.euidi.verifier.presentation.component.content.ScreenNavigateAction
 import eu.europa.ec.euidi.verifier.presentation.component.content.ToolbarConfig
-import eu.europa.ec.euidi.verifier.presentation.component.extension.withStickyBottomPadding
 import eu.europa.ec.euidi.verifier.presentation.component.utils.OneTimeLaunchedEffect
 import eu.europa.ec.euidi.verifier.presentation.component.utils.SPACING_MEDIUM
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.ButtonType
@@ -149,7 +148,7 @@ private fun Content(
 ) {
     WrapListItems(
         modifier = Modifier
-            .withStickyBottomPadding(paddingValues)
+            .padding(paddingValues)
             .verticalScroll(rememberScrollState()),
         items = state.items,
         onItemClick = {

@@ -39,7 +39,6 @@ import androidx.navigation.NavController
 import eu.europa.ec.euidi.verifier.presentation.component.content.ContentScreen
 import eu.europa.ec.euidi.verifier.presentation.component.content.ScreenNavigateAction
 import eu.europa.ec.euidi.verifier.presentation.component.content.ToolbarConfig
-import eu.europa.ec.euidi.verifier.presentation.component.extension.withStickyBottomPadding
 import eu.europa.ec.euidi.verifier.presentation.component.utils.OneTimeLaunchedEffect
 import eu.europa.ec.euidi.verifier.presentation.component.utils.SPACING_MEDIUM
 import eu.europa.ec.euidi.verifier.presentation.component.utils.VSpacer
@@ -173,7 +172,7 @@ private fun Content(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .withStickyBottomPadding(paddingValues)
+            .padding(paddingValues)
             .verticalScroll(rememberScrollState())
     ) {
         DocumentsHeader(

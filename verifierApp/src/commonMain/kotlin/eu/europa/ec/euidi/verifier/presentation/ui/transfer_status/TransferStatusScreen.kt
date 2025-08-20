@@ -34,7 +34,6 @@ import androidx.navigation.NavController
 import eu.europa.ec.euidi.verifier.presentation.component.content.ContentScreen
 import eu.europa.ec.euidi.verifier.presentation.component.content.ScreenNavigateAction
 import eu.europa.ec.euidi.verifier.presentation.component.content.ToolbarConfig
-import eu.europa.ec.euidi.verifier.presentation.component.extension.withStickyBottomPadding
 import eu.europa.ec.euidi.verifier.presentation.component.utils.OneTimeLaunchedEffect
 import eu.europa.ec.euidi.verifier.presentation.component.utils.VSpacer
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.ButtonConfig
@@ -163,7 +162,7 @@ private fun Content(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .withStickyBottomPadding(paddingValues),
+            .padding(paddingValues),
         verticalArrangement = Arrangement.Center
     ) {
         Text(
