@@ -41,15 +41,15 @@ import org.jetbrains.compose.resources.Font
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
-private fun AppFontFamily() = FontFamily(
+private fun appFontFamily() = FontFamily(
     Font(Res.font.roboto_light, weight = FontWeight.W300),
     Font(Res.font.roboto_regular, weight = FontWeight.W400),
     Font(Res.font.roboto_medium, weight = FontWeight.W500),
 )
 
 @Composable
-fun AppTypography(): Typography {
-    val appFontFamily = AppFontFamily()
+fun appTypography(): Typography {
+    val appFontFamily = appFontFamily()
 
     return remember {
         with(Typography()) {

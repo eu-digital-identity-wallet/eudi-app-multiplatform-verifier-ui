@@ -42,7 +42,10 @@ interface DocumentsToRequestInteractor {
         mode: DocumentMode
     ): DocSelectionResult
 
-    suspend fun searchDocuments(query: String, documents: List<SupportedDocumentUi>): Flow<List<SupportedDocumentUi>>
+    suspend fun searchDocuments(
+        query: String,
+        documents: List<SupportedDocumentUi>
+    ): Flow<List<SupportedDocumentUi>>
 
     suspend fun checkDocumentMode(requestedDocs: List<RequestedDocumentUi>): List<RequestedDocumentUi>
 }
@@ -50,7 +53,7 @@ interface DocumentsToRequestInteractor {
 class DocumentsToRequestInteractorImpl(
     private val configProvider: ConfigProvider,
     private val resourceProvider: ResourceProvider
-): DocumentsToRequestInteractor {
+) : DocumentsToRequestInteractor {
 
     override suspend fun getSupportedDocuments(): List<SupportedDocumentUi> =
         configProvider.supportedDocuments
@@ -83,11 +86,12 @@ class DocumentsToRequestInteractorImpl(
 
             // Case 2: Custom mode → remove FULL if exists, then navigate
             if (mode == DocumentMode.CUSTOM) {
-                val updated = if (currentDocs.any { it.id == docId && it.mode == DocumentMode.FULL }) {
-                    currentDocs.filterNot { it.id == docId }
-                } else {
-                    currentDocs
-                }
+                val updated =
+                    if (currentDocs.any { it.id == docId && it.mode == DocumentMode.FULL }) {
+                        currentDocs.filterNot { it.id == docId }
+                    } else {
+                        currentDocs
+                    }
 
                 val customDoc = RequestedDocumentUi(
                     id = docId,
@@ -110,11 +114,19 @@ class DocumentsToRequestInteractorImpl(
             return@withContext DocSelectionResult.Updated(updatedDocs)
         }
 
-    override suspend fun searchDocuments(query: String, documents: List<SupportedDocumentUi>): Flow<List<SupportedDocumentUi>> =
+    override suspend fun searchDocuments(
+        query: String,
+        documents: List<SupportedDocumentUi>
+    ): Flow<List<SupportedDocumentUi>> =
         flow {
             val filtered = documents.filter {
                 it.documentType.getDisplayName(resourceProvider).contains(query, ignoreCase = true)
-                        || it.modes.any { mode -> mode.displayName.contains(query, ignoreCase = true) }
+                        || it.modes.any { mode ->
+                    mode.displayName.contains(
+                        query,
+                        ignoreCase = true
+                    )
+                }
             }
 
             emit(filtered)

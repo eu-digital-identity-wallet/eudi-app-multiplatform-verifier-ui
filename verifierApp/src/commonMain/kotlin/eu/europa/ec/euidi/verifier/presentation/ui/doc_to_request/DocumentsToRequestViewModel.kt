@@ -48,6 +48,7 @@ sealed interface DocToRequestContract {
             val docType: AttestationType,
             val mode: DocumentMode
         ) : Event
+
         data object OnBackClick : Event
         data object OnDoneClick : Event
     }
@@ -57,6 +58,7 @@ sealed interface DocToRequestContract {
             data class NavigateToHomeScreen(
                 val requestedDocuments: List<RequestedDocumentUi> = emptyList()
             ) : Navigation
+
             data class NavigateToCustomRequestScreen(
                 val requestedDocuments: RequestedDocumentUi
             ) : Navigation

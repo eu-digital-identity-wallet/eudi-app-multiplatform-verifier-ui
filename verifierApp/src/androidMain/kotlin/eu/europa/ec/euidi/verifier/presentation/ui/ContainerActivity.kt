@@ -32,16 +32,13 @@ class ContainerActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
         registerActivityWithPlatformController()
-
         setContent {
             ContainerView()
         }
     }
 
     private fun registerActivityWithPlatformController() {
-        // Register activity after Koin is already started
         (platformController as? AndroidPlatformController)?.registerActivity(this)
     }
 }

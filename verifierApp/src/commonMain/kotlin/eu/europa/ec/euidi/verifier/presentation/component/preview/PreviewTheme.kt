@@ -27,7 +27,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import eu.europa.ec.euidi.verifier.presentation.theme.AppTypography
+import eu.europa.ec.euidi.verifier.presentation.theme.appTypography
 import eu.europa.ec.euidi.verifier.presentation.theme.darkColors
 import eu.europa.ec.euidi.verifier.presentation.theme.lightColors
 
@@ -77,7 +77,7 @@ private fun PreviewContent(
     // Light theme
     MaterialTheme(
         colorScheme = lightColors,
-        typography = AppTypography()
+        typography = appTypography()
     ) {
         Surface(
             modifier = surfaceModifier
@@ -93,7 +93,7 @@ private fun PreviewContent(
     // Dark theme
     MaterialTheme(
         colorScheme = darkColors,
-        typography = AppTypography()
+        typography = appTypography()
     ) {
         Surface(
             modifier = surfaceModifier

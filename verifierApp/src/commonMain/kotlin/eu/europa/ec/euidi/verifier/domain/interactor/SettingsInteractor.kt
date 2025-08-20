@@ -75,7 +75,7 @@ class SettingsInteractorImpl(
      * @return The boolean value of the preference, or `false` if the preference is not set.
      */
     override suspend fun getPrefBoolean(key: PrefKey): Boolean {
-        return dataStoreController.getBoolean(key)?: false
+        return dataStoreController.getBoolean(key) ?: false
     }
 
     /**
@@ -95,7 +95,8 @@ class SettingsInteractorImpl(
 
     override suspend fun getSettingsItemsUi(): List<SettingsItemUi> {
         return withContext(dispatcher) {
-            val all: List<SettingsTypeUi> = generalPrefs + retrievalOptionsPrefs + retrievalMethodPrefs
+            val all: List<SettingsTypeUi> =
+                generalPrefs + retrievalOptionsPrefs + retrievalMethodPrefs
 
             val preferences: Map<PrefKey, Boolean> = all
                 .map { it.prefKey }
