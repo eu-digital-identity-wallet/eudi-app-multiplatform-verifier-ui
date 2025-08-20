@@ -16,19 +16,12 @@
 
 package eu.europa.ec.euidi.verifier.presentation.ui.container
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import eu.europa.ec.euidi.verifier.presentation.navigation.VerifierNavHost
 import eu.europa.ec.euidi.verifier.presentation.theme.appTypography
 import eu.europa.ec.euidi.verifier.presentation.theme.darkColors
@@ -49,14 +42,6 @@ fun ContainerView(
         colorScheme = colorScheme,
         typography = appTypography(),
     ) {
-        Surface(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Transparent) //TODO This is the color of the status bar. Do we want to change it?
-                .statusBarsPadding()
-                .navigationBarsPadding()
-        ) {
-            VerifierNavHost()
-        }
+        VerifierNavHost()
     }
 }

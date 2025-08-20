@@ -21,8 +21,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
@@ -101,12 +106,20 @@ fun ContentScreen(
             || navigatableAction != ScreenNavigateAction.NONE
             || topBar != null
             || toolBarConfig?.actions?.isNotEmpty() == true
+
     val topSpacing = if (hasToolBar) TopSpacing.WithToolbar else TopSpacing.WithoutToolbar
 
     Scaffold(
         topBar = {
-            if (topBar != null && contentErrorConfig == null) topBar.invoke()
-            else if (hasToolBar) {
+            if (topBar != null && contentErrorConfig == null) {
+                Box(
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .windowInsetsPadding(WindowInsets.statusBars)
+                ) {
+                    topBar()
+                }
+            } else if (hasToolBar) {
                 DefaultToolBar(
                     navigatableAction = contentErrorConfig?.let {
                         ScreenNavigateAction.CANCELABLE
@@ -117,7 +130,17 @@ fun ContentScreen(
                 )
             }
         },
-        bottomBar = bottomBar ?: {},
+        bottomBar = {
+            bottomBar?.let {
+                Box(
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .windowInsetsPadding(WindowInsets.navigationBars)
+                ) {
+                    bottomBar()
+                }
+            }
+        },
         floatingActionButton = fab,
         floatingActionButtonPosition = fabPosition,
         snackbarHost = snackbarHost,

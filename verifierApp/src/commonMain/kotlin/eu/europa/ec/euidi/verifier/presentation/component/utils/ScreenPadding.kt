@@ -33,7 +33,7 @@ internal fun screenPaddings(
     start = SPACING_LARGE.dp,
     top = calculateTopSpacing(topSpacing).dp + (append?.calculateTopPadding() ?: 0.dp),
     end = SPACING_LARGE.dp,
-    bottom = SPACING_LARGE.dp + (append?.calculateBottomPadding() ?: 0.dp)
+    bottom = SIZE_MEDIUM.dp + (append?.calculateBottomPadding() ?: 0.dp)
 )
 
 internal fun stickyBottomPaddings(
