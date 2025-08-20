@@ -22,7 +22,7 @@ import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 
-private const val BOTTOM_SCREEN_PADDING = SIZE_MEDIUM
+private const val BOTTOM_SCREEN_PADDING = SPACING_MEDIUM
 private const val HORIZONTAL_SCREEN_PADDING = SPACING_LARGE
 
 enum class TopSpacing {
