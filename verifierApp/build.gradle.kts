@@ -127,6 +127,8 @@ android {
         "version.properties"
     ).orEmpty()
 
+    flavorDimensions += "environment"
+
     signingConfigs {
         create("release") {
 
@@ -161,11 +163,22 @@ android {
             isMinifyEnabled = true
             isDebuggable = false
             signingConfig = signingConfigs.getByName("release")
+            proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
         }
-        debug {
+        getByName("debug") {
             isDebuggable = true
             isMinifyEnabled = false
+        }
+    }
+    productFlavors {
+        create("Dev") {
+            dimension = "environment"
             applicationIdSuffix = ".dev"
+            manifestPlaceholders["appLabel"] = "(Dev) EUDI Verifier"
+        }
+        create("Public") {
+            dimension = "environment"
+            manifestPlaceholders["appLabel"] = "EUDI Verifier"
         }
     }
     compileOptions {
