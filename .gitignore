@@ -20,3 +20,8 @@ captures
 
 # Sign key
 sign
+
+# fastlane
+.env.public
+.env.dev
+fastlane/report.xml
