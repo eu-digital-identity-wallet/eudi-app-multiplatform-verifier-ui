@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="fastlane.lanes">
+    
+    
+    
+      
+      <testcase classname="fastlane.lanes" name="00: default_platform" time="0.000171">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="01: git_pull" time="0.999141">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="02: Switch to android latest_firebase_release lane" time="0.000202">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="03: firebase_app_distribution_get_latest_release" time="0.574619">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="04: Switch to android build_number lane" time="0.000348">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="05: Switch to android set_version lane" time="0.00018">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="06: set_properties_value" time="0.00107">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="07: Switch to android full_version lane" time="0.000145">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="08: get_properties_value" time="0.000228">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="09: Switch to android tag_name lane" time="0.000134">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="10: increment_version_code" time="0.00228">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="11: clean" time="1.320903">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="12: assembleDevRelease" time="5.503941">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="13: Switch to android upload_firebase lane" time="0.000178">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="14: firebase_app_distribution" time="14.175197">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="15: clean_build_artifacts" time="0.000467">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="16: Switch to android reset_versioncode lane" time="0.000178">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="17: increment_version_code" time="0.004051">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="18: Switch to android reset_versionName lane" time="0.000135">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="19: set_properties_value" time="0.00073">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="20: add_git_tag" time="0.054112">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="21: Switch to android upload_tag lane" time="0.000217">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="22: git remote set-url origin https://github.com/niscy-eudiw/eudi-app-multiplatform-verifier-ui.git" time="0.016561">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="23: push_git_tags" time="1.068251">
+        
+      </testcase>
+    
+  </testsuite>
+</testsuites>
