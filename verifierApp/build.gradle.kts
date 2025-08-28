@@ -171,12 +171,12 @@ android {
         }
     }
     productFlavors {
-        create("dev") {
+        create("Dev") {
             dimension = "environment"
             applicationIdSuffix = ".dev"
             manifestPlaceholders["appLabel"] = "(Dev) EUDI Verifier"
         }
-        create("public") {
+        create("Public") {
             dimension = "environment"
             manifestPlaceholders["appLabel"] = "EUDI Verifier"
         }
