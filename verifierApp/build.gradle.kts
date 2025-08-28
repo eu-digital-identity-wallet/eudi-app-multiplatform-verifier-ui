@@ -165,7 +165,7 @@ android {
             signingConfig = signingConfigs.getByName("release")
             proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
         }
-        debug {
+        getByName("debug") {
             isDebuggable = true
             isMinifyEnabled = false
         }
@@ -174,7 +174,7 @@ android {
         create("dev") {
             dimension = "environment"
             applicationIdSuffix = ".dev"
-            manifestPlaceholders["appLabel"] = "EUDI Verifier (DEV)"
+            manifestPlaceholders["appLabel"] = "(Dev) EUDI Verifier"
         }
         create("public") {
             dimension = "environment"
