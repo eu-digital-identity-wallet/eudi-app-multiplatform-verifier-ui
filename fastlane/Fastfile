@@ -119,7 +119,7 @@ platform :android do
       "release"
     )
 
-    default_apk_name = "app-#{build_type}-release.apk"
+    default_apk_name = "verifierApp-#{build_type}-release.apk"
     new_apk_name = "#{app_version}.apk"
 
     default_apk_path = File.join(base_dir, default_apk_name)
