@@ -111,7 +111,7 @@ platform :android do
     project_root = File.expand_path("..", __dir__)
     base_dir = File.join(
       project_root, 
-      "app", 
+      "verifierApp", 
       "build", 
       "outputs", 
       "apk", 

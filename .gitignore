@@ -24,3 +24,5 @@ sign
 # fastlane
 .env.public
 .env.dev
+fastlane/report.xml
+iosVerifierApp/fastlane/report.xml
