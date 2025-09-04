@@ -54,7 +54,6 @@ import eu.europa.ec.euidi.verifier.presentation.ui.menu.model.MenuItemUi
 import eu.europa.ec.euidi.verifier.presentation.ui.menu.model.MenuTypeUi
 import eudiverifier.verifierapp.generated.resources.Res
 import eudiverifier.verifierapp.generated.resources.menu_screen_item_home_name
-import eudiverifier.verifierapp.generated.resources.menu_screen_item_reverse_engagement_name
 import eudiverifier.verifierapp.generated.resources.menu_screen_item_settings_name
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
@@ -201,24 +200,6 @@ private fun ContentPreview() {
                         ),
                         leadingContentData = ListItemLeadingContentDataUi.Icon(
                             iconData = AppIcons.Home
-                        ),
-                        trailingContentData = chevronRightIcon
-                    )
-                )
-            )
-
-            add(
-                MenuItemUi(
-                    type = MenuTypeUi.REVERSE_ENGAGEMENT,
-                    data = ListItemDataUi(
-                        itemId = "2",
-                        mainContentData = ListItemMainContentDataUi.Text(
-                            text = stringResource(
-                                Res.string.menu_screen_item_reverse_engagement_name
-                            )
-                        ),
-                        leadingContentData = ListItemLeadingContentDataUi.Icon(
-                            iconData = AppIcons.ReverseEngagement
                         ),
                         trailingContentData = chevronRightIcon
                     )

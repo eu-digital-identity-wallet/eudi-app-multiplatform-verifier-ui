@@ -30,7 +30,6 @@ import eudiverifier.verifierapp.generated.resources.content_description_logo_tex
 import eudiverifier.verifierapp.generated.resources.content_description_menu_icon
 import eudiverifier.verifierapp.generated.resources.content_description_more_vert_icon
 import eudiverifier.verifierapp.generated.resources.content_description_nfc_icon
-import eudiverifier.verifierapp.generated.resources.content_description_reverse_engagement_icon
 import eudiverifier.verifierapp.generated.resources.content_description_search_icon
 import eudiverifier.verifierapp.generated.resources.content_description_settings_icon
 import eudiverifier.verifierapp.generated.resources.content_description_user_icon
@@ -46,7 +45,6 @@ import eudiverifier.verifierapp.generated.resources.ic_logo_plain
 import eudiverifier.verifierapp.generated.resources.ic_logo_text
 import eudiverifier.verifierapp.generated.resources.ic_menu
 import eudiverifier.verifierapp.generated.resources.ic_nfc
-import eudiverifier.verifierapp.generated.resources.ic_reverse_engagement
 import eudiverifier.verifierapp.generated.resources.ic_search
 import eudiverifier.verifierapp.generated.resources.ic_settings
 import eudiverifier.verifierapp.generated.resources.ic_user
@@ -125,11 +123,6 @@ object AppIcons {
     val Home: IconDataUi = IconDataUi(
         resourceId = Res.drawable.ic_home,
         contentDescriptionId = Res.string.content_description_home_icon,
-    )
-
-    val ReverseEngagement: IconDataUi = IconDataUi(
-        resourceId = Res.drawable.ic_reverse_engagement,
-        contentDescriptionId = Res.string.content_description_reverse_engagement_icon,
     )
 
     val Settings: IconDataUi = IconDataUi(

@@ -122,14 +122,6 @@ class MenuViewModel(
                 popToHome()
             }
 
-            MenuTypeUi.REVERSE_ENGAGEMENT -> {
-                pushScreen(
-                    route = NavItem.ReverseEngagement,
-                    popUpTo = NavItem.Menu,
-                    inclusive = false,
-                )
-            }
-
             MenuTypeUi.SETTINGS -> {
                 pushScreen(
                     route = NavItem.Settings,

@@ -18,6 +18,5 @@ package eu.europa.ec.euidi.verifier.presentation.ui.menu.model
 
 enum class MenuTypeUi {
     HOME,
-    REVERSE_ENGAGEMENT,
     SETTINGS,
 }
