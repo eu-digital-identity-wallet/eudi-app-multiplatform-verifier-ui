@@ -40,9 +40,6 @@ sealed interface NavItem {
     data object ShowDocuments : NavItem
 
     @Serializable
-    data object ReverseEngagement : NavItem
-
-    @Serializable
     data object Settings : NavItem
 
     @Serializable

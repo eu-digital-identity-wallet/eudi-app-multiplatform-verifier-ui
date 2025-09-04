@@ -43,7 +43,6 @@
     <string name="content_description_search_icon">Search</string>
     <string name="content_description_check_icon">Check</string>
     <string name="content_description_home_icon">Home</string>
-    <string name="content_description_reverse_engagement_icon">Reverse Engagement</string>
     <string name="content_description_settings_icon">Settings</string>
     <string name="content_description_user_icon">User</string>
     <string name="content_description_image_or_placeholder_icon">Image or placeholder icon</string>
@@ -58,7 +57,6 @@
     <!-- Menu -->
     <string name="menu_screen_title">Menu</string>
     <string name="menu_screen_item_home_name">Home</string>
-    <string name="menu_screen_item_reverse_engagement_name">Reverse Engagement</string>
     <string name="menu_screen_item_settings_name">Settings</string>
 
     <!-- Settings -->
@@ -66,7 +64,7 @@
     <string name="settings_screen_category_general_title">General</string>
     <string name="settings_screen_category_data_retrieval_options_title">Data retrieval options</string>
     <string name="settings_screen_category_data_retrieval_methods_title">Data retrieval methods</string>
-    <string name="settings_screen_category_data_retrieval_methods_description">Used for NFC negotiated handover and reverse engagement</string>
+    <string name="settings_screen_category_data_retrieval_methods_description">Used for NFC negotiated handover</string>
     <string name="settings_screen_item_auto_close_connection_title">Auto close connection</string>
     <string name="settings_screen_item_auto_close_connection_description">Don't close connection automatically</string>
     <string name="settings_screen_item_use_l2cap_title">Use L2CAP if available</string>
@@ -179,11 +177,6 @@
     <string name="age_verification_issuing_authority">Issuing Authority</string>
     <string name="age_verification_issuing_country">Issuing Country</string>
     <string name="age_verification_user_pseudonym">User Pseudonym</string>
-
-    <!-- Reverse Engagement -->
-    <string name="reverse_engagement_screen_title">Reverse Engagement</string>
-    <string name="reverse_engagement_screen_info_message">Scan QR code with the EUDI Proximity Verifier application.\n\nNOTE: This is not supported for ISO 18013-7, only 23220-4.</string>
-    <string name="reverse_engagement_screen_placeholder_qr">EUDI Proximity Verifier</string>
 
     <!-- Qr Scan -->
     <string name="qr_scan_screen_title">Device Engagement</string>
