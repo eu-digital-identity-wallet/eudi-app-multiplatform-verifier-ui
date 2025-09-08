@@ -196,6 +196,7 @@ fun ContentScreen(
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
+                                .navigationBarsPadding()
                                 .zIndex(Z_STICKY),
                             contentAlignment = Alignment.Center
                         ) {
