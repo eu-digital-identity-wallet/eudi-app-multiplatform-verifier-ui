@@ -36,6 +36,8 @@ interface TransferController {
     fun sendRequest(
         requestedDocs: List<RequestedDocumentUi>
     ): Flow<TransferStatus>
+
+    fun stopConnection()
 }
 
 sealed class TransferStatus() {

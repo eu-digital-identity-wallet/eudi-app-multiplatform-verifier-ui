@@ -36,4 +36,6 @@ class IosTransferController : TransferController {
 
     override fun sendRequest(requestedDocs: List<RequestedDocumentUi>): Flow<TransferStatus> =
         flowOf()
+
+    override fun stopConnection() {}
 }

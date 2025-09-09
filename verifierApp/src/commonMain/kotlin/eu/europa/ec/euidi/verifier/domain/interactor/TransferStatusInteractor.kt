@@ -54,6 +54,8 @@ interface TransferStatusInteractor {
     ): String
 
     suspend fun getAvailableDocuments(): List<AvailableDocument>
+
+    suspend fun stopConnection()
 }
 
 class TransferStatusInteractorImpl(
@@ -133,6 +135,10 @@ class TransferStatusInteractorImpl(
         return withContext(dispatcher) {
             getDummyData()
         }
+    }
+
+    override suspend fun stopConnection() {
+        transferController.stopConnection()
     }
 
     private suspend fun getRequestedDocumentTypes(docs: List<RequestedDocumentUi>): String {

@@ -93,6 +93,10 @@ kotlin {
             implementation(libs.kermit)
 
             implementation(libs.qr.kit)
+
+            implementation(libs.moko.permissions.compose)
+            implementation(libs.moko.permissions.ble)
+            implementation(libs.moko.permissions.location)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

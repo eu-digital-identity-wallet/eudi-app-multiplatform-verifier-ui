@@ -32,16 +32,28 @@ sealed interface TransferStatusViewModelContract {
     data class State(
         val requestedDocTypes: String = "",
         val connectionStatus: String = "",
-        val requestedDocs: List<RequestedDocumentUi> = emptyList()
+        val requestedDocs: List<RequestedDocumentUi> = emptyList(),
+        val hasPermissions: Boolean? = null,
+        val permissionsRequestInProgress: Boolean = false,
+        val engagementStarted: Boolean = false
     ) : UiState
 
     sealed interface Event : UiEvent {
         data class Init(val docs: List<RequestedDocumentUi>) : Event
+        data object RequestPermissions : Event
+        data class PermissionReceived(val denied: Boolean) : Event
+        data object StartProximity : Event
+        data object StopProximity : Event
         data object OnCancelClick : Event
         data object OnBackClick : Event
+        data object OpenAppSettings : Event
     }
 
     sealed interface Effect : UiEffect {
+        data object RequestPermissions : Effect
+        data object PermissionsGranted : Effect
+        data object PermissionsRevoked : Effect
+        data object OpenAppSettings : Effect
         sealed interface Navigation : Effect {
             data object GoBack : Navigation
             data class NavigateToShowDocumentsScreen(
@@ -64,29 +76,7 @@ class TransferStatusViewModel(
     override fun handleEvent(event: TransferStatusViewModelContract.Event) {
         when (event) {
             is TransferStatusViewModelContract.Event.Init -> {
-                viewModelScope.launch {
-                    val data = transferStatusInteractor.getRequestData(event.docs)
-
-                    setState {
-                        copy(
-                            requestedDocs = event.docs,
-                            requestedDocTypes = data
-                        )
-                    }
-
-                    transferStatusInteractor.getConnectionStatus(
-                        event.docs,
-                        qrCode
-                    ).collect { status ->
-                        setState {
-                            copy(
-                                connectionStatus = status
-                            )
-                        }
-                    }
-
-                    showDocumentResults()
-                }
+                getDocuments(event.docs)
             }
 
             is TransferStatusViewModelContract.Event.OnCancelClick -> {
@@ -101,6 +91,87 @@ class TransferStatusViewModel(
                 }
             }
 
+            is TransferStatusViewModelContract.Event.StartProximity -> {
+                startProximity()
+            }
+
+            is TransferStatusViewModelContract.Event.StopProximity -> {
+                stopProximity()
+            }
+
+            is TransferStatusViewModelContract.Event.RequestPermissions -> {
+                if (uiState.value.permissionsRequestInProgress) {
+                    return
+                }
+                setState {
+                    copy(permissionsRequestInProgress = true)
+                }
+                setEffect {
+                    TransferStatusViewModelContract.Effect.RequestPermissions
+                }
+            }
+
+            is TransferStatusViewModelContract.Event.PermissionReceived -> {
+                setState {
+                    copy(
+                        hasPermissions = !event.denied,
+                        permissionsRequestInProgress = false
+                    )
+                }
+                if (event.denied && uiState.value.engagementStarted) {
+                    setEffect {
+                        TransferStatusViewModelContract.Effect.PermissionsRevoked
+                    }
+                } else if (!event.denied && !uiState.value.engagementStarted) {
+                    setEffect {
+                        TransferStatusViewModelContract.Effect.PermissionsGranted
+                    }
+                }
+            }
+
+            is TransferStatusViewModelContract.Event.OpenAppSettings -> {
+                setEffect {
+                    TransferStatusViewModelContract.Effect.OpenAppSettings
+                }
+            }
+        }
+    }
+
+    private fun getDocuments(docs: List<RequestedDocumentUi>) {
+        viewModelScope.launch {
+            val data = transferStatusInteractor.getRequestData(docs)
+            setState {
+                copy(
+                    requestedDocs = docs,
+                    requestedDocTypes = data
+                )
+            }
+        }
+    }
+
+    private fun stopProximity() {
+        viewModelScope.launch {
+            transferStatusInteractor.stopConnection()
+        }
+    }
+
+    private fun startProximity() {
+        viewModelScope.launch {
+            setState {
+                copy(engagementStarted = true)
+            }
+            transferStatusInteractor.getConnectionStatus(
+                docs = uiState.value.requestedDocs,
+                qrCode = qrCode
+            ).collect { status ->
+                setState {
+                    copy(
+                        connectionStatus = status
+                    )
+                }
+            }
+
+            showDocumentResults()
         }
     }
 

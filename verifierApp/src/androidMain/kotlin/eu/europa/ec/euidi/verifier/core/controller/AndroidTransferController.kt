@@ -194,6 +194,10 @@ class AndroidTransferController(
         )
     }
 
+    override fun stopConnection() {
+        transferManager.stopSession()
+    }
+
     @Throws
     private fun pemToX509Certificate(pem: String): Result<X509Certificate> {
         return runCatching {
