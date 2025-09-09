@@ -14,26 +14,8 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier.core.controller
+package eu.europa.ec.euidi.verifier.domain.model
 
-import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
-
-class IosTransferController : TransferController {
-
-    override fun initializeVerifier(certificates: List<String>) {}
-
-    override fun initializeTransferManager(
-        bleCentralClientMode: Boolean,
-        blePeripheralServerMode: Boolean,
-        useL2Cap: Boolean,
-        clearBleCache: Boolean
-    ) {
-    }
-
-    override fun startEngagement(qrCode: String) {}
-
-    override fun sendRequest(requestedDocs: List<RequestedDocumentUi>): Flow<TransferStatus> =
-        flowOf()
-}
+data class ReceivedDocumentDomain(
+    val id: String
+)

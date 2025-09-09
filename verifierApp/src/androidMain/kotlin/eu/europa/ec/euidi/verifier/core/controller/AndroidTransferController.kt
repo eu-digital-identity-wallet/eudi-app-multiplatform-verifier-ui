@@ -28,13 +28,12 @@ import eu.europa.ec.eudi.verifier.core.transfer.TransferConfig
 import eu.europa.ec.eudi.verifier.core.transfer.TransferEvent
 import eu.europa.ec.eudi.verifier.core.transfer.TransferManager
 import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
+import eu.europa.ec.euidi.verifier.core.utils.safeAsync
+import eu.europa.ec.euidi.verifier.domain.model.ReceivedDocumentDomain
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.channels.trySendBlocking
+import kotlinx.coroutines.flow.callbackFlow
 import org.multipaz.crypto.X509Cert
 import org.multipaz.mdoc.connectionmethod.MdocConnectionMethod
 import org.multipaz.mdoc.connectionmethod.MdocConnectionMethodBle
@@ -46,18 +45,15 @@ import java.security.cert.X509Certificate
 
 class AndroidTransferController(
     private val context: Context,
-    private val appLogger: LoggerController,
     private val resourceProvider: ResourceProvider,
-    dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : TransferController {
 
-    private val genericErrorMessage = resourceProvider.genericErrorMessage()
-    private val scope = CoroutineScope(dispatcher)
     private lateinit var transferManager: TransferManager
     private lateinit var eudiVerifier: EudiVerifier
 
     override fun initializeVerifier(certificates: List<String>) {
         if (::eudiVerifier.isInitialized.not()) {
+
             val x509Certificates = certificates.mapNotNull {
                 pemToX509Certificate(it).getOrNull()
             }
@@ -94,46 +90,62 @@ class AndroidTransferController(
         }
     }
 
-    override fun startEngagement(qrCode: String) =
+    override fun startEngagement(qrCode: String) {
         transferManager.startQRDeviceEngagement(qrCode)
+    }
 
-    override fun sendRequest(requestedDocs: List<RequestedDocumentUi>): SharedFlow<TransferStatus> {
+    override fun sendRequest(requestedDocs: List<RequestedDocumentUi>) = callbackFlow {
 
-        val request = requestedDocs.map {
-            it.transformToDocRequest()
-        }.toDeviceRequest()
-
-        val transferResponseFlow = MutableSharedFlow<TransferStatus>(
-            replay = 1,
-            extraBufferCapacity = 1,
-            onBufferOverflow = BufferOverflow.DROP_OLDEST
-        )
+        val request = requestedDocs
+            .map { it.transformToDocRequest() }
+            .toDeviceRequest()
 
         val listener = object : TransferEvent.Listener {
             override fun onEvent(event: TransferEvent) {
                 when (event) {
+                    is TransferEvent.Connecting -> {
+                        trySendBlocking(TransferStatus.Connecting)
+                    }
+
                     is TransferEvent.Connected -> {
                         transferManager.sendRequest(request)
-                        transferResponseFlow.tryEmit(TransferStatus.Connected)
+                        trySendBlocking(TransferStatus.Connected)
                     }
-                    is TransferEvent.Connecting -> transferResponseFlow.tryEmit(TransferStatus.Connecting)
-                    is TransferEvent.DeviceEngagementCompleted -> println("Device engagement completed")
-                    is TransferEvent.Disconnected -> println("Disconnected")
-                    is TransferEvent.Error -> println(event.error)
-                    is TransferEvent.RequestSent -> println("Request has been sent")
+
+                    is TransferEvent.DeviceEngagementCompleted -> {
+                        trySendBlocking(TransferStatus.DeviceEngagementCompleted)
+                    }
+
+                    is TransferEvent.Disconnected -> {
+                        trySendBlocking(TransferStatus.Disconnected)
+                    }
+
+                    is TransferEvent.Error -> {
+                        trySendBlocking(
+                            TransferStatus.Error(
+                                event.error.localizedMessage
+                                    ?: resourceProvider.genericErrorMessage()
+                            )
+                        )
+                    }
+
+                    is TransferEvent.RequestSent -> {
+                        trySendBlocking(TransferStatus.RequestSent)
+                    }
+
                     is TransferEvent.ResponseReceived -> {
+
                         val response = event.response as DeviceResponse
 
                         response.deviceResponse.documents.forEach { doc ->
-                            val isDocumentTrusted = eudiVerifier.isDocumentTrusted(doc)
-                            println("${doc.docType} Trusted: ${isDocumentTrusted.isTrusted}")
+                            val isTrusted = eudiVerifier.isDocumentTrusted(doc)
+                            println("${doc.docType} Trusted: ${isTrusted.isTrusted}")
                         }
 
                         val documentClaims = response.documentsClaims
                         val documentValidity = response.documentsValidity
 
                         for (doc in documentClaims) {
-                            appLogger.d("DocType: ${doc.docType}")
 
                             for (nameSpace in doc.claims) {
                                 Log.d("NameSpace", nameSpace.key)
@@ -146,32 +158,40 @@ class AndroidTransferController(
                             Log.d("Device Signature Valid", "${validity?.isDeviceSignatureValid}")
                             Log.d("Issuer Signature Valid", "${validity?.isIssuerSignatureValid}")
                             Log.d("Authentication Method", "${validity?.deviceAuthMethod}")
-
-                            // Whether all MSO element checks passed
                             Log.d("Data Integrity Valid", "${validity?.isDataIntegrityIntact}")
-
-                            // MSO Validity timestamps
                             Log.d("Signed", "${validity?.msoValidity?.signed}")
                             Log.d("Valid From", "${validity?.msoValidity?.validFrom}")
                             Log.d("Valid Until", "${validity?.msoValidity?.validUntil}")
 
-                            // Individual MSO Element checks
-                            for (msoElement in validity!!.elementMsoResults) {
+                            validity?.elementMsoResults?.forEach { msoElement ->
                                 Log.d(
                                     "Issuer-ElementName-DigestMatched",
                                     "${msoElement.namespace}-${msoElement.identifier}-${msoElement.digestMatched}"
                                 )
                             }
                         }
+                        trySendBlocking(
+                            TransferStatus.OnResponseReceived(
+                                ReceivedDocumentDomain(
+                                    id = "mock"
+                                )
+                            )
+                        )
                     }
                 }
             }
-
         }
 
         transferManager.addListener(listener)
 
-        return transferResponseFlow
+        awaitClose {
+            transferManager.removeListener(listener)
+        }
+
+    }.safeAsync {
+        TransferStatus.Error(
+            it.localizedMessage ?: resourceProvider.genericErrorMessage()
+        )
     }
 
     @Throws

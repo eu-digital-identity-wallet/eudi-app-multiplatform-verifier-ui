@@ -84,7 +84,8 @@ class InteractorModule {
         resourceProvider: ResourceProvider,
         uuidProvider: UuidProvider,
         transferController: TransferController
-    ): TransferStatusInteractor = TransferStatusInteractorImpl(resourceProvider, uuidProvider, transferController)
+    ): TransferStatusInteractor =
+        TransferStatusInteractorImpl(resourceProvider, uuidProvider, transferController)
 
     @Factory
     fun provideMenuInteractor(

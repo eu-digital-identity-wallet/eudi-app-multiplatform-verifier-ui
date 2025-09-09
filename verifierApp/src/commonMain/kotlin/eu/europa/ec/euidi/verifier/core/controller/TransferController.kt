@@ -16,8 +16,9 @@
 
 package eu.europa.ec.euidi.verifier.core.controller
 
+import eu.europa.ec.euidi.verifier.domain.model.ReceivedDocumentDomain
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
-import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.Flow
 
 interface TransferController {
 
@@ -34,16 +35,15 @@ interface TransferController {
 
     fun sendRequest(
         requestedDocs: List<RequestedDocumentUi>
-    ): SharedFlow<TransferStatus>
+    ): Flow<TransferStatus>
 }
 
 sealed class TransferStatus() {
     data class Error(val message: String) : TransferStatus()
     data object Connected : TransferStatus()
     data object Connecting : TransferStatus()
-    data class OnResponseReceived(val receivedDoc: ReceivedDocumentDomain): TransferStatus()
+    data object DeviceEngagementCompleted : TransferStatus()
+    data object Disconnected : TransferStatus()
+    data object RequestSent : TransferStatus()
+    data class OnResponseReceived(val receivedDoc: ReceivedDocumentDomain) : TransferStatus()
 }
-
-data class ReceivedDocumentDomain(
-    val id: String
-)

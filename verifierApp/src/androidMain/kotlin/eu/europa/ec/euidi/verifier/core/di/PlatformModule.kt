@@ -41,7 +41,6 @@ actual fun platformModule() = module {
     single<TransferController> {
         AndroidTransferController(
             context = androidContext(),
-            appLogger = get(),
             resourceProvider = get()
         )
     }
