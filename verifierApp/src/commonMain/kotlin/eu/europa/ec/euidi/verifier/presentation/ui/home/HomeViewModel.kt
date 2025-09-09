@@ -105,7 +105,7 @@ class HomeViewModel(
             is Event.OnStickyButtonClicked -> {
                 setEffect {
                     Effect.Navigation.SaveDocsToBackstackAndGoTo(
-                        screen = NavItem.TransferStatus(qrCode = "test"),
+                        screen = NavItem.QrScan,
                         requestedDocs = RequestedDocsHolder(
                             items = uiState.value.requestedDocs
                         )
