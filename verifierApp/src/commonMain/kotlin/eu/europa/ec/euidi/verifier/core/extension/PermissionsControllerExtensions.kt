@@ -22,7 +22,6 @@ import dev.icerock.moko.permissions.PermissionsController
 suspend fun PermissionsController.arePermissionsGranted(vararg perms: Permission): Boolean =
     perms.all { isPermissionGranted(it) }
 
-@Throws
 suspend fun PermissionsController.provideAll(vararg perms: Permission) = runCatching {
     perms.forEach { providePermission(it) }
 }

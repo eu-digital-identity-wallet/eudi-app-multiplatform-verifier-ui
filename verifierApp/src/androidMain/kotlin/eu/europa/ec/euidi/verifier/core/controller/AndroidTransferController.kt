@@ -198,7 +198,6 @@ class AndroidTransferController(
         transferManager.stopSession()
     }
 
-    @Throws
     private fun pemToX509Certificate(pem: String): Result<X509Certificate> {
         return runCatching {
             val base64 = pem
