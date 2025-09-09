@@ -22,12 +22,10 @@ import eudiverifier.verifierapp.generated.resources.qr_scan_screen_title
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 interface QrScanInteractor {
     suspend fun getScreenTitle(): String
-    suspend fun decodeQrCode(code: String): DecodeQrCodePartialState
 }
 
 class QrScanInteractorImpl(
@@ -40,25 +38,9 @@ class QrScanInteractorImpl(
             resourceProvider.getSharedString(Res.string.qr_scan_screen_title)
         }
     }
-
-    override suspend fun decodeQrCode(code: String): DecodeQrCodePartialState {
-        //TODO
-        return withContext(dispatcher) {
-            runCatching {
-                delay(1500L)
-
-                DecodeQrCodePartialState.Success
-            }.getOrElse {
-                DecodeQrCodePartialState.Failure(
-                    error = it.message ?: resourceProvider.genericErrorMessage()
-                )
-            }
-        }
-    }
-
 }
 
 sealed interface DecodeQrCodePartialState {
-    data object Success : DecodeQrCodePartialState
+    data class Success(val qrCode: String) : DecodeQrCodePartialState
     data class Failure(val error: String) : DecodeQrCodePartialState
 }

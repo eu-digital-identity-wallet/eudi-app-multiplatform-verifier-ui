@@ -17,7 +17,6 @@
 package eu.europa.ec.euidi.verifier.presentation.ui.qr_scan
 
 import androidx.lifecycle.viewModelScope
-import eu.europa.ec.euidi.verifier.domain.interactor.DecodeQrCodePartialState
 import eu.europa.ec.euidi.verifier.domain.interactor.QrScanInteractor
 import eu.europa.ec.euidi.verifier.presentation.architecture.MviViewModel
 import eu.europa.ec.euidi.verifier.presentation.architecture.UiEffect
@@ -58,7 +57,8 @@ sealed interface QrScanViewModelContract {
         sealed interface Navigation : Effect {
             data object Pop : Navigation
             data class NavigateToTransferStatusScreen(
-                val requestedDocs: RequestedDocsHolder
+                val requestedDocs: RequestedDocsHolder,
+                val qrCode: String
             ) : Navigation
         }
     }
@@ -83,6 +83,7 @@ class QrScanViewModel(
                 event.docs?.let { safeDocs ->
                     setDocuments(safeDocs)
                 } //TODO what happens if docs are null?
+
             }
 
             is Event.OnBackClicked -> {
@@ -95,7 +96,7 @@ class QrScanViewModel(
 
             is Event.OnQrScanned -> {
                 markScanningFinished()
-                handleQrScanned(qrCode = event.code)
+                goToTransferStatusScreen(event.code)
             }
 
             is Event.OnQrScanFailed -> {
@@ -124,43 +125,13 @@ class QrScanViewModel(
         }
     }
 
-    private fun handleQrScanned(qrCode: String) {
-        viewModelScope.launch {
-            setState { copy(isLoading = true) }
-
-            val result = interactor.decodeQrCode(code = qrCode)
-
-            when (result) {
-                is DecodeQrCodePartialState.Failure -> {
-                    setState {
-                        copy(
-                            error = ContentErrorConfig(
-                                errorSubTitle = result.error,
-                                onCancel = {
-                                    setEvent(Event.DismissError)
-                                    goBack()
-                                }
-                            ),
-                            isLoading = false
-                        )
-                    }
-                }
-
-                is DecodeQrCodePartialState.Success -> {
-                    setState { copy(isLoading = false) }
-
-                    goToTransferStatusScreen()
-                }
-            }
-        }
-    }
-
-    private fun goToTransferStatusScreen() {
+    private fun goToTransferStatusScreen(qrCode: String) {
         setEffect {
             Effect.Navigation.NavigateToTransferStatusScreen(
                 requestedDocs = RequestedDocsHolder(
                     items = uiState.value.requestedDocs
-                )
+                ),
+                qrCode = qrCode
             )
         }
     }

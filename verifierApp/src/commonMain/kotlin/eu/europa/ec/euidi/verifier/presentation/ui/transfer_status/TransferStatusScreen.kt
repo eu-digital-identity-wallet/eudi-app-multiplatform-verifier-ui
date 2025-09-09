@@ -52,12 +52,11 @@ import eudiverifier.verifierapp.generated.resources.generic_cancel
 import eudiverifier.verifierapp.generated.resources.transfer_status_screen_title
 import kotlinx.coroutines.flow.Flow
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun TransferStatusScreen(
     navController: NavController,
-    viewModel: TransferStatusViewModel = koinViewModel()
+    viewModel: TransferStatusViewModel
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 

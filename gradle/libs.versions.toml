@@ -26,6 +26,7 @@ ktor = "3.2.3"
 junit = "4.13.2"
 kermit = "2.0.8"
 qrKit = "3.1.3"
+core = "0.1.0.2-SNAPSHOT"
 
 [libraries]
 # Kotlin
@@ -83,6 +84,9 @@ ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "kto
 
 # Qr Scanner/Generator
 qr-kit = { module = "network.chaintech:qr-kit", version.ref = "qrKit" }
+
+# Verifier Core
+core = { module = "eu.europa.ec.eudi:eudi-lib-android-verifier-core", version.ref = "core" }
 
 # Misc
 junit = { module = "junit:junit", version.ref = "junit" }

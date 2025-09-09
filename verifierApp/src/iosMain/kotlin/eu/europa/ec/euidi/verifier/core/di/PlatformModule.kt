@@ -21,7 +21,9 @@ import androidx.datastore.preferences.core.Preferences
 import eu.europa.ec.euidi.verifier.core.controller.DataStoreControllerImpl.Companion.DATASTORE_FILENAME
 import eu.europa.ec.euidi.verifier.core.controller.DataStoreControllerImpl.Companion.createDataStore
 import eu.europa.ec.euidi.verifier.core.controller.IosPlatformController
+import eu.europa.ec.euidi.verifier.core.controller.IosTransferController
 import eu.europa.ec.euidi.verifier.core.controller.PlatformController
+import eu.europa.ec.euidi.verifier.core.controller.TransferController
 import kotlinx.cinterop.ExperimentalForeignApi
 import org.koin.dsl.module
 import platform.Foundation.NSDocumentDirectory
@@ -45,4 +47,6 @@ actual fun platformModule() = module {
     }
 
     single<PlatformController> { IosPlatformController() }
+
+    single<TransferController> { IosTransferController() }
 }

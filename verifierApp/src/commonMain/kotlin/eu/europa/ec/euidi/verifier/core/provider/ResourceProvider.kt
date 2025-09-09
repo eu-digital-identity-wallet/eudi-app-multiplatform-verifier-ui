@@ -19,34 +19,34 @@ package eu.europa.ec.euidi.verifier.core.provider
 import eudiverifier.verifierapp.generated.resources.Res
 import eudiverifier.verifierapp.generated.resources.generic_error_description
 import eudiverifier.verifierapp.generated.resources.generic_network_error_message
+import kotlinx.coroutines.runBlocking
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
 
 interface ResourceProvider {
-    suspend fun getSharedString(resource: StringResource): String
-    suspend fun getSharedString(resource: StringResource, vararg formatArgs: Any): String
-    suspend fun genericErrorMessage(): String
-    suspend fun genericNetworkErrorMessage(): String
+    fun getSharedString(resource: StringResource): String
+    fun getSharedString(resource: StringResource, vararg formatArgs: Any): String
+    fun genericErrorMessage(): String
+    fun genericNetworkErrorMessage(): String
 }
 
 class ResourceProviderImpl : ResourceProvider {
 
-    override suspend fun getSharedString(resource: StringResource): String {
-        return getString(resource)
-    }
+    override fun getSharedString(resource: StringResource): String =
+        runBlocking {
+            getString(resource)
+        }
 
-    override suspend fun getSharedString(
+    override fun getSharedString(
         resource: StringResource,
         vararg formatArgs: Any
-    ): String {
-        return getString(resource, *formatArgs)
+    ): String = runBlocking {
+        getString(resource, *formatArgs)
     }
 
-    override suspend fun genericErrorMessage(): String {
-        return getSharedString(Res.string.generic_error_description)
-    }
+    override fun genericErrorMessage(): String =
+        getSharedString(Res.string.generic_error_description)
 
-    override suspend fun genericNetworkErrorMessage(): String {
-        return getSharedString(Res.string.generic_network_error_message)
-    }
+    override fun genericNetworkErrorMessage(): String =
+        getSharedString(Res.string.generic_network_error_message)
 }

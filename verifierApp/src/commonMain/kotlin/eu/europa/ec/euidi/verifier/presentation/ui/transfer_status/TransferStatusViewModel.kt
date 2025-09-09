@@ -26,6 +26,7 @@ import eu.europa.ec.euidi.verifier.presentation.model.ReceivedDocumentUi
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
+import org.koin.core.annotation.InjectedParam
 
 sealed interface TransferStatusViewModelContract {
     data class State(
@@ -54,6 +55,7 @@ sealed interface TransferStatusViewModelContract {
 @KoinViewModel
 class TransferStatusViewModel(
     private val transferStatusInteractor: TransferStatusInteractor,
+    @InjectedParam private val qrCode: String
 ) : MviViewModel<TransferStatusViewModelContract.Event, TransferStatusViewModelContract.State, TransferStatusViewModelContract.Effect>() {
 
     override fun createInitialState(): TransferStatusViewModelContract.State =
@@ -72,7 +74,10 @@ class TransferStatusViewModel(
                         )
                     }
 
-                    transferStatusInteractor.getConnectionStatus().collect { status ->
+                    transferStatusInteractor.getConnectionStatus(
+                        event.docs,
+                        qrCode
+                    ).collect { status ->
                         setState {
                             copy(
                                 connectionStatus = status

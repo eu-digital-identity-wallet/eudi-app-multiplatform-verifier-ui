@@ -16,6 +16,7 @@
 
 package eu.europa.ec.euidi.verifier.domain.interactor
 
+import eu.europa.ec.euidi.verifier.core.controller.TransferController
 import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
 import eu.europa.ec.euidi.verifier.core.provider.UuidProvider
 import eu.europa.ec.euidi.verifier.domain.config.model.AttestationType
@@ -32,7 +33,6 @@ import eudiverifier.verifierapp.generated.resources.transfer_status_screen_statu
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
@@ -44,7 +44,10 @@ interface TransferStatusInteractor {
         allDocuments: List<AvailableDocument>,
     ): List<ReceivedDocumentUi>
 
-    fun getConnectionStatus(): Flow<String>
+    fun getConnectionStatus(
+        docs: List<RequestedDocumentUi>,
+        qrCode: String
+    ): Flow<String>
 
     suspend fun getRequestData(
         docs: List<RequestedDocumentUi>
@@ -56,6 +59,7 @@ interface TransferStatusInteractor {
 class TransferStatusInteractorImpl(
     private val resourceProvider: ResourceProvider,
     private val uuidProvider: UuidProvider,
+    private val transferController: TransferController,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : TransferStatusInteractor {
 
@@ -91,12 +95,26 @@ class TransferStatusInteractorImpl(
         }
     }
 
-    override fun getConnectionStatus(): Flow<String> = flow {
-        emit(ConnectionStatus.Connecting.toUserFriendlyString())
+    override fun getConnectionStatus(
+        docs: List<RequestedDocumentUi>,
+        qrCode: String
+    ): Flow<String> = flow {
+        transferController.initializeVerifier(
+            listOf()
+        )
 
-        delay(3000)
+        transferController.initializeTransferManager(
+            bleCentralClientMode = false,
+            blePeripheralServerMode = true,
+            useL2Cap = false,
+            clearBleCache = false
+        )
 
-        emit(ConnectionStatus.Connected.toUserFriendlyString())
+        transferController.startEngagement(qrCode)
+
+        transferController.sendRequest(docs).collect { status ->
+            println("Status: $status")
+        }
     }
 
     override suspend fun getRequestData(

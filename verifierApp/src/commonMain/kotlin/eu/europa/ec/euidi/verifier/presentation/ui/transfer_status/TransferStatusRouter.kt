@@ -20,11 +20,20 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import eu.europa.ec.euidi.verifier.presentation.navigation.NavItem
+import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 fun NavGraphBuilder.transferStatusScreen(navController: NavController) {
     composable<NavItem.TransferStatus> {
         TransferStatusScreen(
-            navController
+            navController,
+            viewModel = koinViewModel(
+                parameters = {
+                    parametersOf(
+                        it.savedStateHandle.get<String>(key = "qrCode").orEmpty()
+                    )
+                }
+            )
         )
     }
 }

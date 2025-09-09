@@ -34,7 +34,7 @@ sealed interface NavItem {
     data object CustomRequest : NavItem
 
     @Serializable
-    data object TransferStatus : NavItem
+    data class TransferStatus(val qrCode: String) : NavItem
 
     @Serializable
     data object ShowDocuments : NavItem

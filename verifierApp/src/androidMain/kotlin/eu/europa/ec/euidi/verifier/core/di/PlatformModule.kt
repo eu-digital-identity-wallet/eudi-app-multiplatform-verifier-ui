@@ -19,9 +19,11 @@ package eu.europa.ec.euidi.verifier.core.di
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import eu.europa.ec.euidi.verifier.core.controller.AndroidPlatformController
+import eu.europa.ec.euidi.verifier.core.controller.AndroidTransferController
 import eu.europa.ec.euidi.verifier.core.controller.DataStoreControllerImpl.Companion.DATASTORE_FILENAME
 import eu.europa.ec.euidi.verifier.core.controller.DataStoreControllerImpl.Companion.createDataStore
 import eu.europa.ec.euidi.verifier.core.controller.PlatformController
+import eu.europa.ec.euidi.verifier.core.controller.TransferController
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
@@ -34,5 +36,13 @@ actual fun platformModule() = module {
 
     single<PlatformController> {
         AndroidPlatformController(androidContext())
+    }
+
+    single<TransferController> {
+        AndroidTransferController(
+            context = androidContext(),
+            appLogger = get(),
+            resourceProvider = get()
+        )
     }
 }
