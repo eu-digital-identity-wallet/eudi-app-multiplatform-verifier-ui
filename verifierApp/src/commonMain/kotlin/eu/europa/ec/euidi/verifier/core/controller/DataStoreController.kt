@@ -34,7 +34,6 @@ import okio.Path.Companion.toPath
 enum class PrefKey(val identifier: String) {
     USE_L2CAP("use_l2cap"),
     CLEAR_BLE_CACHE("clear_ble_cache"),
-    HTTP("http"),
     BLE_CENTRAL_CLIENT("ble_central_client"),
     BLE_PERIPHERAL_SERVER("ble_peripheral_server"),
 }

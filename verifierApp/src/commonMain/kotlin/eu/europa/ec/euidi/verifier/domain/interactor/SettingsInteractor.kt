@@ -58,7 +58,6 @@ class SettingsInteractorImpl(
     )
 
     private val retrievalMethodPrefs = listOf(
-        SettingsTypeUi.Http,
         SettingsTypeUi.BleCentralClient,
         SettingsTypeUi.BlePeripheralServer,
     )

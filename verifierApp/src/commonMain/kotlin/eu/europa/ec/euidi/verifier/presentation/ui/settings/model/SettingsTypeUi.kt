@@ -24,8 +24,6 @@ import eudiverifier.verifierapp.generated.resources.settings_screen_item_ble_per
 import eudiverifier.verifierapp.generated.resources.settings_screen_item_ble_peripheral_server_title
 import eudiverifier.verifierapp.generated.resources.settings_screen_item_clear_ble_description
 import eudiverifier.verifierapp.generated.resources.settings_screen_item_clear_ble_title
-import eudiverifier.verifierapp.generated.resources.settings_screen_item_http_description
-import eudiverifier.verifierapp.generated.resources.settings_screen_item_http_title
 import eudiverifier.verifierapp.generated.resources.settings_screen_item_use_l2cap_description
 import eudiverifier.verifierapp.generated.resources.settings_screen_item_use_l2cap_title
 import org.jetbrains.compose.resources.StringResource
@@ -56,12 +54,6 @@ sealed class SettingsTypeUi(
         prefKey = PrefKey.CLEAR_BLE_CACHE,
         titleRes = Res.string.settings_screen_item_clear_ble_title,
         descriptionRes = Res.string.settings_screen_item_clear_ble_description,
-    )
-
-    data object Http : SettingsTypeUi(
-        prefKey = PrefKey.HTTP,
-        titleRes = Res.string.settings_screen_item_http_title,
-        descriptionRes = Res.string.settings_screen_item_http_description,
     )
 
     data object BleCentralClient : SettingsTypeUi(

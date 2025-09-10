@@ -68,8 +68,6 @@
     <string name="settings_screen_item_use_l2cap_description">Don't use L2CAP</string>
     <string name="settings_screen_item_clear_ble_title">Clear BLE Service Cache</string>
     <string name="settings_screen_item_clear_ble_description">Don’t clean the cache</string>
-    <string name="settings_screen_item_http_title">HTTP</string>
-    <string name="settings_screen_item_http_description">HTTP transfer activated</string>
     <string name="settings_screen_item_ble_central_client_title">BLE central client mode</string>
     <string name="settings_screen_item_ble_central_client_description">BLE central client mode deactivated</string>
     <string name="settings_screen_item_ble_peripheral_server_title">BLE peripheral server mode</string>
