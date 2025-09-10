@@ -151,6 +151,9 @@ class TransferStatusViewModel(
 
     private fun stopProximity() {
         viewModelScope.launch {
+            setState {
+                copy(engagementStarted = false)
+            }
             transferStatusInteractor.stopConnection()
         }
     }
