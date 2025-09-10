@@ -16,7 +16,10 @@
 
 package eu.europa.ec.euidi.verifier.domain.interactor
 
+import eu.europa.ec.euidi.verifier.core.controller.DataStoreController
+import eu.europa.ec.euidi.verifier.core.controller.PrefKey
 import eu.europa.ec.euidi.verifier.core.controller.TransferController
+import eu.europa.ec.euidi.verifier.core.controller.TransferStatus
 import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
 import eu.europa.ec.euidi.verifier.core.provider.UuidProvider
 import eu.europa.ec.euidi.verifier.domain.config.model.AttestationType
@@ -27,14 +30,10 @@ import eu.europa.ec.euidi.verifier.presentation.model.ReceivedDocumentUi
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
 import eudiverifier.verifierapp.generated.resources.Res
 import eudiverifier.verifierapp.generated.resources.transfer_status_screen_request_label
-import eudiverifier.verifierapp.generated.resources.transfer_status_screen_status_connected
-import eudiverifier.verifierapp.generated.resources.transfer_status_screen_status_connecting
-import eudiverifier.verifierapp.generated.resources.transfer_status_screen_status_failed
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 
 interface TransferStatusInteractor {
@@ -44,16 +43,26 @@ interface TransferStatusInteractor {
         allDocuments: List<AvailableDocument>,
     ): List<ReceivedDocumentUi>
 
+    fun startConnection(
+        qrCode: String,
+        certificates: List<String>,
+        bleCentralClientMode: Boolean,
+        blePeripheralServerMode: Boolean,
+        useL2Cap: Boolean,
+        clearBleCache: Boolean,
+    )
+
     fun getConnectionStatus(
         docs: List<RequestedDocumentUi>,
-        qrCode: String
-    ): Flow<String>
+    ): Flow<TransferStatus>
 
     suspend fun getRequestData(
         docs: List<RequestedDocumentUi>
     ): String
 
     suspend fun getAvailableDocuments(): List<AvailableDocument>
+
+    suspend fun getSettingsValue(prefKey: PrefKey): Boolean
 
     suspend fun stopConnection()
 }
@@ -62,6 +71,7 @@ class TransferStatusInteractorImpl(
     private val resourceProvider: ResourceProvider,
     private val uuidProvider: UuidProvider,
     private val transferController: TransferController,
+    private val dataStoreController: DataStoreController,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : TransferStatusInteractor {
 
@@ -97,26 +107,30 @@ class TransferStatusInteractorImpl(
         }
     }
 
-    override fun getConnectionStatus(
-        docs: List<RequestedDocumentUi>,
-        qrCode: String
-    ): Flow<String> = flow {
-        transferController.initializeVerifier(
-            listOf()
-        )
+    override fun startConnection(
+        qrCode: String,
+        certificates: List<String>,
+        bleCentralClientMode: Boolean,
+        blePeripheralServerMode: Boolean,
+        useL2Cap: Boolean,
+        clearBleCache: Boolean,
+    ) {
+        transferController.initializeVerifier(certificates)
 
         transferController.initializeTransferManager(
-            bleCentralClientMode = false,
-            blePeripheralServerMode = true,
-            useL2Cap = false,
-            clearBleCache = false
+            bleCentralClientMode = bleCentralClientMode,
+            blePeripheralServerMode = blePeripheralServerMode,
+            useL2Cap = useL2Cap,
+            clearBleCache = clearBleCache
         )
 
         transferController.startEngagement(qrCode)
+    }
 
-        transferController.sendRequest(docs).collect { status ->
-            println("Status: $status")
-        }
+    override fun getConnectionStatus(
+        docs: List<RequestedDocumentUi>
+    ): Flow<TransferStatus> {
+        return transferController.sendRequest(docs)
     }
 
     override suspend fun getRequestData(
@@ -137,6 +151,10 @@ class TransferStatusInteractorImpl(
         }
     }
 
+    override suspend fun getSettingsValue(prefKey: PrefKey): Boolean {
+        return dataStoreController.getBoolean(prefKey) ?: false
+    }
+
     override suspend fun stopConnection() {
         transferController.stopConnection()
     }
@@ -151,21 +169,6 @@ class TransferStatusInteractorImpl(
 
         return parts.joinToString(separator = "; ")
     }
-
-    private suspend fun ConnectionStatus.toUserFriendlyString(): String =
-        when (this) {
-            is ConnectionStatus.Connecting -> resourceProvider.getSharedString(
-                Res.string.transfer_status_screen_status_connecting
-            )
-
-            is ConnectionStatus.Connected -> resourceProvider.getSharedString(
-                Res.string.transfer_status_screen_status_connected
-            )
-
-            is ConnectionStatus.Failed -> resourceProvider.getSharedString(
-                Res.string.transfer_status_screen_status_failed
-            )
-        }
 
     private fun getDummyData(): List<AvailableDocument> {
         return listOf(

@@ -17,6 +17,7 @@
 package eu.europa.ec.euidi.verifier.presentation.ui.transfer_status
 
 import androidx.lifecycle.viewModelScope
+import eu.europa.ec.euidi.verifier.core.controller.PrefKey
 import eu.europa.ec.euidi.verifier.domain.interactor.TransferStatusInteractor
 import eu.europa.ec.euidi.verifier.presentation.architecture.MviViewModel
 import eu.europa.ec.euidi.verifier.presentation.architecture.UiEffect
@@ -24,6 +25,8 @@ import eu.europa.ec.euidi.verifier.presentation.architecture.UiEvent
 import eu.europa.ec.euidi.verifier.presentation.architecture.UiState
 import eu.europa.ec.euidi.verifier.presentation.model.ReceivedDocumentUi
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 import org.koin.core.annotation.InjectedParam
@@ -163,18 +166,27 @@ class TransferStatusViewModel(
             setState {
                 copy(engagementStarted = true)
             }
+
+            transferStatusInteractor.startConnection(
+                qrCode = qrCode,
+                certificates = emptyList(),
+                bleCentralClientMode = transferStatusInteractor.getSettingsValue(PrefKey.BLE_CENTRAL_CLIENT),
+                blePeripheralServerMode = transferStatusInteractor.getSettingsValue(PrefKey.BLE_PERIPHERAL_SERVER),
+                useL2Cap = transferStatusInteractor.getSettingsValue(PrefKey.USE_L2CAP),
+                clearBleCache = transferStatusInteractor.getSettingsValue(PrefKey.CLEAR_BLE_CACHE)
+            )
+
             transferStatusInteractor.getConnectionStatus(
-                docs = uiState.value.requestedDocs,
-                qrCode = qrCode
-            ).collect { status ->
+                docs = uiState.value.requestedDocs
+            ).onEach { status ->
                 setState {
                     copy(
-                        connectionStatus = status
+                        connectionStatus = status.toString()
                     )
                 }
-            }
+            }.launchIn(this)
 
-            showDocumentResults()
+            //showDocumentResults()
         }
     }
 
