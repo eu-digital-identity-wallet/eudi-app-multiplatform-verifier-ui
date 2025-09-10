@@ -18,8 +18,6 @@ package eu.europa.ec.euidi.verifier.presentation.ui.settings.model
 
 import eu.europa.ec.euidi.verifier.core.controller.PrefKey
 import eudiverifier.verifierapp.generated.resources.Res
-import eudiverifier.verifierapp.generated.resources.settings_screen_item_auto_close_connection_description
-import eudiverifier.verifierapp.generated.resources.settings_screen_item_auto_close_connection_title
 import eudiverifier.verifierapp.generated.resources.settings_screen_item_ble_central_client_description
 import eudiverifier.verifierapp.generated.resources.settings_screen_item_ble_central_client_title
 import eudiverifier.verifierapp.generated.resources.settings_screen_item_ble_peripheral_server_description
@@ -48,12 +46,6 @@ sealed class SettingsTypeUi(
     val titleRes: StringResource,
     val descriptionRes: StringResource,
 ) {
-    data object AutoCloseConnection : SettingsTypeUi(
-        prefKey = PrefKey.AUTO_CLOSE_CONNECTION,
-        titleRes = Res.string.settings_screen_item_auto_close_connection_title,
-        descriptionRes = Res.string.settings_screen_item_auto_close_connection_description,
-    )
-
     data object UseL2Cap : SettingsTypeUi(
         prefKey = PrefKey.USE_L2CAP,
         titleRes = Res.string.settings_screen_item_use_l2cap_title,

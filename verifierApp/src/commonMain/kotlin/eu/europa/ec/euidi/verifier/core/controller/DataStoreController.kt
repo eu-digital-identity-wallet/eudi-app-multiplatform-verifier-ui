@@ -32,7 +32,6 @@ import kotlinx.coroutines.flow.map
 import okio.Path.Companion.toPath
 
 enum class PrefKey(val identifier: String) {
-    AUTO_CLOSE_CONNECTION("auto_close_connection"),
     USE_L2CAP("use_l2cap"),
     CLEAR_BLE_CACHE("clear_ble_cache"),
     HTTP("http"),

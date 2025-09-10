@@ -61,12 +61,9 @@
 
     <!-- Settings -->
     <string name="settings_screen_title">Settings</string>
-    <string name="settings_screen_category_general_title">General</string>
     <string name="settings_screen_category_data_retrieval_options_title">Data retrieval options</string>
     <string name="settings_screen_category_data_retrieval_methods_title">Data retrieval methods</string>
     <string name="settings_screen_category_data_retrieval_methods_description">Used for NFC negotiated handover</string>
-    <string name="settings_screen_item_auto_close_connection_title">Auto close connection</string>
-    <string name="settings_screen_item_auto_close_connection_description">Don't close connection automatically</string>
     <string name="settings_screen_item_use_l2cap_title">Use L2CAP if available</string>
     <string name="settings_screen_item_use_l2cap_description">Don't use L2CAP</string>
     <string name="settings_screen_item_clear_ble_title">Clear BLE Service Cache</string>
