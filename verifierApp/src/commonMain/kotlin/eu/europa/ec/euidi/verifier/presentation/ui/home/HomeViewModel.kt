@@ -91,7 +91,8 @@ class HomeViewModel(
             }
 
             is Event.OnResume -> {
-                handleOnResume(docs = event.docs)
+                ensureHasRetrievalMethodsSelected()
+                handleDocs(docs = event.docs)
             }
 
             is Event.DismissError -> {
@@ -158,7 +159,7 @@ class HomeViewModel(
         }
     }
 
-    private fun handleOnResume(docs: List<RequestedDocumentUi>?) {
+    private fun handleDocs(docs: List<RequestedDocumentUi>?) {
         viewModelScope.launch {
             val baseButtonData = uiState.value.mainButtonData ?: return@launch
 
@@ -176,6 +177,12 @@ class HomeViewModel(
                     )
                 }
             }
+        }
+    }
+
+    private fun ensureHasRetrievalMethodsSelected() {
+        viewModelScope.launch {
+            interactor.ensureHasRetrievalMethodsSelected()
         }
     }
 

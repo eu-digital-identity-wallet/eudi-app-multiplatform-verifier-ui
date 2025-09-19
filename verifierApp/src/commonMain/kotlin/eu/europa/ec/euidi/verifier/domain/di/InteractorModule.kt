@@ -47,10 +47,12 @@ class InteractorModule {
     @Factory
     fun provideHomeInteractor(
         platformController: PlatformController,
+        dataStoreController: DataStoreController,
         uuidProvider: UuidProvider,
         resourceProvider: ResourceProvider,
     ): HomeInteractor = HomeInteractorImpl(
         platformController,
+        dataStoreController,
         uuidProvider,
         resourceProvider,
     )

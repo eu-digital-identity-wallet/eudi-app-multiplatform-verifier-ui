@@ -39,6 +39,20 @@ enum class PrefKey(val identifier: String) {
     BLE_PERIPHERAL_SERVER("ble_peripheral_server"),
 }
 
+private val generalPrefs = listOf(
+    PrefKey.RETAIN_DATA,
+)
+
+private val retrievalOptionsPrefs = listOf(
+    PrefKey.USE_L2CAP,
+    PrefKey.CLEAR_BLE_CACHE,
+)
+
+private val retrievalMethodPrefs = listOf(
+    PrefKey.BLE_CENTRAL_CLIENT,
+    PrefKey.BLE_PERIPHERAL_SERVER,
+)
+
 interface DataStoreController {
     suspend fun putBoolean(key: PrefKey, value: Boolean)
     suspend fun putInt(key: PrefKey, value: Int)
@@ -55,6 +69,10 @@ interface DataStoreController {
     suspend fun getFloat(key: PrefKey): Float?
     suspend fun getByteArray(key: PrefKey): ByteArray?
     suspend fun getLong(key: PrefKey): Long?
+
+    fun getGeneralPrefs(): List<PrefKey>
+    fun getRetrievalOptionsPrefs(): List<PrefKey>
+    fun getRetrievalMethodPrefs(): List<PrefKey>
 }
 
 class DataStoreControllerImpl(
@@ -101,6 +119,12 @@ class DataStoreControllerImpl(
 
     override suspend fun getLong(key: PrefKey): Long? =
         readPreference(longPreferencesKey(key.identifier))
+
+    override fun getGeneralPrefs(): List<PrefKey> = generalPrefs
+
+    override fun getRetrievalOptionsPrefs(): List<PrefKey> = retrievalOptionsPrefs
+
+    override fun getRetrievalMethodPrefs(): List<PrefKey> = retrievalMethodPrefs
 
     private suspend fun <T> savePreference(
         key: Preferences.Key<T>,

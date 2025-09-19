@@ -53,19 +53,17 @@ class SettingsInteractorImpl(
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : SettingsInteractor {
 
-    private val generalPrefs = listOf(
-        SettingsTypeUi.RetainData,
-    )
+    private val generalPrefs = dataStoreController
+        .getGeneralPrefs()
+        .toSettingsTypeUi()
 
-    private val retrievalOptionsPrefs = listOf(
-        SettingsTypeUi.UseL2Cap,
-        SettingsTypeUi.ClearBleCache,
-    )
+    private val retrievalOptionsPrefs = dataStoreController
+        .getRetrievalOptionsPrefs()
+        .toSettingsTypeUi()
 
-    private val retrievalMethodPrefs = listOf(
-        SettingsTypeUi.BleCentralClient,
-        SettingsTypeUi.BlePeripheralServer,
-    )
+    private val retrievalMethodPrefs = dataStoreController
+        .getRetrievalMethodPrefs()
+        .toSettingsTypeUi()
 
     /**
      * Retrieves a boolean preference.
@@ -80,10 +78,41 @@ class SettingsInteractorImpl(
     /**
      * Toggles the boolean value of a preference.
      *
+     * If the preference is a retrieval method and the new value is `false` (i.e., the method is being disabled),
+     * this function will first check if any other retrieval method is still active. If no other retrieval
+     * method is active, the preference will not be toggled, ensuring at least one retrieval method
+     * remains active.
+     *
      * @param key The [PrefKey] of the preference to toggle.
      */
     override suspend fun togglePrefBoolean(key: PrefKey) {
-        dataStoreController.putBoolean(key, !getPrefBoolean(key))
+        withContext(dispatcher) {
+            val currentValue = getPrefBoolean(key)
+            val newValue = !currentValue
+
+            val isRetrievalMethodPref = retrievalMethodPrefs.find {
+                it.prefKey == key
+            } != null
+
+            if (isRetrievalMethodPref && !newValue) {
+                val isAnyOtherRetrievalMethodActive = retrievalMethodPrefs
+                    .mapNotNull {
+                        if (it.prefKey == key)
+                            null
+                        else
+                            getPrefBoolean(it.prefKey)
+                    }.any {
+                        it
+                    }
+
+                if (isAnyOtherRetrievalMethodActive) {
+                    dataStoreController.putBoolean(key, newValue)
+                } else
+                    return@withContext
+            } else {
+                dataStoreController.putBoolean(key, newValue)
+            }
+        }
     }
 
     override suspend fun getScreenTitle(): String {
@@ -173,6 +202,18 @@ class SettingsInteractorImpl(
                         isLastInSection = isLast,
                     )
                 )
+            }
+        }
+    }
+
+    private fun List<PrefKey>.toSettingsTypeUi(): List<SettingsTypeUi> {
+        return this.map { prefKey ->
+            when (prefKey) {
+                PrefKey.RETAIN_DATA -> SettingsTypeUi.RetainData
+                PrefKey.USE_L2CAP -> SettingsTypeUi.UseL2Cap
+                PrefKey.CLEAR_BLE_CACHE -> SettingsTypeUi.ClearBleCache
+                PrefKey.BLE_CENTRAL_CLIENT -> SettingsTypeUi.BleCentralClient
+                PrefKey.BLE_PERIPHERAL_SERVER -> SettingsTypeUi.BlePeripheralServer
             }
         }
     }
