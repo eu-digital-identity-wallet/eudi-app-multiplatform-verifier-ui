@@ -83,6 +83,7 @@
 
     <!-- Custom Request -->
     <string name="custom_request_screen_title">Custom %1$s request</string>
+    <string name="custom_request_screen_select_deselect">Select/Deselect all</string>
 
     <!-- Show Documents -->
     <string name="show_documents_screen_title">Show Documents</string>
