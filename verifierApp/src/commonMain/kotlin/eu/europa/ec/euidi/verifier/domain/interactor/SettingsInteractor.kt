@@ -150,6 +150,13 @@ class SettingsInteractorImpl(
             sectionItems.forEachIndexed { index, sectionItem ->
                 val isLast = index == sectionItems.lastIndex
                 val checked = preferences[sectionItem.prefKey] ?: false
+                val supportingText = resourceProvider.getSharedString(
+                    if (checked) {
+                        sectionItem.selectedDescriptionRes
+                    } else {
+                        sectionItem.unselectedDescriptionRes
+                    }
+                )
                 add(
                     SettingsItemUi.CategoryItem(
                         type = sectionItem,
@@ -158,7 +165,7 @@ class SettingsInteractorImpl(
                             mainContentData = ListItemMainContentDataUi.Text(
                                 text = resourceProvider.getSharedString(sectionItem.titleRes)
                             ),
-                            supportingText = resourceProvider.getSharedString(sectionItem.descriptionRes),
+                            supportingText = supportingText,
                             trailingContentData = ListItemTrailingContentDataUi.Switch(
                                 switchData = SwitchDataUi(isChecked = checked)
                             )
