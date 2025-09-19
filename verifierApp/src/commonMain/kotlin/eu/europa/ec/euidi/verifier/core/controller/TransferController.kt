@@ -16,7 +16,7 @@
 
 package eu.europa.ec.euidi.verifier.core.controller
 
-import eu.europa.ec.euidi.verifier.domain.model.ReceivedDocumentDomain
+import eu.europa.ec.euidi.verifier.domain.model.ReceivedDocumentsDomain
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
 import kotlinx.coroutines.flow.Flow
 
@@ -34,7 +34,8 @@ interface TransferController {
     fun startEngagement(qrCode: String)
 
     fun sendRequest(
-        requestedDocs: List<RequestedDocumentUi>
+        requestedDocs: List<RequestedDocumentUi>,
+        retainData: Boolean,
     ): Flow<TransferStatus>
 
     fun stopConnection()
@@ -47,5 +48,5 @@ sealed class TransferStatus() {
     data object DeviceEngagementCompleted : TransferStatus()
     data object Disconnected : TransferStatus()
     data object RequestSent : TransferStatus()
-    data class OnResponseReceived(val receivedDoc: ReceivedDocumentDomain) : TransferStatus()
+    data class OnResponseReceived(val receivedDocs: ReceivedDocumentsDomain) : TransferStatus()
 }

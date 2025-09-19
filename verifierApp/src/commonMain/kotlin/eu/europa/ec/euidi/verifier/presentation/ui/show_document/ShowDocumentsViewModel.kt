@@ -88,14 +88,14 @@ class ShowDocumentsViewModel(
             }
 
             is ShowDocumentViewModelContract.Event.OnDoneClick -> {
-                pushScreen(
+                popTo(
                     route = NavItem.Home,
                     inclusive = false
                 )
             }
 
             is ShowDocumentViewModelContract.Event.OnBackClick -> {
-                pushScreen(
+                popTo(
                     route = NavItem.Home,
                     inclusive = false
                 )
@@ -103,7 +103,7 @@ class ShowDocumentsViewModel(
         }
     }
 
-    private fun pushScreen(route: NavItem, inclusive: Boolean) {
+    private fun popTo(route: NavItem, inclusive: Boolean) {
         setEffect {
             ShowDocumentViewModelContract.Effect.Navigation.PopTo(
                 route = route,

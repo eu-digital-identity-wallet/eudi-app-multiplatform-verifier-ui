@@ -18,10 +18,7 @@ package eu.europa.ec.euidi.verifier.domain.interactor
 
 import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
 import eu.europa.ec.euidi.verifier.core.provider.UuidProvider
-import eu.europa.ec.euidi.verifier.domain.config.model.AttestationType.Companion.getDisplayName
-import eu.europa.ec.euidi.verifier.domain.transformer.UiTransformer
-import eu.europa.ec.euidi.verifier.presentation.component.ListItemDataUi
-import eu.europa.ec.euidi.verifier.presentation.component.ListItemMainContentDataUi
+import eu.europa.ec.euidi.verifier.domain.transformer.UiTransformer.toListItemDataUi
 import eu.europa.ec.euidi.verifier.presentation.model.ReceivedDocumentUi
 import eu.europa.ec.euidi.verifier.presentation.ui.show_document.model.DocumentUi
 import eudiverifier.verifierapp.generated.resources.Res
@@ -44,29 +41,27 @@ class ShowDocumentsInteractorImpl(
     private val uuidProvider: UuidProvider,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ShowDocumentsInteractor {
+
     override suspend fun transformToUiItems(
         items: List<ReceivedDocumentUi>
     ): List<DocumentUi> {
-        if (items.isEmpty()) return emptyList()
-
-        return items.map { document ->
-            val claimsUi = document.claims.entries.mapIndexed { index, (claimKey, claimValue) ->
-                ListItemDataUi(
-                    itemId = uuidProvider.provideUuid(),
-                    overlineText = UiTransformer.getClaimTranslation(
-                        attestationType = document.documentType.getDisplayName(resourceProvider),
-                        claimLabel = claimKey.label,
+        return withContext(dispatcher) {
+            items.map { document ->
+                val claimsUi = document.claims.entries.map { (claimKey, claimValue) ->
+                    document.toListItemDataUi(
+                        itemId = uuidProvider.provideUuid(),
+                        claimKey = claimKey,
+                        claimValue = claimValue,
                         resourceProvider = resourceProvider
-                    ),
-                    mainContentData = ListItemMainContentDataUi.Text(text = claimValue)
+                    )
+                }
+
+                DocumentUi(
+                    id = document.id,
+                    docType = document.documentType.docType,
+                    uiClaims = claimsUi
                 )
             }
-
-            DocumentUi(
-                id = document.id,
-                namespace = document.documentType.namespace,
-                uiClaims = claimsUi
-            )
         }
     }
 

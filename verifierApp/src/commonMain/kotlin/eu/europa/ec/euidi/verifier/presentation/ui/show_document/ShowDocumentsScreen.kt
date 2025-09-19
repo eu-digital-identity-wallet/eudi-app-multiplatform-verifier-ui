@@ -55,7 +55,6 @@ import eu.europa.ec.euidi.verifier.presentation.ui.show_document.model.DocumentU
 import eu.europa.ec.euidi.verifier.presentation.utils.Constants
 import eudiverifier.verifierapp.generated.resources.Res
 import eudiverifier.verifierapp.generated.resources.generic_ok
-import eudiverifier.verifierapp.generated.resources.show_documents_screen_address_description
 import eudiverifier.verifierapp.generated.resources.show_documents_screen_document_header
 import eudiverifier.verifierapp.generated.resources.show_documents_screen_num_of_docs_description
 import eudiverifier.verifierapp.generated.resources.show_documents_screen_title

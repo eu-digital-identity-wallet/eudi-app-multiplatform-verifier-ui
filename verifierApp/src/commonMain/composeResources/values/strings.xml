@@ -90,13 +90,25 @@
     <string name="show_documents_screen_num_of_docs_description">Number of documents returned</string>
     <string name="show_documents_screen_address_description">Address</string>
     <string name="show_documents_screen_document_header">Doctype</string>
+    <string name="show_documents_screen_item_boolean_true_readable_value">yes</string>
+    <string name="show_documents_screen_item_boolean_false_readable_value">no</string>
+    <string name="show_documents_screen_item_gender_male">Male</string>
+    <string name="show_documents_screen_item_gender_female">Female</string>
+    <string name="show_documents_screen_item_gender_not_known">Not known</string>
+    <string name="show_documents_screen_item_gender_not_applicable">Not applicable</string>
 
     <!-- Transfer Status -->
     <string name="transfer_status_screen_title">Transfer Status</string>
-    <string name="transfer_status_screen_status_connecting">Connecting...</string>
-    <string name="transfer_status_screen_status_connected">Connected</string>
-    <string name="transfer_status_screen_status_failed">Failed: %1$s</string>
     <string name="transfer_status_screen_request_label">Requesting</string>
+    <string name="transfer_status_screen_request_status">Status: </string>
+    <string name="transfer_status_screen_no_permissions">One or more permissions are missing \n Tap here to go to App's Settings</string>
+    <string name="transfer_status_screen_status_connected">Connected</string>
+    <string name="transfer_status_screen_status_connecting">Connecting...</string>
+    <string name="transfer_status_screen_status_device_engagement_completed">Device engagement completed</string>
+    <string name="transfer_status_screen_status_disconnected">Disconnected</string>
+    <string name="transfer_status_screen_status_error">Error %1$s</string>
+    <string name="transfer_status_screen_status_on_response_received">Response received</string>
+    <string name="transfer_status_screen_status_request_sent">Request sent</string>
 
     <!-- Document Types -->
     <string name="document_type_pid">PID</string>

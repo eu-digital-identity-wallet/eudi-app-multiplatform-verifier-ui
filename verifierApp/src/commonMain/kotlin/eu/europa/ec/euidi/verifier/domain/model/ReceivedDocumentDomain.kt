@@ -16,6 +16,28 @@
 
 package eu.europa.ec.euidi.verifier.domain.model
 
+import eu.europa.ec.euidi.verifier.domain.config.model.ClaimItem
+import eu.europa.ec.euidi.verifier.presentation.model.ClaimValue
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
+
+data class ReceivedDocumentsDomain(
+    val documents: List<ReceivedDocumentDomain>
+)
+
 data class ReceivedDocumentDomain(
-    val id: String
+    val isTrusted: Boolean,
+    val docType: String,
+    val claims: Map<ClaimItem, ClaimValue>,
+    val validity: DocumentValidityDomain
+)
+
+@OptIn(ExperimentalTime::class)
+data class DocumentValidityDomain(
+    val isDeviceSignatureValid: Boolean?,
+    val isIssuerSignatureValid: Boolean?,
+    val isDataIntegrityIntact: Boolean?,
+    val signed: Instant?,
+    val validFrom: Instant?,
+    val validUntil: Instant?,
 )

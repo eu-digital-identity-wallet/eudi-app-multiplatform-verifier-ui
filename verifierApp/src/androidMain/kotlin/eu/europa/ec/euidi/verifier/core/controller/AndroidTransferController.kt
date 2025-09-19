@@ -18,38 +18,53 @@ package eu.europa.ec.euidi.verifier.core.controller
 
 import android.content.Context
 import android.util.Base64
-import android.util.Log
 import eu.europa.ec.eudi.verifier.core.EudiVerifier
 import eu.europa.ec.eudi.verifier.core.EudiVerifierConfig
 import eu.europa.ec.eudi.verifier.core.request.DeviceRequest
 import eu.europa.ec.eudi.verifier.core.request.DocRequest
 import eu.europa.ec.eudi.verifier.core.response.DeviceResponse
+import eu.europa.ec.eudi.verifier.core.response.DocumentClaims
 import eu.europa.ec.eudi.verifier.core.transfer.TransferConfig
 import eu.europa.ec.eudi.verifier.core.transfer.TransferEvent
 import eu.europa.ec.eudi.verifier.core.transfer.TransferManager
+import eu.europa.ec.euidi.verifier.core.extension.flattenedClaims
 import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
-import eu.europa.ec.euidi.verifier.core.utils.safeAsync
+import eu.europa.ec.euidi.verifier.domain.config.model.ClaimItem
+import eu.europa.ec.euidi.verifier.domain.model.DocumentValidityDomain
 import eu.europa.ec.euidi.verifier.domain.model.ReceivedDocumentDomain
+import eu.europa.ec.euidi.verifier.domain.model.ReceivedDocumentsDomain
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.channels.trySendBlocking
-import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.datetime.toStdlibInstant
 import org.multipaz.crypto.X509Cert
 import org.multipaz.mdoc.connectionmethod.MdocConnectionMethod
 import org.multipaz.mdoc.connectionmethod.MdocConnectionMethodBle
+import org.multipaz.mdoc.response.DeviceResponseParser
 import org.multipaz.trustmanagement.TrustPoint
 import org.multipaz.util.UUID
 import java.io.ByteArrayInputStream
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
+import kotlin.time.ExperimentalTime
 
+@OptIn(ExperimentalTime::class)
 class AndroidTransferController(
     private val context: Context,
     private val resourceProvider: ResourceProvider,
 ) : TransferController {
 
-    private lateinit var transferManager: TransferManager
+    private var transferManager: TransferManager? = null
     private lateinit var eudiVerifier: EudiVerifier
+    private var listener: TransferEvent.Listener? = null
+
+    private val _statuses = MutableSharedFlow<TransferStatus>(
+        replay = 1,
+        extraBufferCapacity = 8,
+    )
+    private val statuses: SharedFlow<TransferStatus> = _statuses.asSharedFlow()
 
     override fun initializeVerifier(certificates: List<String>) {
         if (::eudiVerifier.isInitialized.not()) {
@@ -91,111 +106,102 @@ class AndroidTransferController(
     }
 
     override fun startEngagement(qrCode: String) {
-        transferManager.startQRDeviceEngagement(qrCode)
+        transferManager?.startQRDeviceEngagement(qrCode)
     }
 
-    override fun sendRequest(requestedDocs: List<RequestedDocumentUi>) = callbackFlow {
+    override fun sendRequest(
+        requestedDocs: List<RequestedDocumentUi>,
+        retainData: Boolean,
+    ): Flow<TransferStatus> {
+        requireNotNull(transferManager) {
+            "TransferManager is not initialized. Call initializeTransferManager() before sendRequest()."
+        }
 
         val request = requestedDocs
-            .map { it.transformToDocRequest() }
+            .map { it.transformToDocRequest(retainData) }
             .toDeviceRequest()
 
-        val listener = object : TransferEvent.Listener {
+        val eventsListener = object : TransferEvent.Listener {
             override fun onEvent(event: TransferEvent) {
-                when (event) {
-                    is TransferEvent.Connecting -> {
-                        trySendBlocking(TransferStatus.Connecting)
-                    }
-
-                    is TransferEvent.Connected -> {
-                        transferManager.sendRequest(request)
-                        trySendBlocking(TransferStatus.Connected)
-                    }
-
-                    is TransferEvent.DeviceEngagementCompleted -> {
-                        trySendBlocking(TransferStatus.DeviceEngagementCompleted)
-                    }
-
-                    is TransferEvent.Disconnected -> {
-                        trySendBlocking(TransferStatus.Disconnected)
-                    }
-
-                    is TransferEvent.Error -> {
-                        trySendBlocking(
-                            TransferStatus.Error(
-                                event.error.localizedMessage
-                                    ?: resourceProvider.genericErrorMessage()
-                            )
-                        )
-                    }
-
-                    is TransferEvent.RequestSent -> {
-                        trySendBlocking(TransferStatus.RequestSent)
-                    }
-
-                    is TransferEvent.ResponseReceived -> {
-
-                        val response = event.response as DeviceResponse
-
-                        response.deviceResponse.documents.forEach { doc ->
-                            val isTrusted = eudiVerifier.isDocumentTrusted(doc)
-                            println("${doc.docType} Trusted: ${isTrusted.isTrusted}")
+                with(_statuses) {
+                    when (event) {
+                        is TransferEvent.Connecting -> {
+                            tryEmit(TransferStatus.Connecting)
                         }
 
-                        val documentClaims = response.documentsClaims
-                        val documentValidity = response.documentsValidity
+                        is TransferEvent.Connected -> {
+                            transferManager?.sendRequest(request)
+                            tryEmit(TransferStatus.Connected)
+                        }
 
-                        for (doc in documentClaims) {
+                        is TransferEvent.DeviceEngagementCompleted -> {
+                            tryEmit(TransferStatus.DeviceEngagementCompleted)
+                        }
 
-                            for (nameSpace in doc.claims) {
-                                Log.d("NameSpace", nameSpace.key)
-                                for (element in nameSpace.value) {
-                                    Log.d("Element Name-Value", "${element.key}-${element.value}")
+                        is TransferEvent.Disconnected -> {
+                            tryEmit(TransferStatus.Disconnected)
+                        }
+
+                        is TransferEvent.Error -> {
+                            tryEmit(
+                                TransferStatus.Error(
+                                    event.error.localizedMessage
+                                        ?: resourceProvider.genericErrorMessage()
+                                )
+                            )
+                        }
+
+                        is TransferEvent.RequestSent -> {
+                            tryEmit(TransferStatus.RequestSent)
+                        }
+
+                        is TransferEvent.ResponseReceived -> {
+                            val response = event.response as DeviceResponse
+
+                            val receivedDocuments = response.deviceResponse.documents
+                                .zip(response.documentsClaims) { parserDoc: DeviceResponseParser.Document, claimsDoc: DocumentClaims ->
+                                    val isTrusted =
+                                        eudiVerifier.isDocumentTrusted(document = parserDoc).isTrusted
+                                    val validity = response.documentsValidity
+                                        .find { it.docType == claimsDoc.docType }
+
+                                    ReceivedDocumentDomain(
+                                        isTrusted = isTrusted,
+                                        docType = claimsDoc.docType,
+                                        claims = claimsDoc.flattenedClaims(resourceProvider),
+                                        validity = DocumentValidityDomain(
+                                            isDeviceSignatureValid = validity?.isDeviceSignatureValid,
+                                            isIssuerSignatureValid = validity?.isIssuerSignatureValid,
+                                            isDataIntegrityIntact = validity?.isDataIntegrityIntact,
+                                            signed = validity?.msoValidity?.signed?.toStdlibInstant(),
+                                            validFrom = validity?.msoValidity?.validFrom?.toStdlibInstant(),
+                                            validUntil = validity?.msoValidity?.validUntil?.toStdlibInstant(),
+                                        )
+                                    )
                                 }
-                            }
 
-                            val validity = documentValidity.find { it.docType == doc.docType }
-                            Log.d("Device Signature Valid", "${validity?.isDeviceSignatureValid}")
-                            Log.d("Issuer Signature Valid", "${validity?.isIssuerSignatureValid}")
-                            Log.d("Authentication Method", "${validity?.deviceAuthMethod}")
-                            Log.d("Data Integrity Valid", "${validity?.isDataIntegrityIntact}")
-                            Log.d("Signed", "${validity?.msoValidity?.signed}")
-                            Log.d("Valid From", "${validity?.msoValidity?.validFrom}")
-                            Log.d("Valid Until", "${validity?.msoValidity?.validUntil}")
-
-                            validity?.elementMsoResults?.forEach { msoElement ->
-                                Log.d(
-                                    "Issuer-ElementName-DigestMatched",
-                                    "${msoElement.namespace}-${msoElement.identifier}-${msoElement.digestMatched}"
-                                )
-                            }
-                        }
-                        trySendBlocking(
-                            TransferStatus.OnResponseReceived(
-                                ReceivedDocumentDomain(
-                                    id = "mock"
+                            tryEmit(
+                                TransferStatus.OnResponseReceived(
+                                    receivedDocs = ReceivedDocumentsDomain(documents = receivedDocuments)
                                 )
                             )
-                        )
+                        }
                     }
                 }
             }
         }
 
-        transferManager.addListener(listener)
-
-        awaitClose {
-            transferManager.removeListener(listener)
-        }
-
-    }.safeAsync {
-        TransferStatus.Error(
-            it.localizedMessage ?: resourceProvider.genericErrorMessage()
-        )
+        listener?.let { transferManager?.removeListener(it) }
+        listener = eventsListener
+        transferManager?.addListener(eventsListener)
+        return statuses
     }
 
     override fun stopConnection() {
-        transferManager.stopSession()
+        listener?.let { transferManager?.removeListener(it) }
+        listener = null
+        transferManager?.stopSession()
+        transferManager = null
     }
 
     private fun pemToX509Certificate(pem: String): Result<X509Certificate> {
@@ -212,16 +218,23 @@ class AndroidTransferController(
         }
     }
 
-    private fun RequestedDocumentUi.transformToDocRequest(): DocRequest =
-        DocRequest(
+    private fun RequestedDocumentUi.transformToDocRequest(
+        retainData: Boolean
+    ): DocRequest {
+        val requestedClaims: Map<String, Boolean> = this
+            .claims
+            .associate { claimItem: ClaimItem ->
+                claimItem.label to retainData
+            }
+
+        return DocRequest(
             docType = this.documentType.docType,
             itemsRequest = mapOf(
-                this.documentType.namespace to mapOf(
-                    this.claims.first().label to false  // TODO decide what to do with this flag
-                )
+                this.documentType.namespace to requestedClaims
             ),
             readerAuthCertificate = null
         )
+    }
 
     private fun List<DocRequest>.toDeviceRequest(): DeviceRequest =
         DeviceRequest(

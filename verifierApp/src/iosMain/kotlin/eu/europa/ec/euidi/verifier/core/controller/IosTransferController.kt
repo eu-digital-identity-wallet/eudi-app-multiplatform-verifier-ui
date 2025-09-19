@@ -34,8 +34,10 @@ class IosTransferController : TransferController {
 
     override fun startEngagement(qrCode: String) {}
 
-    override fun sendRequest(requestedDocs: List<RequestedDocumentUi>): Flow<TransferStatus> =
-        flowOf()
+    override fun sendRequest(
+        requestedDocs: List<RequestedDocumentUi>,
+        retainData: Boolean
+    ): Flow<TransferStatus> = flowOf()
 
     override fun stopConnection() {}
 }

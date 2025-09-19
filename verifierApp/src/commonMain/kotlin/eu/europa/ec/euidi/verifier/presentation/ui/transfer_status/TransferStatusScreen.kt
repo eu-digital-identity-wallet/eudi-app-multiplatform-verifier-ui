@@ -16,20 +16,26 @@
 
 package eu.europa.ec.euidi.verifier.presentation.ui.transfer_status
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -47,17 +53,22 @@ import dev.icerock.moko.permissions.location.COARSE_LOCATION
 import dev.icerock.moko.permissions.location.LOCATION
 import eu.europa.ec.euidi.verifier.core.extension.arePermissionsGranted
 import eu.europa.ec.euidi.verifier.core.extension.provideAll
+import eu.europa.ec.euidi.verifier.presentation.component.ErrorInfo
 import eu.europa.ec.euidi.verifier.presentation.component.content.ContentScreen
 import eu.europa.ec.euidi.verifier.presentation.component.content.ScreenNavigateAction
 import eu.europa.ec.euidi.verifier.presentation.component.content.ToolbarConfig
+import eu.europa.ec.euidi.verifier.presentation.component.preview.PreviewTheme
+import eu.europa.ec.euidi.verifier.presentation.component.preview.ThemeModePreviews
 import eu.europa.ec.euidi.verifier.presentation.component.utils.LifecycleEffect
 import eu.europa.ec.euidi.verifier.presentation.component.utils.OneTimeLaunchedEffect
-import eu.europa.ec.euidi.verifier.presentation.component.utils.VSpacer
+import eu.europa.ec.euidi.verifier.presentation.component.utils.SIZE_SMALL
+import eu.europa.ec.euidi.verifier.presentation.component.utils.SPACING_MEDIUM
+import eu.europa.ec.euidi.verifier.presentation.component.utils.SPACING_SMALL
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.ButtonConfig
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.ButtonType
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.StickyBottomConfig
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.StickyBottomType
-import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapButton
+import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapCard
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapStickyBottomContent
 import eu.europa.ec.euidi.verifier.presentation.model.ReceivedDocsHolder
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocsHolder
@@ -68,6 +79,8 @@ import eu.europa.ec.euidi.verifier.presentation.ui.transfer_status.TransferStatu
 import eu.europa.ec.euidi.verifier.presentation.utils.Constants
 import eudiverifier.verifierapp.generated.resources.Res
 import eudiverifier.verifierapp.generated.resources.generic_cancel
+import eudiverifier.verifierapp.generated.resources.transfer_status_screen_no_permissions
+import eudiverifier.verifierapp.generated.resources.transfer_status_screen_request_status
 import eudiverifier.verifierapp.generated.resources.transfer_status_screen_title
 import kotlinx.coroutines.flow.Flow
 import org.jetbrains.compose.resources.stringResource
@@ -80,12 +93,13 @@ fun TransferStatusScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     ContentScreen(
+        isLoading = state.isLoading,
         navigatableAction = ScreenNavigateAction.BACKABLE,
         toolBarConfig = ToolbarConfig(
             title = stringResource(Res.string.transfer_status_screen_title)
         ),
         onBack = {
-            viewModel.setEvent(TransferStatusViewModelContract.Event.OnCancelClick)
+            viewModel.setEvent(TransferStatusViewModelContract.Event.OnBackClick)
         },
         stickyBottom = { stickyBottomPaddings ->
             StickyBottomSection(
@@ -198,34 +212,32 @@ private fun Content(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(paddingValues),
-        verticalArrangement = Arrangement.Center
+            .padding(paddingValues)
     ) {
-        Text(
-            text = state.connectionStatus
-        )
-
-        VSpacer.Small()
-
-        Text(
-            text = state.requestedDocTypes,
-            maxLines = 3,
-            overflow = TextOverflow.Ellipsis
-        )
-
-        VSpacer.Small()
-
         if (state.hasPermissions == false) {
-            WrapButton(
-                buttonConfig = ButtonConfig(
-                    type = ButtonType.PRIMARY,
-                    onClick = { onEvent(TransferStatusViewModelContract.Event.OpenAppSettings) }
-                ) {
-                    Text(
-                        text = "Open Settings"
-                    )
-                }
-            )
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                ErrorInfo(
+                    informativeText = stringResource(Res.string.transfer_status_screen_no_permissions),
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(SIZE_SMALL.dp))
+                        .clickable {
+                            onEvent(TransferStatusViewModelContract.Event.OpenAppSettings)
+                        }
+                        .padding(SPACING_SMALL.dp),
+                    isIconEnabled = true
+                )
+            }
+        } else if (state.hasPermissions != null) {
+            state.requestedDocTypes?.let { safeRequestedDocTypes ->
+                HeaderInfo(
+                    title = safeRequestedDocTypes,
+                    subtitle = state.connectionStatus,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         }
     }
 
@@ -250,9 +262,14 @@ private fun Content(
                     if (permissionsController.arePermissionsGranted(*permissions.toTypedArray())) {
                         onEvent(PermissionReceived(denied = false))
                     } else {
-                        permissionsController.provideAll(*permissions.toTypedArray()).getOrElse {
-                            onEvent(PermissionReceived(denied = true))
-                        }
+                        permissionsController.provideAll(*permissions.toTypedArray()).fold(
+                            onSuccess = {
+                                onEvent(PermissionReceived(denied = false))
+                            },
+                            onFailure = {
+                                onEvent(PermissionReceived(denied = true))
+                            }
+                        )
                     }
                 }
 
@@ -269,5 +286,61 @@ private fun Content(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun HeaderInfo(
+    title: String,
+    subtitle: String?,
+    modifier: Modifier = Modifier,
+) {
+    WrapCard(
+        modifier = modifier
+    ) {
+        Column(
+            modifier = Modifier.padding(SPACING_MEDIUM.dp),
+            verticalArrangement = Arrangement.spacedBy(SPACING_MEDIUM.dp),
+            horizontalAlignment = Alignment.Start
+        ) {
+            val textStyle = MaterialTheme.typography.bodyLarge
+            val textColor = MaterialTheme.colorScheme.onSurface
+
+            Text(
+                text = title,
+                color = textColor,
+                style = textStyle,
+            )
+
+            subtitle?.let { safeSubtitle ->
+                Text(
+                    text = stringResource(Res.string.transfer_status_screen_request_status) + safeSubtitle,
+                    color = textColor,
+                    style = textStyle,
+                )
+            }
+        }
+    }
+}
+
+@ThemeModePreviews
+@Composable
+private fun PreviewHeaderInfo() {
+    PreviewTheme {
+        HeaderInfo(
+            title = "Title",
+            subtitle = "Subtitle"
+        )
+    }
+}
+
+@ThemeModePreviews
+@Composable
+private fun PreviewHeaderInfoNoSubtitle() {
+    PreviewTheme {
+        HeaderInfo(
+            title = "Title",
+            subtitle = null
+        )
     }
 }

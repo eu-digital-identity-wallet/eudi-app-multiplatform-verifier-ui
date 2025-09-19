@@ -18,13 +18,24 @@ package eu.europa.ec.euidi.verifier.presentation.ui.transfer_status
 
 import androidx.lifecycle.viewModelScope
 import eu.europa.ec.euidi.verifier.core.controller.PrefKey
+import eu.europa.ec.euidi.verifier.core.controller.TransferStatus
+import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
 import eu.europa.ec.euidi.verifier.domain.interactor.TransferStatusInteractor
+import eu.europa.ec.euidi.verifier.domain.model.ReceivedDocumentsDomain
 import eu.europa.ec.euidi.verifier.presentation.architecture.MviViewModel
 import eu.europa.ec.euidi.verifier.presentation.architecture.UiEffect
 import eu.europa.ec.euidi.verifier.presentation.architecture.UiEvent
 import eu.europa.ec.euidi.verifier.presentation.architecture.UiState
 import eu.europa.ec.euidi.verifier.presentation.model.ReceivedDocumentUi
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
+import eudiverifier.verifierapp.generated.resources.Res
+import eudiverifier.verifierapp.generated.resources.transfer_status_screen_status_connected
+import eudiverifier.verifierapp.generated.resources.transfer_status_screen_status_connecting
+import eudiverifier.verifierapp.generated.resources.transfer_status_screen_status_device_engagement_completed
+import eudiverifier.verifierapp.generated.resources.transfer_status_screen_status_disconnected
+import eudiverifier.verifierapp.generated.resources.transfer_status_screen_status_error
+import eudiverifier.verifierapp.generated.resources.transfer_status_screen_status_on_response_received
+import eudiverifier.verifierapp.generated.resources.transfer_status_screen_status_request_sent
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -33,8 +44,9 @@ import org.koin.core.annotation.InjectedParam
 
 sealed interface TransferStatusViewModelContract {
     data class State(
-        val requestedDocTypes: String = "",
-        val connectionStatus: String = "",
+        val isLoading: Boolean = false,
+        val requestedDocTypes: String? = null,
+        val connectionStatus: String? = null,
         val requestedDocs: List<RequestedDocumentUi> = emptyList(),
         val hasPermissions: Boolean? = null,
         val permissionsRequestInProgress: Boolean = false,
@@ -69,6 +81,7 @@ sealed interface TransferStatusViewModelContract {
 @KoinViewModel
 class TransferStatusViewModel(
     private val transferStatusInteractor: TransferStatusInteractor,
+    private val resourceProvider: ResourceProvider,
     @InjectedParam private val qrCode: String
 ) : MviViewModel<TransferStatusViewModelContract.Event, TransferStatusViewModelContract.State, TransferStatusViewModelContract.Effect>() {
 
@@ -82,15 +95,11 @@ class TransferStatusViewModel(
             }
 
             is TransferStatusViewModelContract.Event.OnCancelClick -> {
-                setEffect {
-                    TransferStatusViewModelContract.Effect.Navigation.GoBack
-                }
+                goBack()
             }
 
             is TransferStatusViewModelContract.Event.OnBackClick -> {
-                setEffect {
-                    TransferStatusViewModelContract.Effect.Navigation.GoBack
-                }
+                goBack()
             }
 
             is TransferStatusViewModelContract.Event.StartProximity -> {
@@ -98,7 +107,9 @@ class TransferStatusViewModel(
             }
 
             is TransferStatusViewModelContract.Event.StopProximity -> {
-                stopProximity()
+                viewModelScope.launch {
+                    stopProximity()
+                }
             }
 
             is TransferStatusViewModelContract.Event.RequestPermissions -> {
@@ -141,33 +152,38 @@ class TransferStatusViewModel(
 
     private fun getDocuments(docs: List<RequestedDocumentUi>) {
         viewModelScope.launch {
+            setState { copy(isLoading = true) }
             val data = transferStatusInteractor.getRequestData(docs)
             setState {
                 copy(
                     requestedDocs = docs,
-                    requestedDocTypes = data
+                    requestedDocTypes = data,
+                    isLoading = false,
                 )
             }
         }
     }
 
-    private fun stopProximity() {
-        viewModelScope.launch {
-            setState {
-                copy(engagementStarted = false)
-            }
-            transferStatusInteractor.stopConnection()
+    private suspend fun stopProximity() {
+        setState {
+            copy(
+                engagementStarted = false,
+                isLoading = false
+            )
         }
+        transferStatusInteractor.stopConnection()
     }
 
     private fun startProximity() {
         viewModelScope.launch {
             setState {
-                copy(engagementStarted = true)
+                copy(
+                    engagementStarted = true,
+                    isLoading = true
+                )
             }
 
-            transferStatusInteractor.startConnection(
-                qrCode = qrCode,
+            transferStatusInteractor.prepareConnection(
                 certificates = emptyList(),
                 bleCentralClientMode = transferStatusInteractor.getSettingsValue(PrefKey.BLE_CENTRAL_CLIENT),
                 blePeripheralServerMode = transferStatusInteractor.getSettingsValue(PrefKey.BLE_PERIPHERAL_SERVER),
@@ -176,33 +192,77 @@ class TransferStatusViewModel(
             )
 
             transferStatusInteractor.getConnectionStatus(
-                docs = uiState.value.requestedDocs
+                docs = uiState.value.requestedDocs,
+                retainData = false
             ).onEach { status ->
-                setState {
-                    copy(
-                        connectionStatus = status.toString()
-                    )
-                }
-            }.launchIn(this)
+                handleStatus(status)
+            }.launchIn(viewModelScope)
 
-            //showDocumentResults()
+            transferStatusInteractor.startEngagement(qrCode = qrCode)
         }
     }
 
-    private suspend fun showDocumentResults() {
-        val allDocuments = transferStatusInteractor.getAvailableDocuments()
-        val address = "ble:peripheral_server_mode:uuid=4f0eacf2-963 4-4838-a6dc-65d740aadcf0"
+    private fun handleStatus(status: TransferStatus) {
+        setState {
+            copy(
+                connectionStatus = status.toUiMessage(resourceProvider)
+            )
+        }
 
+        when (status) {
+            is TransferStatus.Error,
+            is TransferStatus.Disconnected -> {
+                goBack()
+            }
+
+            is TransferStatus.OnResponseReceived -> {
+                viewModelScope.launch {
+                    showDocumentResults(receivedDocs = status.receivedDocs)
+                }
+            }
+
+            else -> Unit
+        }
+    }
+
+    private suspend fun showDocumentResults(receivedDocs: ReceivedDocumentsDomain) {
         val transformedDocuments = transferStatusInteractor.transformToReceivedDocumentsUi(
             requestedDocuments = uiState.value.requestedDocs,
-            allDocuments = allDocuments
+            receivedDocuments = receivedDocs.documents
         )
 
         setEffect {
             TransferStatusViewModelContract.Effect.Navigation.NavigateToShowDocumentsScreen(
                 receivedDocuments = transformedDocuments,
-                address = address
             )
         }
+    }
+
+    private fun goBack() {
+        viewModelScope.launch {
+            stopProximity()
+            setEffect {
+                TransferStatusViewModelContract.Effect.Navigation.GoBack
+            }
+        }
+    }
+
+    private fun TransferStatus.toUiMessage(resourceProvider: ResourceProvider): String {
+        val arguments = mutableListOf<String>()
+        val resource = when (this) {
+            is TransferStatus.Connected -> Res.string.transfer_status_screen_status_connected
+            is TransferStatus.Connecting -> Res.string.transfer_status_screen_status_connecting
+            is TransferStatus.DeviceEngagementCompleted -> Res.string.transfer_status_screen_status_device_engagement_completed
+            is TransferStatus.Disconnected -> Res.string.transfer_status_screen_status_disconnected
+            is TransferStatus.Error -> {
+                arguments.add(this.message)
+                Res.string.transfer_status_screen_status_error
+            }
+
+            is TransferStatus.OnResponseReceived -> Res.string.transfer_status_screen_status_on_response_received
+            is TransferStatus.RequestSent -> Res.string.transfer_status_screen_status_request_sent
+        }
+
+        return resourceProvider.getSharedString(resource, arguments)
     }
 }

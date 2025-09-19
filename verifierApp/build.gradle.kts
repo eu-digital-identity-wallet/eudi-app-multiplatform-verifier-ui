@@ -78,6 +78,7 @@ kotlin {
             implementation(libs.navigation.compose)
             implementation(libs.backhandler.cmp)
             implementation(libs.kotlinx.serialization.json)
+            implementation(libs.kotlinx.datetime)
 
             api(libs.koin.core)
             implementation(project.dependencies.platform(libs.koin.bom))

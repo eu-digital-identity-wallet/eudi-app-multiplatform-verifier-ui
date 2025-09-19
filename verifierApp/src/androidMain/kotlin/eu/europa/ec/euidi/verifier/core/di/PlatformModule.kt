@@ -38,7 +38,7 @@ actual fun platformModule() = module {
         AndroidPlatformController(androidContext())
     }
 
-    single<TransferController> {
+    factory<TransferController> {
         AndroidTransferController(
             context = androidContext(),
             resourceProvider = get()

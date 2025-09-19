@@ -17,13 +17,17 @@
 package eu.europa.ec.euidi.verifier.domain.transformer
 
 import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
+import eu.europa.ec.euidi.verifier.core.utils.Constants
 import eu.europa.ec.euidi.verifier.domain.config.model.AttestationType
 import eu.europa.ec.euidi.verifier.domain.config.model.AttestationType.Companion.getDisplayName
 import eu.europa.ec.euidi.verifier.domain.config.model.ClaimItem
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemDataUi
+import eu.europa.ec.euidi.verifier.presentation.component.ListItemLeadingContentDataUi
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemMainContentDataUi
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemTrailingContentDataUi
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.CheckboxDataUi
+import eu.europa.ec.euidi.verifier.presentation.model.ClaimValue
+import eu.europa.ec.euidi.verifier.presentation.model.ReceivedDocumentUi
 import eudiverifier.verifierapp.generated.resources.Res
 import eudiverifier.verifierapp.generated.resources.allStringResources
 import org.jetbrains.compose.resources.StringResource
@@ -61,6 +65,60 @@ object UiTransformer {
         }
     }
 
+    suspend fun ReceivedDocumentUi.toListItemDataUi(
+        itemId: String,
+        claimKey: ClaimItem,
+        claimValue: ClaimValue,
+        resourceProvider: ResourceProvider,
+    ): ListItemDataUi {
+        return ListItemDataUi(
+            itemId = itemId,
+            overlineText = getClaimTranslation(
+                attestationType = this.documentType.getDisplayName(resourceProvider),
+                claimLabel = claimKey.label,
+                resourceProvider = resourceProvider
+            ),
+            mainContentData = calculateMainContent(
+                key = claimKey,
+                value = claimValue
+            ),
+            leadingContentData = calculateLeadingContent(
+                key = claimKey,
+                value = claimValue
+            )
+        )
+    }
+
+    private fun calculateMainContent(
+        key: ClaimItem,
+        value: String,
+    ): ListItemMainContentDataUi {
+        return when {
+            keyIsPortrait(key = key.label) -> {
+                ListItemMainContentDataUi.Text(text = "")
+            }
+
+            keyIsSignature(key = key.label) -> {
+                ListItemMainContentDataUi.Image(base64Image = value)
+            }
+
+            else -> {
+                ListItemMainContentDataUi.Text(text = value)
+            }
+        }
+    }
+
+    private fun calculateLeadingContent(
+        key: ClaimItem,
+        value: String,
+    ): ListItemLeadingContentDataUi? {
+        return if (keyIsPortrait(key = key.label)) {
+            ListItemLeadingContentDataUi.UserImage(userBase64Image = value)
+        } else {
+            null
+        }
+    }
+
     suspend fun getClaimTranslation(
         attestationType: String,
         claimLabel: String,
@@ -72,5 +130,22 @@ object UiTransformer {
         return allStringResources[resourceKey]?.let {
             resourceProvider.getSharedString(it)
         } ?: claimLabel
+    }
+
+    fun keyIsPortrait(key: String): Boolean {
+        return key == Constants.DocumentKeys.PORTRAIT
+    }
+
+    fun keyIsSignature(key: String): Boolean {
+        return key == Constants.DocumentKeys.SIGNATURE
+    }
+
+    fun keyIsUserPseudonym(key: String): Boolean {
+        return key == Constants.DocumentKeys.USER_PSEUDONYM
+    }
+
+    fun keyIsGender(key: String): Boolean {
+        val listOfGenderKeys = Constants.DocumentKeys.GENDER_KEYS
+        return listOfGenderKeys.contains(key)
     }
 }
