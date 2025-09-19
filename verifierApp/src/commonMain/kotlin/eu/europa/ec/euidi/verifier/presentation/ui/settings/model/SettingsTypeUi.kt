@@ -16,6 +16,9 @@
 
 package eu.europa.ec.euidi.verifier.presentation.ui.settings.model
 
+import eudiverifier.verifierapp.generated.resources.settings_screen_item_retain_data_description
+import eudiverifier.verifierapp.generated.resources.settings_screen_item_retain_data_description_unselected
+import eudiverifier.verifierapp.generated.resources.settings_screen_item_retain_data_title
 import eu.europa.ec.euidi.verifier.core.controller.PrefKey
 import eudiverifier.verifierapp.generated.resources.Res
 import eudiverifier.verifierapp.generated.resources.settings_screen_item_ble_central_client_description
@@ -44,6 +47,12 @@ sealed class SettingsTypeUi(
     val titleRes: StringResource,
     val descriptionRes: StringResource,
 ) {
+    data object RetainData : SettingsTypeUi(
+        prefKey = PrefKey.RETAIN_DATA,
+        titleRes = Res.string.settings_screen_item_retain_data_title,
+        descriptionRes = Res.string.settings_screen_item_retain_data_description,
+    )
+
     data object UseL2Cap : SettingsTypeUi(
         prefKey = PrefKey.USE_L2CAP,
         titleRes = Res.string.settings_screen_item_use_l2cap_title,

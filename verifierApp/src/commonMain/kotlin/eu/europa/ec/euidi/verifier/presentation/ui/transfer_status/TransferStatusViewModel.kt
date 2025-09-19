@@ -193,7 +193,7 @@ class TransferStatusViewModel(
 
             transferStatusInteractor.getConnectionStatus(
                 docs = uiState.value.requestedDocs,
-                retainData = false
+                retainData = transferStatusInteractor.getSettingsValue(PrefKey.RETAIN_DATA)
             ).onEach { status ->
                 handleStatus(status)
             }.launchIn(viewModelScope)

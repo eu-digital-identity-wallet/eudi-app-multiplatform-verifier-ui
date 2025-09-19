@@ -32,6 +32,7 @@ import kotlinx.coroutines.flow.map
 import okio.Path.Companion.toPath
 
 enum class PrefKey(val identifier: String) {
+    RETAIN_DATA("retain_data"),
     USE_L2CAP("use_l2cap"),
     CLEAR_BLE_CACHE("clear_ble_cache"),
     BLE_CENTRAL_CLIENT("ble_central_client"),

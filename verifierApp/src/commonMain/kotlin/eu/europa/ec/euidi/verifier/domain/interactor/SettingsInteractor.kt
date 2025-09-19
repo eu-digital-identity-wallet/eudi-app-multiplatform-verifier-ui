@@ -30,6 +30,7 @@ import eudiverifier.verifierapp.generated.resources.Res
 import eudiverifier.verifierapp.generated.resources.settings_screen_category_data_retrieval_methods_description
 import eudiverifier.verifierapp.generated.resources.settings_screen_category_data_retrieval_methods_title
 import eudiverifier.verifierapp.generated.resources.settings_screen_category_data_retrieval_options_title
+import eudiverifier.verifierapp.generated.resources.settings_screen_category_general_title
 import eudiverifier.verifierapp.generated.resources.settings_screen_title
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -51,6 +52,10 @@ class SettingsInteractorImpl(
     private val dataStoreController: DataStoreController,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : SettingsInteractor {
+
+    private val generalPrefs = listOf(
+        SettingsTypeUi.RetainData,
+    )
 
     private val retrievalOptionsPrefs = listOf(
         SettingsTypeUi.UseL2Cap,
@@ -90,7 +95,7 @@ class SettingsInteractorImpl(
     override suspend fun getSettingsItemsUi(): List<SettingsItemUi> {
         return withContext(dispatcher) {
             val all: List<SettingsTypeUi> =
-                retrievalOptionsPrefs + retrievalMethodPrefs
+                generalPrefs + retrievalOptionsPrefs + retrievalMethodPrefs
 
             val preferences: Map<PrefKey, Boolean> = all
                 .map { it.prefKey }
@@ -98,6 +103,14 @@ class SettingsInteractorImpl(
                 .associateWith { getPrefBoolean(it) }
 
             buildList {
+                addAll(
+                    buildSection(
+                        headerTitle = Res.string.settings_screen_category_general_title,
+                        headerDesc = null,
+                        sectionItems = generalPrefs,
+                        preferences = preferences
+                    )
+                )
                 addAll(
                     buildSection(
                         headerTitle = Res.string.settings_screen_category_data_retrieval_options_title,
