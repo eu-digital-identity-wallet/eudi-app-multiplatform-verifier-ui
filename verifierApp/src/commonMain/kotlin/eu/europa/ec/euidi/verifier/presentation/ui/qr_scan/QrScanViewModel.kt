@@ -95,12 +95,11 @@ class QrScanViewModel(
             }
 
             is Event.OnQrScanned -> {
-                markScanningFinished()
-                goToTransferStatusScreen(event.code)
+                handleQrScanned(qrCode = event.code)
             }
 
             is Event.OnQrScanFailed -> {
-                markScanningFinished()
+                handleQrScanned(qrCode = null)
                 handleQrScanFailed(error = event.error)
             }
         }
@@ -150,12 +149,20 @@ class QrScanViewModel(
         }
     }
 
-    private fun markScanningFinished() {
+    private fun handleQrScanned(qrCode: String?) {
         if (uiState.value.finishedScanning) {
             return
         }
-        setState {
-            copy(finishedScanning = true)
+
+        qrCode?.let { safeQrCode ->
+            if (!interactor.qrCodeIsValid(safeQrCode)) {
+                return
+            }
+
+            setState {
+                copy(finishedScanning = true)
+            }
+            goToTransferStatusScreen(safeQrCode)
         }
     }
 

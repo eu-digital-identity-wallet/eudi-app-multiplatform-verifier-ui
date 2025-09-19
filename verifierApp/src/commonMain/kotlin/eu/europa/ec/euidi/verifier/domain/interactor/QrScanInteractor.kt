@@ -17,6 +17,7 @@
 package eu.europa.ec.euidi.verifier.domain.interactor
 
 import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
+import eu.europa.ec.euidi.verifier.core.utils.Constants
 import eudiverifier.verifierapp.generated.resources.Res
 import eudiverifier.verifierapp.generated.resources.qr_scan_screen_title
 import kotlinx.coroutines.CoroutineDispatcher
@@ -26,6 +27,7 @@ import kotlinx.coroutines.withContext
 
 interface QrScanInteractor {
     suspend fun getScreenTitle(): String
+    fun qrCodeIsValid(qrCode: String): Boolean
 }
 
 class QrScanInteractorImpl(
@@ -38,9 +40,8 @@ class QrScanInteractorImpl(
             resourceProvider.getSharedString(Res.string.qr_scan_screen_title)
         }
     }
-}
 
-sealed interface DecodeQrCodePartialState {
-    data class Success(val qrCode: String) : DecodeQrCodePartialState
-    data class Failure(val error: String) : DecodeQrCodePartialState
+    override fun qrCodeIsValid(qrCode: String): Boolean {
+        return qrCode.startsWith(prefix = Constants.Generic.MDOC_PREFIX, ignoreCase = true)
+    }
 }
