@@ -28,7 +28,7 @@ junit = "4.13.2"
 kermit = "2.0.8"
 qrKit = "3.1.3"
 mokoPermissions = "0.20.1"
-core = "0.1.0.2-SNAPSHOT"
+core = "0.1.0-SNAPSHOT"
 
 [libraries]
 # Kotlin
