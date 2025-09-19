@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 European Commission
+ * Copyright (c) 2025 European Commission
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the European
  * Commission - subsequent versions of the EUPL (the "Licence"); You may not use this work
@@ -14,12 +14,21 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier.presentation.ui.show_document.model
+package eu.europa.ec.euidi.verifier.core.utils
 
-import eu.europa.ec.euidi.verifier.presentation.component.ListItemDataUi
+object Constants {
+    object Generic {
+        const val MDOC_PREFIX = "mdoc:"
+    }
 
-data class DocumentUi(
-    val id: String,
-    val docType: String,
-    val uiClaims: List<ListItemDataUi>
-)
+    object DocumentKeys {
+        const val PORTRAIT = "portrait"
+        const val SIGNATURE = "signature_usual_mark"
+        const val USER_PSEUDONYM = "user_pseudonym"
+        private const val GENDER = "gender"
+        private const val SEX = "sex"
+
+        val GENDER_KEYS: List<String> = listOf(GENDER, SEX)
+        val BASE64_IMAGE_KEYS: List<String> = listOf(PORTRAIT, SIGNATURE)
+    }
+}

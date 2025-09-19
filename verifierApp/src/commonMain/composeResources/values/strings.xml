@@ -45,6 +45,7 @@
     <string name="content_description_home_icon">Home</string>
     <string name="content_description_settings_icon">Settings</string>
     <string name="content_description_user_icon">User</string>
+    <string name="content_description_error_icon">Error</string>
     <string name="content_description_image_or_placeholder_icon">Image or placeholder icon</string>
 
     <!-- Home -->

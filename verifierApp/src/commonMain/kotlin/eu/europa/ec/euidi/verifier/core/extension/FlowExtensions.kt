@@ -14,17 +14,18 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier.core.utils
+package eu.europa.ec.euidi.verifier.core.extension
 
-import kotlin.io.encoding.Base64
-import kotlin.io.encoding.ExperimentalEncodingApi
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flowOn
 
-@OptIn(ExperimentalEncodingApi::class)
-fun ByteArray.toBase64(): ByteArray {
-    return Base64.encodeToByteArray(this)
-}
-
-@OptIn(ExperimentalEncodingApi::class)
-fun ByteArray.fromBase64(): ByteArray {
-    return Base64.decode(this)
+fun <T> Flow<T>.safeAsync(
+    dispatcher: CoroutineDispatcher = Dispatchers.IO,
+    with: (Throwable) -> (T)
+): Flow<T> {
+    return this.flowOn(dispatcher).catch { emit(with(it)) }
 }
