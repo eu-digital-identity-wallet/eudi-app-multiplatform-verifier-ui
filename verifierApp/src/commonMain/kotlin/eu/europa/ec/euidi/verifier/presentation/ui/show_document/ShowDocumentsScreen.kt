@@ -105,11 +105,10 @@ fun ShowDocumentsScreen(
         OneTimeLaunchedEffect {
             navController
                 .getFromPreviousBackStack<ReceivedDocsHolder>(Constants.RECEIVED_DOCUMENTS)
-                ?.let { (address, items) ->
+                ?.let { docsHolder ->
                     viewModel.setEvent(
                         ShowDocumentViewModelContract.Event.Init(
-                            items = items,
-                            address = address
+                            items = docsHolder.items,
                         )
                     )
                 }
@@ -177,7 +176,6 @@ private fun Content(
     ) {
         DocumentsHeader(
             size = state.items.size,
-            address = state.address
         )
 
         VSpacer.ExtraLarge()
@@ -199,7 +197,6 @@ private fun Content(
 @Composable
 private fun DocumentsHeader(
     size: Int,
-    address: String
 ) {
     WrapCard(
         modifier = Modifier.fillMaxWidth()
@@ -217,15 +214,6 @@ private fun DocumentsHeader(
                 },
                 style = MaterialTheme.typography.bodyMedium
             )
-
-            Text(
-                text = buildAnnotatedString {
-                    append(stringResource(Res.string.show_documents_screen_address_description))
-                    append(": ")
-                    append(address)
-                },
-                style = MaterialTheme.typography.bodyMedium
-            )
         }
     }
 }
@@ -238,7 +226,7 @@ private fun DocumentDetails(
         text = buildAnnotatedString {
             append(stringResource(Res.string.show_documents_screen_document_header))
             append(": ")
-            append(document.namespace)
+            append(document.docType)
         },
         style = MaterialTheme.typography.labelLarge
     )

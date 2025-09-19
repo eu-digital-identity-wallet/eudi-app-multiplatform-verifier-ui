@@ -32,13 +32,11 @@ sealed interface ShowDocumentViewModelContract {
     data class State(
         val isLoading: Boolean = false,
         val items: List<DocumentUi> = emptyList(),
-        val address: String = "",
         val screenTitle: String = "",
     ) : UiState
 
     sealed interface Event : UiEvent {
         data class Init(
-            val address: String,
             val items: List<ReceivedDocumentUi>
         ) : Event
 
@@ -82,7 +80,6 @@ class ShowDocumentsViewModel(
                     setState {
                         copy(
                             screenTitle = title,
-                            address = event.address,
                             items = transformedItems,
                             isLoading = false
                         )

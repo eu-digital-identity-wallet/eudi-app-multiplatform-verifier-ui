@@ -143,7 +143,6 @@ private fun handleNavigationEffect(
                 key = Constants.RECEIVED_DOCUMENTS,
                 value = ReceivedDocsHolder(
                     items = navigationEffect.receivedDocuments,
-                    address = navigationEffect.address
                 )
             )
             navController.navigate(NavItem.ShowDocuments)

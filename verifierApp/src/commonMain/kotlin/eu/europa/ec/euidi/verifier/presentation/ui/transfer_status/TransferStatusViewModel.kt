@@ -61,7 +61,6 @@ sealed interface TransferStatusViewModelContract {
             data object GoBack : Navigation
             data class NavigateToShowDocumentsScreen(
                 val receivedDocuments: List<ReceivedDocumentUi>,
-                val address: String
             ) : Navigation
         }
     }

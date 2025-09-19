@@ -25,7 +25,6 @@ typealias ClaimValue = String
 
 @CommonParcelize
 data class ReceivedDocsHolder(
-    val address: String,
     val items: List<ReceivedDocumentUi>
 ) : CommonParcelable
 
