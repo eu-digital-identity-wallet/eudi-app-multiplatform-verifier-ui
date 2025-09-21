@@ -22,6 +22,7 @@ import eu.europa.ec.euidi.verifier.core.controller.TransferController
 import eu.europa.ec.euidi.verifier.core.controller.TransferStatus
 import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
 import eu.europa.ec.euidi.verifier.core.provider.UuidProvider
+import eu.europa.ec.euidi.verifier.domain.config.ConfigProvider
 import eu.europa.ec.euidi.verifier.domain.config.model.AttestationType.Companion.getAttestationTypeFromDocType
 import eu.europa.ec.euidi.verifier.domain.config.model.AttestationType.Companion.getDisplayName
 import eu.europa.ec.euidi.verifier.domain.model.ReceivedDocumentDomain
@@ -42,26 +43,17 @@ interface TransferStatusInteractor {
         receivedDocuments: List<ReceivedDocumentDomain>,
     ): List<ReceivedDocumentUi>
 
-    fun prepareConnection(
-        certificates: List<String>,
-        bleCentralClientMode: Boolean,
-        blePeripheralServerMode: Boolean,
-        useL2Cap: Boolean,
-        clearBleCache: Boolean,
-    )
+    suspend fun prepareConnection()
 
     fun startEngagement(qrCode: String)
 
-    fun getConnectionStatus(
-        docs: List<RequestedDocumentUi>,
-        retainData: Boolean
+    suspend fun getConnectionStatus(
+        docs: List<RequestedDocumentUi>
     ): Flow<TransferStatus>
 
     suspend fun getRequestData(
         docs: List<RequestedDocumentUi>
     ): String
-
-    suspend fun getSettingsValue(prefKey: PrefKey): Boolean
 
     suspend fun stopConnection()
 }
@@ -71,6 +63,7 @@ class TransferStatusInteractorImpl(
     private val uuidProvider: UuidProvider,
     private val transferController: TransferController,
     private val dataStoreController: DataStoreController,
+    private val configProvider: ConfigProvider,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : TransferStatusInteractor {
 
@@ -89,20 +82,14 @@ class TransferStatusInteractorImpl(
         }
     }
 
-    override fun prepareConnection(
-        certificates: List<String>,
-        bleCentralClientMode: Boolean,
-        blePeripheralServerMode: Boolean,
-        useL2Cap: Boolean,
-        clearBleCache: Boolean,
-    ) {
-        transferController.initializeVerifier(certificates)
-
+    override suspend fun prepareConnection() {
+        val test = configProvider.getCertificates()
+        transferController.initializeVerifier(test)
         transferController.initializeTransferManager(
-            bleCentralClientMode = bleCentralClientMode,
-            blePeripheralServerMode = blePeripheralServerMode,
-            useL2Cap = useL2Cap,
-            clearBleCache = clearBleCache
+            bleCentralClientMode = getSettingsValue(PrefKey.BLE_CENTRAL_CLIENT),
+            blePeripheralServerMode = getSettingsValue(PrefKey.BLE_PERIPHERAL_SERVER),
+            useL2Cap = getSettingsValue(PrefKey.USE_L2CAP),
+            clearBleCache = getSettingsValue(PrefKey.CLEAR_BLE_CACHE)
         )
     }
 
@@ -110,11 +97,13 @@ class TransferStatusInteractorImpl(
         transferController.startEngagement(qrCode)
     }
 
-    override fun getConnectionStatus(
-        docs: List<RequestedDocumentUi>,
-        retainData: Boolean,
+    override suspend fun getConnectionStatus(
+        docs: List<RequestedDocumentUi>
     ): Flow<TransferStatus> {
-        return transferController.sendRequest(requestedDocs = docs, retainData = retainData)
+        return transferController.sendRequest(
+            requestedDocs = docs,
+            retainData = getSettingsValue(PrefKey.RETAIN_DATA)
+        )
     }
 
     override suspend fun getRequestData(
@@ -129,12 +118,12 @@ class TransferStatusInteractorImpl(
         }
     }
 
-    override suspend fun getSettingsValue(prefKey: PrefKey): Boolean {
-        return dataStoreController.getBoolean(prefKey) ?: false
-    }
-
     override suspend fun stopConnection() {
         transferController.stopConnection()
+    }
+
+    private suspend fun getSettingsValue(prefKey: PrefKey): Boolean {
+        return dataStoreController.getBoolean(prefKey) ?: false
     }
 
     private suspend fun getRequestedDocumentTypes(docs: List<RequestedDocumentUi>): String {

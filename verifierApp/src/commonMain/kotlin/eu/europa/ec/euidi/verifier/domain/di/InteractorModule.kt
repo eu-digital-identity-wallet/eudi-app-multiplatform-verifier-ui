@@ -87,12 +87,14 @@ class InteractorModule {
         uuidProvider: UuidProvider,
         transferController: TransferController,
         dataStoreController: DataStoreController,
+        configProvider: ConfigProvider
     ): TransferStatusInteractor =
         TransferStatusInteractorImpl(
             resourceProvider,
             uuidProvider,
             transferController,
             dataStoreController,
+            configProvider
         )
 
     @Factory

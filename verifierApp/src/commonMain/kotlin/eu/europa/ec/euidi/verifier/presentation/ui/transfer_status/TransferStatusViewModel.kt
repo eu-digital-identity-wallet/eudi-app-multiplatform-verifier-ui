@@ -17,7 +17,6 @@
 package eu.europa.ec.euidi.verifier.presentation.ui.transfer_status
 
 import androidx.lifecycle.viewModelScope
-import eu.europa.ec.euidi.verifier.core.controller.PrefKey
 import eu.europa.ec.euidi.verifier.core.controller.TransferStatus
 import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
 import eu.europa.ec.euidi.verifier.domain.interactor.TransferStatusInteractor
@@ -183,17 +182,10 @@ class TransferStatusViewModel(
                 )
             }
 
-            transferStatusInteractor.prepareConnection(
-                certificates = emptyList(),
-                bleCentralClientMode = transferStatusInteractor.getSettingsValue(PrefKey.BLE_CENTRAL_CLIENT),
-                blePeripheralServerMode = transferStatusInteractor.getSettingsValue(PrefKey.BLE_PERIPHERAL_SERVER),
-                useL2Cap = transferStatusInteractor.getSettingsValue(PrefKey.USE_L2CAP),
-                clearBleCache = transferStatusInteractor.getSettingsValue(PrefKey.CLEAR_BLE_CACHE)
-            )
+            transferStatusInteractor.prepareConnection()
 
             transferStatusInteractor.getConnectionStatus(
-                docs = uiState.value.requestedDocs,
-                retainData = transferStatusInteractor.getSettingsValue(PrefKey.RETAIN_DATA)
+                docs = uiState.value.requestedDocs
             ).onEach { status ->
                 handleStatus(status)
             }.launchIn(viewModelScope)

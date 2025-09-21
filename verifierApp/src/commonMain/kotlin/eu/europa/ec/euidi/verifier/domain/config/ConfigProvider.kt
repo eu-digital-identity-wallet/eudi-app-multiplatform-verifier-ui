@@ -20,11 +20,13 @@ import eu.europa.ec.euidi.verifier.domain.config.model.AttestationType
 import eu.europa.ec.euidi.verifier.domain.config.model.ClaimItem
 import eu.europa.ec.euidi.verifier.domain.config.model.DocumentMode
 import eu.europa.ec.euidi.verifier.domain.config.model.SupportedDocuments
+import eudiverifier.verifierapp.generated.resources.Res
+import org.jetbrains.compose.resources.ExperimentalResourceApi
 
 interface ConfigProvider {
     val supportedDocuments: SupportedDocuments
-
     fun getDocumentModes(attestationType: AttestationType): List<DocumentMode>
+    suspend fun getCertificates(): List<String>
 }
 
 class ConfigProviderImpl : ConfigProvider {
@@ -35,6 +37,17 @@ class ConfigProviderImpl : ConfigProvider {
             AttestationType.AgeVerification -> listOf(DocumentMode.FULL, DocumentMode.CUSTOM)
         }
     }
+
+    @OptIn(ExperimentalResourceApi::class)
+    override suspend fun getCertificates(): List<String> = listOf(
+        Res.readBytes("files/certs/pidissuerca02_cz.pem").decodeToString(),
+        Res.readBytes("files/certs/pidissuerca02_ee.pem").decodeToString(),
+        Res.readBytes("files/certs/pidissuerca02_eu.pem").decodeToString(),
+        Res.readBytes("files/certs/pidissuerca02_lu.pem").decodeToString(),
+        Res.readBytes("files/certs/pidissuerca02_nl.pem").decodeToString(),
+        Res.readBytes("files/certs/pidissuerca02_pt.pem").decodeToString(),
+        Res.readBytes("files/certs/pidissuerca02_ut.pem").decodeToString()
+    )
 
     override val supportedDocuments = SupportedDocuments(
         mapOf(
