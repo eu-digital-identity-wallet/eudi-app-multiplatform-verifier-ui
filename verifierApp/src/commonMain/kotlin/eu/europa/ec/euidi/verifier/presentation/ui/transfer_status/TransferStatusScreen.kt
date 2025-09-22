@@ -57,6 +57,7 @@ import eu.europa.ec.euidi.verifier.presentation.component.ErrorInfo
 import eu.europa.ec.euidi.verifier.presentation.component.content.ContentScreen
 import eu.europa.ec.euidi.verifier.presentation.component.content.ScreenNavigateAction
 import eu.europa.ec.euidi.verifier.presentation.component.content.ToolbarConfig
+import eu.europa.ec.euidi.verifier.presentation.component.loader.LoadingIndicator
 import eu.europa.ec.euidi.verifier.presentation.component.preview.PreviewTheme
 import eu.europa.ec.euidi.verifier.presentation.component.preview.ThemeModePreviews
 import eu.europa.ec.euidi.verifier.presentation.component.utils.LifecycleEffect
@@ -93,7 +94,6 @@ fun TransferStatusScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     ContentScreen(
-        isLoading = state.isLoading,
         navigatableAction = ScreenNavigateAction.BACKABLE,
         toolBarConfig = ToolbarConfig(
             title = stringResource(Res.string.transfer_status_screen_title)
@@ -109,7 +109,7 @@ fun TransferStatusScreen(
                 onClick = {
                     viewModel.setEvent(TransferStatusViewModelContract.Event.OnCancelClick)
                 },
-                enabled = !state.isLoading
+                enabled = true
             )
         }
     ) { paddingValues ->
@@ -240,6 +240,9 @@ private fun Content(
                     subtitle = state.connectionStatus,
                     modifier = Modifier.fillMaxWidth()
                 )
+                if (state.isLoading) {
+                    LoadingIndicator()
+                }
             }
         }
     }

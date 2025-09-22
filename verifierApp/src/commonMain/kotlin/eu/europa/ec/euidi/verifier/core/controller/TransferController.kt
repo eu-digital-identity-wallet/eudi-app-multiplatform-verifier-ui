@@ -16,13 +16,14 @@
 
 package eu.europa.ec.euidi.verifier.core.controller
 
+import eu.europa.ec.euidi.verifier.domain.config.model.Logger
 import eu.europa.ec.euidi.verifier.domain.model.ReceivedDocumentsDomain
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
 import kotlinx.coroutines.flow.Flow
 
 interface TransferController {
 
-    fun initializeVerifier(certificates: List<String>)
+    fun initializeVerifier(certificates: List<String>, logger: Logger)
 
     fun initializeTransferManager(
         bleCentralClientMode: Boolean,

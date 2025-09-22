@@ -19,12 +19,14 @@ package eu.europa.ec.euidi.verifier.domain.config
 import eu.europa.ec.euidi.verifier.domain.config.model.AttestationType
 import eu.europa.ec.euidi.verifier.domain.config.model.ClaimItem
 import eu.europa.ec.euidi.verifier.domain.config.model.DocumentMode
+import eu.europa.ec.euidi.verifier.domain.config.model.Logger
 import eu.europa.ec.euidi.verifier.domain.config.model.SupportedDocuments
 import eudiverifier.verifierapp.generated.resources.Res
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 
 interface ConfigProvider {
     val supportedDocuments: SupportedDocuments
+    val logger: Logger
     fun getDocumentModes(attestationType: AttestationType): List<DocumentMode>
     suspend fun getCertificates(): List<String>
 }
@@ -127,4 +129,7 @@ class ConfigProviderImpl : ConfigProvider {
             )
         )
     )
+
+    override val logger: Logger
+        get() = Logger.LEVEL_DEBUG
 }

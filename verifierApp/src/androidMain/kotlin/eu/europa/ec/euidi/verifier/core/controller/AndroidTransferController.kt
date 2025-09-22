@@ -22,43 +22,48 @@ import eu.europa.ec.eudi.verifier.core.EudiVerifier
 import eu.europa.ec.eudi.verifier.core.EudiVerifierConfig
 import eu.europa.ec.eudi.verifier.core.request.DeviceRequest
 import eu.europa.ec.eudi.verifier.core.request.DocRequest
-import eu.europa.ec.eudi.verifier.core.response.DeviceResponse
-import eu.europa.ec.eudi.verifier.core.response.DocumentClaims
 import eu.europa.ec.eudi.verifier.core.transfer.TransferConfig
 import eu.europa.ec.eudi.verifier.core.transfer.TransferEvent
 import eu.europa.ec.eudi.verifier.core.transfer.TransferManager
 import eu.europa.ec.euidi.verifier.core.extension.flattenedClaims
 import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
 import eu.europa.ec.euidi.verifier.domain.config.model.ClaimItem
+import eu.europa.ec.euidi.verifier.domain.config.model.Logger
 import eu.europa.ec.euidi.verifier.domain.model.DocumentValidityDomain
 import eu.europa.ec.euidi.verifier.domain.model.ReceivedDocumentDomain
 import eu.europa.ec.euidi.verifier.domain.model.ReceivedDocumentsDomain
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.datetime.toStdlibInstant
-import org.multipaz.crypto.X509Cert
+import kotlinx.coroutines.launch
 import org.multipaz.mdoc.connectionmethod.MdocConnectionMethod
 import org.multipaz.mdoc.connectionmethod.MdocConnectionMethodBle
-import org.multipaz.mdoc.response.DeviceResponseParser
-import org.multipaz.trustmanagement.TrustPoint
 import org.multipaz.util.UUID
 import java.io.ByteArrayInputStream
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
+import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class)
 class AndroidTransferController(
     private val context: Context,
-    private val resourceProvider: ResourceProvider,
+    private val resourceProvider: ResourceProvider
 ) : TransferController {
 
     private var transferManager: TransferManager? = null
     private lateinit var eudiVerifier: EudiVerifier
     private var listener: TransferEvent.Listener? = null
+    private var scope: CoroutineScope? = null
 
     private val _statuses = MutableSharedFlow<TransferStatus>(
         replay = 1,
@@ -66,22 +71,24 @@ class AndroidTransferController(
     )
     private val statuses: SharedFlow<TransferStatus> = _statuses.asSharedFlow()
 
-    override fun initializeVerifier(certificates: List<String>) {
+    override fun initializeVerifier(certificates: List<String>, logger: Logger) {
         if (::eudiVerifier.isInitialized.not()) {
 
-            val x509Certificates = certificates.mapNotNull {
-                pemToX509Certificate(it).getOrNull()
-            }
+            eudiVerifier = EudiVerifier(
+                context = context,
+                config = EudiVerifierConfig {
+                    configureLogging(level = logger.level)
+                }
+            ) {
 
-            val trustPoints: List<TrustPoint> = x509Certificates.map {
-                TrustPoint(X509Cert(it.encoded))
-            }
+                val x509Certificates = certificates.mapNotNull {
+                    pemToX509Certificate(it).getOrNull()
+                }
 
-            val config = EudiVerifierConfig {
-                trustPoints(trustPoints)
+                trustedCertificates(
+                    certificatesProvided = x509Certificates
+                )
             }
-
-            eudiVerifier = EudiVerifier(context, config)
         }
     }
 
@@ -103,6 +110,8 @@ class AndroidTransferController(
         transferManager = eudiVerifier.createTransferManager {
             addEngagementMethod(TransferConfig.EngagementMethod.QR, connectionMethods)
         }
+
+        scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     }
 
     override fun startEngagement(qrCode: String) {
@@ -156,35 +165,58 @@ class AndroidTransferController(
                         }
 
                         is TransferEvent.ResponseReceived -> {
-                            val response = event.response as DeviceResponse
 
-                            val receivedDocuments = response.deviceResponse.documents
-                                .zip(response.documentsClaims) { parserDoc: DeviceResponseParser.Document, claimsDoc: DocumentClaims ->
-                                    val isTrusted =
-                                        eudiVerifier.isDocumentTrusted(document = parserDoc).isTrusted
-                                    val validity = response.documentsValidity
-                                        .find { it.docType == claimsDoc.docType }
+                            scope?.launch {
+                                try {
+                                    val receivedDocuments = coroutineScope {
+                                        event.response.deviceResponse.documents
+                                            .zip(event.response.documentsClaims)
+                                            .map { (parserDoc, claimsDoc) ->
+                                                async {
+                                                    val trusted = eudiVerifier
+                                                        .isDocumentTrusted(
+                                                            document = parserDoc,
+                                                            atTime = Clock.System.now()
+                                                        ).isTrusted
 
-                                    ReceivedDocumentDomain(
-                                        isTrusted = isTrusted,
-                                        docType = claimsDoc.docType,
-                                        claims = claimsDoc.flattenedClaims(resourceProvider),
-                                        validity = DocumentValidityDomain(
-                                            isDeviceSignatureValid = validity?.isDeviceSignatureValid,
-                                            isIssuerSignatureValid = validity?.isIssuerSignatureValid,
-                                            isDataIntegrityIntact = validity?.isDataIntegrityIntact,
-                                            signed = validity?.msoValidity?.signed?.toStdlibInstant(),
-                                            validFrom = validity?.msoValidity?.validFrom?.toStdlibInstant(),
-                                            validUntil = validity?.msoValidity?.validUntil?.toStdlibInstant(),
+                                                    val validity = event.response.documentsValidity
+                                                        .find { it.docType == claimsDoc.docType }
+
+                                                    ReceivedDocumentDomain(
+                                                        isTrusted = trusted,
+                                                        docType = claimsDoc.docType,
+                                                        claims = claimsDoc.flattenedClaims(
+                                                            resourceProvider
+                                                        ),
+                                                        validity = DocumentValidityDomain(
+                                                            isDeviceSignatureValid = validity?.isDeviceSignatureValid,
+                                                            isIssuerSignatureValid = validity?.isIssuerSignatureValid,
+                                                            isDataIntegrityIntact = validity?.isDataIntegrityIntact,
+                                                            signed = validity?.msoValidity?.signed,
+                                                            validFrom = validity?.msoValidity?.validFrom,
+                                                            validUntil = validity?.msoValidity?.validUntil,
+                                                        )
+                                                    )
+                                                }
+                                            }
+                                            .awaitAll()
+                                    }
+
+                                    tryEmit(
+                                        TransferStatus.OnResponseReceived(
+                                            receivedDocs = ReceivedDocumentsDomain(documents = receivedDocuments)
+                                        )
+                                    )
+
+                                } catch (t: Throwable) {
+                                    tryEmit(
+                                        TransferStatus.Error(
+                                            t.localizedMessage
+                                                ?: resourceProvider.genericErrorMessage()
                                         )
                                     )
                                 }
-
-                            tryEmit(
-                                TransferStatus.OnResponseReceived(
-                                    receivedDocs = ReceivedDocumentsDomain(documents = receivedDocuments)
-                                )
-                            )
+                            }
                         }
                     }
                 }
@@ -202,6 +234,8 @@ class AndroidTransferController(
         listener = null
         transferManager?.stopSession()
         transferManager = null
+        scope?.cancel()
+        scope = null
     }
 
     private fun pemToX509Certificate(pem: String): Result<X509Certificate> {
