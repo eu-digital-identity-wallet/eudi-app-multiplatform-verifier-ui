@@ -108,7 +108,8 @@ fun TransferStatusScreen(
                     .padding(stickyBottomPaddings),
                 onClick = {
                     viewModel.setEvent(TransferStatusViewModelContract.Event.OnCancelClick)
-                }
+                },
+                enabled = !state.isLoading
             )
         }
     ) { paddingValues ->
@@ -168,6 +169,7 @@ private fun handleNavigationEffect(
 private fun StickyBottomSection(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
+    enabled: Boolean,
 ) {
     Row(
         modifier = modifier
@@ -178,6 +180,7 @@ private fun StickyBottomSection(
                 type = StickyBottomType.OneButton(
                     config = ButtonConfig(
                         type = ButtonType.SECONDARY,
+                        enabled = enabled,
                         onClick = onClick,
                         content = {
                             Text(
