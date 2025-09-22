@@ -28,6 +28,7 @@ import eu.europa.ec.euidi.verifier.domain.config.model.AttestationType.Companion
 import eu.europa.ec.euidi.verifier.domain.model.ReceivedDocumentDomain
 import eu.europa.ec.euidi.verifier.presentation.model.ReceivedDocumentUi
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
+import eu.europa.ec.euidi.verifier.presentation.ui.show_document.model.toUi
 import eudiverifier.verifierapp.generated.resources.Res
 import eudiverifier.verifierapp.generated.resources.transfer_status_screen_request_label
 import kotlinx.coroutines.CoroutineDispatcher
@@ -76,7 +77,8 @@ class TransferStatusInteractorImpl(
                 ReceivedDocumentUi(
                     id = uuidProvider.provideUuid(),
                     documentType = getAttestationTypeFromDocType(docType = receivedDoc.docType),
-                    claims = receivedDoc.claims
+                    claims = receivedDoc.claims,
+                    documentValidity = receivedDoc.validity.toUi(),
                 )
             }
         }

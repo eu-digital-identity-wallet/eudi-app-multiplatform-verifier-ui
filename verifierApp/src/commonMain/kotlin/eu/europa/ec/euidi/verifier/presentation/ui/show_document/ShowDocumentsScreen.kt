@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -40,8 +39,9 @@ import eu.europa.ec.euidi.verifier.presentation.component.content.ContentScreen
 import eu.europa.ec.euidi.verifier.presentation.component.content.ScreenNavigateAction
 import eu.europa.ec.euidi.verifier.presentation.component.content.ToolbarConfig
 import eu.europa.ec.euidi.verifier.presentation.component.utils.OneTimeLaunchedEffect
+import eu.europa.ec.euidi.verifier.presentation.component.utils.SPACING_EXTRA_LARGE
 import eu.europa.ec.euidi.verifier.presentation.component.utils.SPACING_MEDIUM
-import eu.europa.ec.euidi.verifier.presentation.component.utils.VSpacer
+import eu.europa.ec.euidi.verifier.presentation.component.utils.SPACING_SMALL
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.ButtonType
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.StickyBottomConfig
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.StickyBottomType
@@ -171,16 +171,18 @@ private fun Content(
         modifier = Modifier
             .fillMaxWidth()
             .padding(paddingValues)
-            .verticalScroll(rememberScrollState())
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(SPACING_EXTRA_LARGE.dp),
     ) {
         DocumentsHeader(
             size = state.items.size,
         )
 
-        VSpacer.ExtraLarge()
-
         state.items.forEach { document ->
-            DocumentDetails(document = document)
+            DocumentDetails(
+                document = document,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 
@@ -219,25 +221,34 @@ private fun DocumentsHeader(
 
 @Composable
 private fun DocumentDetails(
-    document: DocumentUi
+    document: DocumentUi,
+    modifier: Modifier = Modifier
 ) {
-    Text(
-        text = buildAnnotatedString {
-            append(stringResource(Res.string.show_documents_screen_document_header))
-            append(": ")
-            append(document.docType)
-        },
-        style = MaterialTheme.typography.labelLarge
-    )
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(SPACING_MEDIUM.dp)
+    ) {
+        Text(
+            text = buildAnnotatedString {
+                append(stringResource(Res.string.show_documents_screen_document_header))
+                append(": ")
+                append(document.docType)
+            },
+            style = MaterialTheme.typography.labelLarge
+        )
 
-    VSpacer.Medium()
+        WrapListItems(
+            modifier = Modifier.fillMaxWidth(),
+            items = document.validityInfo,
+            onItemClick = null,
+            mainContentVerticalPadding = SPACING_SMALL.dp
+        )
 
-    WrapListItems(
-        modifier = Modifier.fillMaxSize(),
-        items = document.uiClaims,
-        onItemClick = null,
-        mainContentVerticalPadding = SPACING_MEDIUM.dp
-    )
-
-    VSpacer.Medium()
+        WrapListItems(
+            modifier = Modifier.fillMaxWidth(),
+            items = document.uiClaims,
+            onItemClick = null,
+            mainContentVerticalPadding = SPACING_MEDIUM.dp
+        )
+    }
 }

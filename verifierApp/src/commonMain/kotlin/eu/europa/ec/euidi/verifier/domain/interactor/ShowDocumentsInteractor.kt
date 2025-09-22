@@ -21,6 +21,7 @@ import eu.europa.ec.euidi.verifier.core.provider.UuidProvider
 import eu.europa.ec.euidi.verifier.domain.transformer.UiTransformer.toListItemDataUi
 import eu.europa.ec.euidi.verifier.presentation.model.ReceivedDocumentUi
 import eu.europa.ec.euidi.verifier.presentation.ui.show_document.model.DocumentUi
+import eu.europa.ec.euidi.verifier.presentation.ui.show_document.model.toListItems
 import eudiverifier.verifierapp.generated.resources.Res
 import eudiverifier.verifierapp.generated.resources.show_documents_screen_title
 import kotlinx.coroutines.CoroutineDispatcher
@@ -59,7 +60,11 @@ class ShowDocumentsInteractorImpl(
                 DocumentUi(
                     id = document.id,
                     docType = document.documentType.docType,
-                    uiClaims = claimsUi
+                    uiClaims = claimsUi,
+                    validityInfo = document.documentValidity.toListItems(
+                        resourceProvider = resourceProvider,
+                        uuidProvider = uuidProvider
+                    )
                 )
             }
         }

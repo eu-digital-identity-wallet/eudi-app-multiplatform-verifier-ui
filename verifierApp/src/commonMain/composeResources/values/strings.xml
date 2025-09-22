@@ -104,6 +104,12 @@
     <string name="show_documents_screen_item_gender_female">Female</string>
     <string name="show_documents_screen_item_gender_not_known">Not known</string>
     <string name="show_documents_screen_item_gender_not_applicable">Not applicable</string>
+    <string name="show_documents_screen_item_is_data_integrity_intact">Is data integrity intact?</string>
+    <string name="show_documents_screen_item_is_device_signature_valid">Is device signature valid?</string>
+    <string name="show_documents_screen_item_is_issuer_signature_valid">Is issuer signature valid?</string>
+    <string name="show_documents_screen_item_signed">Signed</string>
+    <string name="show_documents_screen_item_valid_from">Valid from</string>
+    <string name="show_documents_screen_item_valid_until">Valid until</string>
 
     <!-- Transfer Status -->
     <string name="transfer_status_screen_title">Transfer Status</string>
