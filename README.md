@@ -105,6 +105,20 @@ fun getDocumentModes(attestationType: AttestationType): List<DocumentMode> {
 }
 ```
 
+The EUDI Verifier App also validates documents against trusted certificate authorities.
+
+•	To configure your own trust anchors, place PEM-encoded certificate files under:
+```Kotlin
+verifierApp -> commonMain -> composeResources -> files -> certs
+```
+
+•	Then update getCertificates() to load them:
+```Kotlin
+override suspend fun getCertificates(): List<String> = listOf(
+    Res.readBytes("files/certs/your_trust_anchor.pem").decodeToString()
+)
+```
+
 ## Disclaimer
 
 The released software is an initial development release version: 
