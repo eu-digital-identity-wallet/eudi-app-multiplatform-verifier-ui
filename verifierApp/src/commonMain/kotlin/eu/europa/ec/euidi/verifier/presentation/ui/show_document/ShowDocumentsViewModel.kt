@@ -32,13 +32,11 @@ sealed interface ShowDocumentViewModelContract {
     data class State(
         val isLoading: Boolean = false,
         val items: List<DocumentUi> = emptyList(),
-        val address: String = "",
         val screenTitle: String = "",
     ) : UiState
 
     sealed interface Event : UiEvent {
         data class Init(
-            val address: String,
             val items: List<ReceivedDocumentUi>
         ) : Event
 
@@ -82,7 +80,6 @@ class ShowDocumentsViewModel(
                     setState {
                         copy(
                             screenTitle = title,
-                            address = event.address,
                             items = transformedItems,
                             isLoading = false
                         )
@@ -91,14 +88,14 @@ class ShowDocumentsViewModel(
             }
 
             is ShowDocumentViewModelContract.Event.OnDoneClick -> {
-                pushScreen(
+                popTo(
                     route = NavItem.Home,
                     inclusive = false
                 )
             }
 
             is ShowDocumentViewModelContract.Event.OnBackClick -> {
-                pushScreen(
+                popTo(
                     route = NavItem.Home,
                     inclusive = false
                 )
@@ -106,7 +103,7 @@ class ShowDocumentsViewModel(
         }
     }
 
-    private fun pushScreen(route: NavItem, inclusive: Boolean) {
+    private fun popTo(route: NavItem, inclusive: Boolean) {
         setEffect {
             ShowDocumentViewModelContract.Effect.Navigation.PopTo(
                 route = route,

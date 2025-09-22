@@ -21,6 +21,7 @@ import eudiverifier.verifierapp.generated.resources.content_description_arrow_ba
 import eudiverifier.verifierapp.generated.resources.content_description_check_icon
 import eudiverifier.verifierapp.generated.resources.content_description_chevron_right_icon
 import eudiverifier.verifierapp.generated.resources.content_description_close_icon
+import eudiverifier.verifierapp.generated.resources.content_description_error_icon
 import eudiverifier.verifierapp.generated.resources.content_description_expand_less_icon
 import eudiverifier.verifierapp.generated.resources.content_description_expand_more_icon
 import eudiverifier.verifierapp.generated.resources.content_description_home_icon
@@ -37,6 +38,7 @@ import eudiverifier.verifierapp.generated.resources.ic_arrow_back
 import eudiverifier.verifierapp.generated.resources.ic_check
 import eudiverifier.verifierapp.generated.resources.ic_chevron_right
 import eudiverifier.verifierapp.generated.resources.ic_close
+import eudiverifier.verifierapp.generated.resources.ic_error
 import eudiverifier.verifierapp.generated.resources.ic_expand_less
 import eudiverifier.verifierapp.generated.resources.ic_expand_more
 import eudiverifier.verifierapp.generated.resources.ic_home
@@ -133,5 +135,10 @@ object AppIcons {
     val User: IconDataUi = IconDataUi(
         resourceId = Res.drawable.ic_user,
         contentDescriptionId = Res.string.content_description_user_icon,
+    )
+
+    val Error: IconDataUi = IconDataUi(
+        resourceId = Res.drawable.ic_error,
+        contentDescriptionId = Res.string.content_description_error_icon,
     )
 }

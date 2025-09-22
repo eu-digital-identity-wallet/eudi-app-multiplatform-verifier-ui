@@ -60,6 +60,7 @@ kotlin {
             implementation(libs.androidx.activity.compose)
             implementation(libs.koin.android)
             implementation(libs.koin.androidx.compose)
+            implementation(libs.core)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
@@ -77,6 +78,7 @@ kotlin {
             implementation(libs.navigation.compose)
             implementation(libs.backhandler.cmp)
             implementation(libs.kotlinx.serialization.json)
+            implementation(libs.kotlinx.datetime)
 
             api(libs.koin.core)
             implementation(project.dependencies.platform(libs.koin.bom))
@@ -92,6 +94,10 @@ kotlin {
             implementation(libs.kermit)
 
             implementation(libs.qr.kit)
+
+            implementation(libs.moko.permissions.compose)
+            implementation(libs.moko.permissions.ble)
+            implementation(libs.moko.permissions.location)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

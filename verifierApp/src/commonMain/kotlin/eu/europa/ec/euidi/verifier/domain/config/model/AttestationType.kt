@@ -41,10 +41,10 @@ sealed interface AttestationType : CommonParcelable {
     data object Mdl : AttestationType {
 
         override val namespace: String
-            get() = "org.iso.18013.5.1.mDL"
+            get() = "org.iso.18013.5.1"
 
         override val docType: String
-            get() = "org.iso.18013.5.1"
+            get() = "org.iso.18013.5.1.mDL"
     }
 
     data object AgeVerification : AttestationType {
@@ -64,6 +64,15 @@ sealed interface AttestationType : CommonParcelable {
                 Pid -> resourceProvider.getSharedString(Res.string.document_type_pid)
                 Mdl -> resourceProvider.getSharedString(Res.string.document_type_mdl)
                 AgeVerification -> resourceProvider.getSharedString(Res.string.document_type_age_verification)
+            }
+        }
+
+        fun getAttestationTypeFromDocType(docType: String): AttestationType {
+            return when (docType) {
+                Pid.docType -> Pid
+                Mdl.docType -> Mdl
+                AgeVerification.docType -> AgeVerification
+                else -> throw IllegalArgumentException("Unknown docType: $docType")
             }
         }
     }

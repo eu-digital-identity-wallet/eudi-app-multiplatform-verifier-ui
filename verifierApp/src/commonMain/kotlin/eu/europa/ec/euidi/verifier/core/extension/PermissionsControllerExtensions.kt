@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 European Commission
+ * Copyright (c) 2025 European Commission
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the European
  * Commission - subsequent versions of the EUPL (the "Licence"); You may not use this work
@@ -14,18 +14,14 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier.core.utils
+package eu.europa.ec.euidi.verifier.core.extension
 
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flowOn
+import dev.icerock.moko.permissions.Permission
+import dev.icerock.moko.permissions.PermissionsController
 
-fun <T> Flow<T>.safeAsync(
-    dispatcher: CoroutineDispatcher = Dispatchers.IO,
-    with: (Throwable) -> (T)
-): Flow<T> {
-    return this.flowOn(dispatcher).catch { emit(with(it)) }
+suspend fun PermissionsController.arePermissionsGranted(vararg perms: Permission): Boolean =
+    perms.all { isPermissionGranted(it) }
+
+suspend fun PermissionsController.provideAll(vararg perms: Permission) = runCatching {
+    perms.forEach { providePermission(it) }
 }

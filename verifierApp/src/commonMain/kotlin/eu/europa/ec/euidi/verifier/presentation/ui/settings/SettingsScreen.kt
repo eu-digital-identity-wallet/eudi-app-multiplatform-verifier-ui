@@ -63,11 +63,11 @@ import eudiverifier.verifierapp.generated.resources.generic_cancel
 import eudiverifier.verifierapp.generated.resources.settings_screen_category_data_retrieval_methods_description
 import eudiverifier.verifierapp.generated.resources.settings_screen_category_data_retrieval_methods_title
 import eudiverifier.verifierapp.generated.resources.settings_screen_category_data_retrieval_options_title
-import eudiverifier.verifierapp.generated.resources.settings_screen_item_auto_close_connection_description
-import eudiverifier.verifierapp.generated.resources.settings_screen_item_auto_close_connection_title
-import eudiverifier.verifierapp.generated.resources.settings_screen_item_clear_ble_description
+import eudiverifier.verifierapp.generated.resources.settings_screen_item_ble_central_client_description_unselected
+import eudiverifier.verifierapp.generated.resources.settings_screen_item_ble_central_client_title
+import eudiverifier.verifierapp.generated.resources.settings_screen_item_clear_ble_description_unselected
 import eudiverifier.verifierapp.generated.resources.settings_screen_item_clear_ble_title
-import eudiverifier.verifierapp.generated.resources.settings_screen_item_use_l2cap_description
+import eudiverifier.verifierapp.generated.resources.settings_screen_item_use_l2cap_description_unselected
 import eudiverifier.verifierapp.generated.resources.settings_screen_item_use_l2cap_title
 import eudiverifier.verifierapp.generated.resources.settings_screen_title
 import kotlinx.coroutines.flow.Flow
@@ -285,7 +285,7 @@ private fun ContentPreview() {
                     mainContentData = ListItemMainContentDataUi.Text(
                         text = stringResource(Res.string.settings_screen_item_use_l2cap_title)
                     ),
-                    supportingText = stringResource(Res.string.settings_screen_item_use_l2cap_description),
+                    supportingText = stringResource(Res.string.settings_screen_item_use_l2cap_description_unselected),
                     trailingContentData = ListItemTrailingContentDataUi.Switch(
                         switchData = SwitchDataUi(
                             isChecked = false,
@@ -302,7 +302,7 @@ private fun ContentPreview() {
                     mainContentData = ListItemMainContentDataUi.Text(
                         text = stringResource(Res.string.settings_screen_item_clear_ble_title)
                     ),
-                    supportingText = stringResource(Res.string.settings_screen_item_clear_ble_description),
+                    supportingText = stringResource(Res.string.settings_screen_item_clear_ble_description_unselected),
                     trailingContentData = ListItemTrailingContentDataUi.Switch(
                         switchData = SwitchDataUi(
                             isChecked = true,
@@ -348,13 +348,13 @@ private fun SettingsCategoryItemPreview() {
     PreviewTheme {
         SettingsCategoryItem(
             data = SettingsItemUi.CategoryItem(
-                type = SettingsTypeUi.AutoCloseConnection,
+                type = SettingsTypeUi.BleCentralClient,
                 data = ListItemDataUi(
                     itemId = "1",
                     mainContentData = ListItemMainContentDataUi.Text(
-                        text = stringResource(Res.string.settings_screen_item_auto_close_connection_title)
+                        text = stringResource(Res.string.settings_screen_item_ble_central_client_title)
                     ),
-                    supportingText = stringResource(Res.string.settings_screen_item_auto_close_connection_description),
+                    supportingText = stringResource(Res.string.settings_screen_item_ble_central_client_description_unselected),
                     trailingContentData = ListItemTrailingContentDataUi.Switch(
                         switchData = SwitchDataUi(
                             isChecked = false,

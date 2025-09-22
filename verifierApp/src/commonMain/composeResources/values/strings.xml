@@ -45,6 +45,7 @@
     <string name="content_description_home_icon">Home</string>
     <string name="content_description_settings_icon">Settings</string>
     <string name="content_description_user_icon">User</string>
+    <string name="content_description_error_icon">Error</string>
     <string name="content_description_image_or_placeholder_icon">Image or placeholder icon</string>
 
     <!-- Home -->
@@ -65,18 +66,21 @@
     <string name="settings_screen_category_data_retrieval_options_title">Data retrieval options</string>
     <string name="settings_screen_category_data_retrieval_methods_title">Data retrieval methods</string>
     <string name="settings_screen_category_data_retrieval_methods_description">Used for NFC negotiated handover</string>
-    <string name="settings_screen_item_auto_close_connection_title">Auto close connection</string>
-    <string name="settings_screen_item_auto_close_connection_description">Don't close connection automatically</string>
+    <string name="settings_screen_item_retain_data_title">Retain data on device</string>
+    <string name="settings_screen_item_retain_data_description_selected">Retain data on device</string>
+    <string name="settings_screen_item_retain_data_description_unselected">Don't retain data on device</string>
     <string name="settings_screen_item_use_l2cap_title">Use L2CAP if available</string>
-    <string name="settings_screen_item_use_l2cap_description">Don't use L2CAP</string>
+    <string name="settings_screen_item_use_l2cap_description_selected">Use L2CAP</string>
+    <string name="settings_screen_item_use_l2cap_description_unselected">Don't use L2CAP</string>
     <string name="settings_screen_item_clear_ble_title">Clear BLE Service Cache</string>
-    <string name="settings_screen_item_clear_ble_description">Don’t clean the cache</string>
-    <string name="settings_screen_item_http_title">HTTP</string>
-    <string name="settings_screen_item_http_description">HTTP transfer activated</string>
+    <string name="settings_screen_item_clear_ble_description_selected">Clean the cache</string>
+    <string name="settings_screen_item_clear_ble_description_unselected">Don’t clean the cache</string>
     <string name="settings_screen_item_ble_central_client_title">BLE central client mode</string>
-    <string name="settings_screen_item_ble_central_client_description">BLE central client mode deactivated</string>
+    <string name="settings_screen_item_ble_central_client_description_selected">BLE central client mode activated</string>
+    <string name="settings_screen_item_ble_central_client_description_unselected">BLE central client mode deactivated</string>
     <string name="settings_screen_item_ble_peripheral_server_title">BLE peripheral server mode</string>
-    <string name="settings_screen_item_ble_peripheral_server_description">BLE peripheral server mode deactivated</string>
+    <string name="settings_screen_item_ble_peripheral_server_description_selected">BLE peripheral server mode activated</string>
+    <string name="settings_screen_item_ble_peripheral_server_description_unselected">BLE peripheral server mode deactivated</string>
 
     <!-- Documents To Request -->
     <string name="documents_to_request_screen_title">Documents to request</string>
@@ -87,19 +91,38 @@
 
     <!-- Custom Request -->
     <string name="custom_request_screen_title">Custom %1$s request</string>
+    <string name="custom_request_screen_select_deselect">Select/Deselect all</string>
 
     <!-- Show Documents -->
     <string name="show_documents_screen_title">Show Documents</string>
     <string name="show_documents_screen_num_of_docs_description">Number of documents returned</string>
     <string name="show_documents_screen_address_description">Address</string>
     <string name="show_documents_screen_document_header">Doctype</string>
+    <string name="show_documents_screen_item_boolean_true_readable_value">yes</string>
+    <string name="show_documents_screen_item_boolean_false_readable_value">no</string>
+    <string name="show_documents_screen_item_gender_male">Male</string>
+    <string name="show_documents_screen_item_gender_female">Female</string>
+    <string name="show_documents_screen_item_gender_not_known">Not known</string>
+    <string name="show_documents_screen_item_gender_not_applicable">Not applicable</string>
+    <string name="show_documents_screen_item_is_data_integrity_intact">Is data integrity intact?</string>
+    <string name="show_documents_screen_item_is_device_signature_valid">Is device signature valid?</string>
+    <string name="show_documents_screen_item_is_issuer_signature_valid">Is issuer signature valid?</string>
+    <string name="show_documents_screen_item_signed">Signed</string>
+    <string name="show_documents_screen_item_valid_from">Valid from</string>
+    <string name="show_documents_screen_item_valid_until">Valid until</string>
 
     <!-- Transfer Status -->
     <string name="transfer_status_screen_title">Transfer Status</string>
-    <string name="transfer_status_screen_status_connecting">Connecting...</string>
-    <string name="transfer_status_screen_status_connected">Connected</string>
-    <string name="transfer_status_screen_status_failed">Failed: %1$s</string>
     <string name="transfer_status_screen_request_label">Requesting</string>
+    <string name="transfer_status_screen_request_status">Status: </string>
+    <string name="transfer_status_screen_no_permissions">One or more permissions are missing \n Tap here to go to App's Settings</string>
+    <string name="transfer_status_screen_status_connected">Connected</string>
+    <string name="transfer_status_screen_status_connecting">Connecting...</string>
+    <string name="transfer_status_screen_status_device_engagement_completed">Device engagement completed</string>
+    <string name="transfer_status_screen_status_disconnected">Disconnected</string>
+    <string name="transfer_status_screen_status_error">Error %1$s</string>
+    <string name="transfer_status_screen_status_on_response_received">Response received</string>
+    <string name="transfer_status_screen_status_request_sent">Request sent</string>
 
     <!-- Document Types -->
     <string name="document_type_pid">PID</string>

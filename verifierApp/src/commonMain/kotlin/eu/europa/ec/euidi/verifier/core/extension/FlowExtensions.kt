@@ -14,10 +14,18 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier.core.controller
+package eu.europa.ec.euidi.verifier.core.extension
 
-import org.koin.core.component.KoinComponent
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flowOn
 
-object IosBridgeController : KoinComponent {
-
+fun <T> Flow<T>.safeAsync(
+    dispatcher: CoroutineDispatcher = Dispatchers.IO,
+    with: (Throwable) -> (T)
+): Flow<T> {
+    return this.flowOn(dispatcher).catch { emit(with(it)) }
 }

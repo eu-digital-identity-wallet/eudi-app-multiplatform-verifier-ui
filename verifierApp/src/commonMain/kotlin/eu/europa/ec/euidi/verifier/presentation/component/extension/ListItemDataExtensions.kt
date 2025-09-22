@@ -14,34 +14,12 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier.presentation.navigation
+package eu.europa.ec.euidi.verifier.presentation.component.extension
 
-import kotlinx.serialization.Serializable
+import eu.europa.ec.euidi.verifier.presentation.component.ListItemDataUi
+import eu.europa.ec.euidi.verifier.presentation.component.ListItemTrailingContentDataUi
 
-@Serializable
-sealed interface NavItem {
-
-    @Serializable
-    data object Home : NavItem
-
-    @Serializable
-    data object Menu : NavItem
-
-    @Serializable
-    data object DocToRequest : NavItem
-
-    @Serializable
-    data object CustomRequest : NavItem
-
-    @Serializable
-    data class TransferStatus(val qrCode: String) : NavItem
-
-    @Serializable
-    data object ShowDocuments : NavItem
-
-    @Serializable
-    data object Settings : NavItem
-
-    @Serializable
-    data object QrScan : NavItem
+fun List<ListItemDataUi>.hasAnyCheckedCheckbox(): Boolean = any { item ->
+    item.trailingContentData is ListItemTrailingContentDataUi.Checkbox &&
+            item.trailingContentData.checkboxData.isChecked
 }

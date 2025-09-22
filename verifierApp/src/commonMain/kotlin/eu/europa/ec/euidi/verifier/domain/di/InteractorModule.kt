@@ -18,6 +18,7 @@ package eu.europa.ec.euidi.verifier.domain.di
 
 import eu.europa.ec.euidi.verifier.core.controller.DataStoreController
 import eu.europa.ec.euidi.verifier.core.controller.PlatformController
+import eu.europa.ec.euidi.verifier.core.controller.TransferController
 import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
 import eu.europa.ec.euidi.verifier.core.provider.UuidProvider
 import eu.europa.ec.euidi.verifier.domain.config.ConfigProvider
@@ -46,10 +47,12 @@ class InteractorModule {
     @Factory
     fun provideHomeInteractor(
         platformController: PlatformController,
+        dataStoreController: DataStoreController,
         uuidProvider: UuidProvider,
         resourceProvider: ResourceProvider,
     ): HomeInteractor = HomeInteractorImpl(
         platformController,
+        dataStoreController,
         uuidProvider,
         resourceProvider,
     )
@@ -81,8 +84,18 @@ class InteractorModule {
     @Factory
     fun provideTransferStatusInteractor(
         resourceProvider: ResourceProvider,
-        uuidProvider: UuidProvider
-    ): TransferStatusInteractor = TransferStatusInteractorImpl(resourceProvider, uuidProvider)
+        uuidProvider: UuidProvider,
+        transferController: TransferController,
+        dataStoreController: DataStoreController,
+        configProvider: ConfigProvider
+    ): TransferStatusInteractor =
+        TransferStatusInteractorImpl(
+            resourceProvider,
+            uuidProvider,
+            transferController,
+            dataStoreController,
+            configProvider
+        )
 
     @Factory
     fun provideMenuInteractor(

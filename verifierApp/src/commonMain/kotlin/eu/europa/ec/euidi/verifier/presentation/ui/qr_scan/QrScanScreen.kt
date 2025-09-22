@@ -106,7 +106,7 @@ private fun handleNavigationEffect(
                 key = Constants.REQUESTED_DOCUMENTS,
                 value = navigationEffect.requestedDocs
             )
-            navController.navigate(route = NavItem.TransferStatus) {
+            navController.navigate(route = NavItem.TransferStatus(qrCode = navigationEffect.qrCode)) {
                 popUpTo(route = NavItem.QrScan) {
                     inclusive = true
                 }

@@ -24,6 +24,7 @@ import eu.europa.ec.euidi.verifier.domain.config.model.ClaimItem
 import eu.europa.ec.euidi.verifier.domain.transformer.UiTransformer
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemDataUi
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemTrailingContentDataUi
+import eu.europa.ec.euidi.verifier.presentation.component.extension.hasAnyCheckedCheckbox
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.CheckboxDataUi
 import eudiverifier.verifierapp.generated.resources.Res
 import eudiverifier.verifierapp.generated.resources.custom_request_screen_title
@@ -111,10 +112,7 @@ class CustomRequestInteractorImpl(
             } else item
         }
 
-        val hasSelectedItems = updatedItems.any { item ->
-            item.trailingContentData is ListItemTrailingContentDataUi.Checkbox
-                    && item.trailingContentData.checkboxData.isChecked
-        }
+        val hasSelectedItems = updatedItems.hasAnyCheckedCheckbox()
 
         return HandleItemSelectionPartialState.Updated(
             items = updatedItems,

@@ -16,7 +16,11 @@
 
 package eu.europa.ec.euidi.verifier.presentation.ui.custom_request
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -35,8 +39,10 @@ import eu.europa.ec.euidi.verifier.presentation.component.content.ToolbarConfig
 import eu.europa.ec.euidi.verifier.presentation.component.utils.OneTimeLaunchedEffect
 import eu.europa.ec.euidi.verifier.presentation.component.utils.SPACING_MEDIUM
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.ButtonType
+import eu.europa.ec.euidi.verifier.presentation.component.wrap.CheckboxDataUi
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.StickyBottomConfig
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.StickyBottomType
+import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapCheckbox
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapListItems
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapStickyBottomContent
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.rememberButtonConfig
@@ -45,6 +51,7 @@ import eu.europa.ec.euidi.verifier.presentation.navigation.getFromPreviousBackSt
 import eu.europa.ec.euidi.verifier.presentation.navigation.saveToPreviousBackStack
 import eu.europa.ec.euidi.verifier.presentation.utils.Constants
 import eudiverifier.verifierapp.generated.resources.Res
+import eudiverifier.verifierapp.generated.resources.custom_request_screen_select_deselect
 import eudiverifier.verifierapp.generated.resources.generic_cancel
 import eudiverifier.verifierapp.generated.resources.generic_done
 import kotlinx.coroutines.flow.Flow
@@ -146,17 +153,41 @@ private fun Content(
     onNavigationRequested: (CustomRequestContract.Effect.Navigation) -> Unit,
     paddingValues: PaddingValues
 ) {
-    WrapListItems(
+    Column(
         modifier = Modifier
             .padding(paddingValues)
-            .verticalScroll(rememberScrollState()),
-        items = state.items,
-        onItemClick = {
-            onEventSend(CustomRequestContract.Event.OnItemClicked(it.itemId))
-        },
-        clickableAreas = listOf(ClickableArea.TRAILING_CONTENT),
-        mainContentVerticalPadding = SPACING_MEDIUM.dp
-    )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    vertical = SPACING_MEDIUM.dp
+                ),
+            horizontalArrangement = Arrangement.End
+        ) {
+            Text(text = stringResource(Res.string.custom_request_screen_select_deselect))
+            WrapCheckbox(
+                checkboxData = CheckboxDataUi(
+                    isChecked = state.areAllItemsChecked,
+                    onCheckedChange = { isChecked ->
+                        onEventSend(CustomRequestContract.Event.OnSelectAllClick(isChecked))
+                    }
+                ),
+                modifier = Modifier.padding(horizontal = SPACING_MEDIUM.dp)
+            )
+        }
+        WrapListItems(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState()),
+            items = state.items,
+            onItemClick = {
+                onEventSend(CustomRequestContract.Event.OnItemClicked(it.itemId))
+            },
+            clickableAreas = listOf(ClickableArea.TRAILING_CONTENT),
+            mainContentVerticalPadding = SPACING_MEDIUM.dp
+        )
+    }
 
     LaunchedEffect(Unit) {
         effectFlow.collect { effect ->

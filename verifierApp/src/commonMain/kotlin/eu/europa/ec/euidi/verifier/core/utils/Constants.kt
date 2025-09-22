@@ -14,34 +14,21 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier.presentation.navigation
+package eu.europa.ec.euidi.verifier.core.utils
 
-import kotlinx.serialization.Serializable
+object Constants {
+    object Generic {
+        const val MDOC_PREFIX = "mdoc:"
+    }
 
-@Serializable
-sealed interface NavItem {
+    object DocumentKeys {
+        const val PORTRAIT = "portrait"
+        const val SIGNATURE = "signature_usual_mark"
+        const val USER_PSEUDONYM = "user_pseudonym"
+        private const val GENDER = "gender"
+        private const val SEX = "sex"
 
-    @Serializable
-    data object Home : NavItem
-
-    @Serializable
-    data object Menu : NavItem
-
-    @Serializable
-    data object DocToRequest : NavItem
-
-    @Serializable
-    data object CustomRequest : NavItem
-
-    @Serializable
-    data class TransferStatus(val qrCode: String) : NavItem
-
-    @Serializable
-    data object ShowDocuments : NavItem
-
-    @Serializable
-    data object Settings : NavItem
-
-    @Serializable
-    data object QrScan : NavItem
+        val GENDER_KEYS: List<String> = listOf(GENDER, SEX)
+        val BASE64_IMAGE_KEYS: List<String> = listOf(PORTRAIT, SIGNATURE)
+    }
 }

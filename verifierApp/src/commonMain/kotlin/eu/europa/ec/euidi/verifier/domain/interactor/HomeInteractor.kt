@@ -16,6 +16,7 @@
 
 package eu.europa.ec.euidi.verifier.domain.interactor
 
+import eu.europa.ec.euidi.verifier.core.controller.DataStoreController
 import eu.europa.ec.euidi.verifier.core.controller.PlatformController
 import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
 import eu.europa.ec.euidi.verifier.core.provider.UuidProvider
@@ -42,11 +43,14 @@ interface HomeInteractor {
         existingMainButtonData: ListItemDataUi
     ): ListItemDataUi
 
+    suspend fun ensureHasRetrievalMethodsSelected()
+
     fun closeApp()
 }
 
 class HomeInteractorImpl(
     private val platformController: PlatformController,
+    private val dataStoreController: DataStoreController,
     private val uuidProvider: UuidProvider,
     private val resourceProvider: ResourceProvider,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
@@ -88,6 +92,20 @@ class HomeInteractorImpl(
             existingMainButtonData.copy(
                 mainContentData = ListItemMainContentDataUi.Text(text = displayText)
             )
+        }
+    }
+
+    override suspend fun ensureHasRetrievalMethodsSelected() {
+        withContext(dispatcher) {
+            val retrievalMethodPrefs = dataStoreController.getRetrievalMethodPrefs()
+            val isAnyRetrievalMethodSelected = retrievalMethodPrefs.any { retrievalMethodPref ->
+                dataStoreController.getBoolean(key = retrievalMethodPref) == true
+            }
+            if (!isAnyRetrievalMethodSelected) {
+                retrievalMethodPrefs.map { retrievalMethodPref ->
+                    dataStoreController.putBoolean(key = retrievalMethodPref, value = true)
+                }
+            }
         }
     }
 

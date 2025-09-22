@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -40,8 +39,9 @@ import eu.europa.ec.euidi.verifier.presentation.component.content.ContentScreen
 import eu.europa.ec.euidi.verifier.presentation.component.content.ScreenNavigateAction
 import eu.europa.ec.euidi.verifier.presentation.component.content.ToolbarConfig
 import eu.europa.ec.euidi.verifier.presentation.component.utils.OneTimeLaunchedEffect
+import eu.europa.ec.euidi.verifier.presentation.component.utils.SPACING_EXTRA_LARGE
 import eu.europa.ec.euidi.verifier.presentation.component.utils.SPACING_MEDIUM
-import eu.europa.ec.euidi.verifier.presentation.component.utils.VSpacer
+import eu.europa.ec.euidi.verifier.presentation.component.utils.SPACING_SMALL
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.ButtonType
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.StickyBottomConfig
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.StickyBottomType
@@ -55,7 +55,6 @@ import eu.europa.ec.euidi.verifier.presentation.ui.show_document.model.DocumentU
 import eu.europa.ec.euidi.verifier.presentation.utils.Constants
 import eudiverifier.verifierapp.generated.resources.Res
 import eudiverifier.verifierapp.generated.resources.generic_ok
-import eudiverifier.verifierapp.generated.resources.show_documents_screen_address_description
 import eudiverifier.verifierapp.generated.resources.show_documents_screen_document_header
 import eudiverifier.verifierapp.generated.resources.show_documents_screen_num_of_docs_description
 import eudiverifier.verifierapp.generated.resources.show_documents_screen_title
@@ -105,11 +104,10 @@ fun ShowDocumentsScreen(
         OneTimeLaunchedEffect {
             navController
                 .getFromPreviousBackStack<ReceivedDocsHolder>(Constants.RECEIVED_DOCUMENTS)
-                ?.let { (address, items) ->
+                ?.let { docsHolder ->
                     viewModel.setEvent(
                         ShowDocumentViewModelContract.Event.Init(
-                            items = items,
-                            address = address
+                            items = docsHolder.items,
                         )
                     )
                 }
@@ -173,17 +171,18 @@ private fun Content(
         modifier = Modifier
             .fillMaxWidth()
             .padding(paddingValues)
-            .verticalScroll(rememberScrollState())
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(SPACING_EXTRA_LARGE.dp),
     ) {
         DocumentsHeader(
             size = state.items.size,
-            address = state.address
         )
 
-        VSpacer.ExtraLarge()
-
         state.items.forEach { document ->
-            DocumentDetails(document = document)
+            DocumentDetails(
+                document = document,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 
@@ -199,7 +198,6 @@ private fun Content(
 @Composable
 private fun DocumentsHeader(
     size: Int,
-    address: String
 ) {
     WrapCard(
         modifier = Modifier.fillMaxWidth()
@@ -217,40 +215,40 @@ private fun DocumentsHeader(
                 },
                 style = MaterialTheme.typography.bodyMedium
             )
-
-            Text(
-                text = buildAnnotatedString {
-                    append(stringResource(Res.string.show_documents_screen_address_description))
-                    append(": ")
-                    append(address)
-                },
-                style = MaterialTheme.typography.bodyMedium
-            )
         }
     }
 }
 
 @Composable
 private fun DocumentDetails(
-    document: DocumentUi
+    document: DocumentUi,
+    modifier: Modifier = Modifier
 ) {
-    Text(
-        text = buildAnnotatedString {
-            append(stringResource(Res.string.show_documents_screen_document_header))
-            append(": ")
-            append(document.namespace)
-        },
-        style = MaterialTheme.typography.labelLarge
-    )
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(SPACING_MEDIUM.dp)
+    ) {
+        Text(
+            text = buildAnnotatedString {
+                append(stringResource(Res.string.show_documents_screen_document_header))
+                append(": ")
+                append(document.docType)
+            },
+            style = MaterialTheme.typography.labelLarge
+        )
 
-    VSpacer.Medium()
+        WrapListItems(
+            modifier = Modifier.fillMaxWidth(),
+            items = document.validityInfo,
+            onItemClick = null,
+            mainContentVerticalPadding = SPACING_SMALL.dp
+        )
 
-    WrapListItems(
-        modifier = Modifier.fillMaxSize(),
-        items = document.uiClaims,
-        onItemClick = null,
-        mainContentVerticalPadding = SPACING_MEDIUM.dp
-    )
-
-    VSpacer.Medium()
+        WrapListItems(
+            modifier = Modifier.fillMaxWidth(),
+            items = document.uiClaims,
+            onItemClick = null,
+            mainContentVerticalPadding = SPACING_MEDIUM.dp
+        )
+    }
 }
