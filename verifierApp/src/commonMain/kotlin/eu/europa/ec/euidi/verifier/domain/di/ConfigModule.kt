@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 European Commission
+ * Copyright (c) 2025 European Commission
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the European
  * Commission - subsequent versions of the EUPL (the "Licence"); You may not use this work
@@ -14,21 +14,18 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier.core.di
+package eu.europa.ec.euidi.verifier.domain.di
 
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import eu.europa.ec.euidi.verifier.core.controller.DataStoreController
-import eu.europa.ec.euidi.verifier.core.controller.DataStoreControllerImpl
+import eu.europa.ec.euidi.verifier.core.controller.PlatformController
+import eu.europa.ec.euidi.verifier.domain.config.ConfigProvider
+import eu.europa.ec.euidi.verifier.domain.config.ConfigProviderImpl
 import org.koin.core.annotation.Module
 import org.koin.core.annotation.Single
 
 @Module
-class ControllerModule {
+class ConfigModule {
 
     @Single
-    fun provideDataStoreController(
-        dataStore: DataStore<Preferences>
-    ): DataStoreController = DataStoreControllerImpl(dataStore)
-
+    fun provideConfigProvider(platformController: PlatformController): ConfigProvider =
+        ConfigProviderImpl(platformController)
 }

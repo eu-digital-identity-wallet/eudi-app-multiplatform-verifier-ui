@@ -16,7 +16,10 @@
 
 package eu.europa.ec.euidi.verifier.core.controller
 
+import eu.europa.ec.euidi.verifier.core.controller.model.BuildType
+
 interface PlatformController {
+    val buildType: BuildType
     fun closeApp()
     fun openAppSettings()
 }

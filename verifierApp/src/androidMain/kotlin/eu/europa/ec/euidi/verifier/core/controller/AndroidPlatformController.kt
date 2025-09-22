@@ -21,6 +21,8 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
+import eu.europa.ec.euidi.verifier.BuildConfig
+import eu.europa.ec.euidi.verifier.core.controller.model.BuildType
 import java.lang.ref.WeakReference
 
 class AndroidPlatformController(
@@ -31,6 +33,9 @@ class AndroidPlatformController(
     fun registerActivity(activity: Activity) {
         activityRef = WeakReference(activity)
     }
+
+    override val buildType: BuildType
+        get() = BuildType.from(BuildConfig.BUILD_TYPE)
 
     override fun closeApp() {
         activityRef?.get()?.finish()

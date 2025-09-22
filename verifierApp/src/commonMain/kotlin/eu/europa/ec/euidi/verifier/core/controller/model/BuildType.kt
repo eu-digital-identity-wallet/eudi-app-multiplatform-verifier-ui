@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 European Commission
+ * Copyright (c) 2025 European Commission
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the European
  * Commission - subsequent versions of the EUPL (the "Licence"); You may not use this work
@@ -14,16 +14,14 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier.core.di
+package eu.europa.ec.euidi.verifier.core.controller.model
 
-import eu.europa.ec.euidi.verifier.domain.config.ConfigProvider
-import eu.europa.ec.euidi.verifier.domain.config.ConfigProviderImpl
-import org.koin.core.annotation.Module
-import org.koin.core.annotation.Single
+enum class BuildType {
+    DEBUG, RELEASE;
 
-@Module
-class ConfigModule {
-
-    @Single
-    fun provideConfigProvider(): ConfigProvider = ConfigProviderImpl()
+    companion object {
+        fun from(type: String): BuildType =
+            entries.find { it.name == type }
+                ?: throw IllegalArgumentException("Invalid build type: $type")
+    }
 }

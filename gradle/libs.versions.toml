@@ -25,7 +25,6 @@ dataStore = "1.1.7"
 okio = "3.16.0"
 ktor = "3.3.0"
 junit = "4.13.2"
-kermit = "2.0.8"
 qrKit = "3.1.3"
 mokoPermissions = "0.20.1"
 core = "0.2.0.1-SNAPSHOT"
@@ -98,7 +97,6 @@ core = { module = "eu.europa.ec.eudi:eudi-lib-android-verifier-core", version.re
 
 # Misc
 junit = { module = "junit:junit", version.ref = "junit" }
-kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

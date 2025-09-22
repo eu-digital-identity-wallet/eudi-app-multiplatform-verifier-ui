@@ -16,6 +16,8 @@
 
 package eu.europa.ec.euidi.verifier.domain.config
 
+import eu.europa.ec.euidi.verifier.core.controller.PlatformController
+import eu.europa.ec.euidi.verifier.core.controller.model.BuildType
 import eu.europa.ec.euidi.verifier.domain.config.model.AttestationType
 import eu.europa.ec.euidi.verifier.domain.config.model.ClaimItem
 import eu.europa.ec.euidi.verifier.domain.config.model.DocumentMode
@@ -31,7 +33,7 @@ interface ConfigProvider {
     suspend fun getCertificates(): List<String>
 }
 
-class ConfigProviderImpl : ConfigProvider {
+class ConfigProviderImpl(private val platformController: PlatformController) : ConfigProvider {
     override fun getDocumentModes(attestationType: AttestationType): List<DocumentMode> {
         return when (attestationType) {
             AttestationType.Pid -> listOf(DocumentMode.FULL, DocumentMode.CUSTOM)
@@ -131,5 +133,8 @@ class ConfigProviderImpl : ConfigProvider {
     )
 
     override val logger: Logger
-        get() = Logger.LEVEL_DEBUG
+        get() = when (platformController.buildType) {
+            BuildType.DEBUG -> Logger.LEVEL_DEBUG
+            BuildType.RELEASE -> Logger.OFF
+        }
 }

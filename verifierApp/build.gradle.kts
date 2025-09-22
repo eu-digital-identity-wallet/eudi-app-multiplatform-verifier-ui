@@ -91,7 +91,6 @@ kotlin {
             implementation(libs.okio)
 
             implementation(libs.ktor.client.core)
-            implementation(libs.kermit)
 
             implementation(libs.qr.kit)
 
@@ -169,11 +168,13 @@ android {
             isMinifyEnabled = true
             isDebuggable = false
             signingConfig = signingConfigs.getByName("release")
+            buildConfigField("String", "BUILD_TYPE", "\"RELEASE\"")
             proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
         }
         getByName("debug") {
             isDebuggable = true
             isMinifyEnabled = false
+            buildConfigField("String", "BUILD_TYPE", "\"DEBUG\"")
         }
     }
     productFlavors {
@@ -190,6 +191,9 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+    }
+    buildFeatures {
+        buildConfig = true
     }
     dependencies {
         implementation(libs.ktor.client.okhttp)

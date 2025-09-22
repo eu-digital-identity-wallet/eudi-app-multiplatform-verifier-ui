@@ -16,11 +16,15 @@
 
 package eu.europa.ec.euidi.verifier.core.controller
 
+import eu.europa.ec.euidi.verifier.core.controller.model.BuildType
 import platform.Foundation.NSURL
 import platform.UIKit.UIApplication
 import platform.UIKit.UIApplicationOpenSettingsURLString
 
 class IosPlatformController : PlatformController {
+
+    override val buildType: BuildType
+        get() = BuildType.DEBUG
 
     override fun closeApp() {
         // no-op
