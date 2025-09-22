@@ -83,8 +83,8 @@ class TransferStatusInteractorImpl(
     }
 
     override suspend fun prepareConnection() {
-        val test = configProvider.getCertificates()
-        transferController.initializeVerifier(test)
+        val certificates = configProvider.getCertificates()
+        transferController.initializeVerifier(certificates)
         transferController.initializeTransferManager(
             bleCentralClientMode = getSettingsValue(PrefKey.BLE_CENTRAL_CLIENT),
             blePeripheralServerMode = getSettingsValue(PrefKey.BLE_PERIPHERAL_SERVER),
