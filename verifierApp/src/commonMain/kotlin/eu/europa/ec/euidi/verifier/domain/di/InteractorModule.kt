@@ -101,9 +101,11 @@ class InteractorModule {
     fun provideMenuInteractor(
         uuidProvider: UuidProvider,
         resourceProvider: ResourceProvider,
+        configProvider: ConfigProvider
     ): MenuInteractor = MenuInteractorImpl(
         uuidProvider,
         resourceProvider,
+        configProvider
     )
 
     @Factory

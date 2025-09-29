@@ -18,6 +18,7 @@ package eu.europa.ec.euidi.verifier.domain.interactor
 
 import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
 import eu.europa.ec.euidi.verifier.core.provider.UuidProvider
+import eu.europa.ec.euidi.verifier.domain.config.ConfigProvider
 import eu.europa.ec.euidi.verifier.presentation.component.AppIcons
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemDataUi
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemLeadingContentDataUi
@@ -37,11 +38,13 @@ import kotlinx.coroutines.withContext
 interface MenuInteractor {
     suspend fun getScreenTitle(): String
     suspend fun getMenuItemsUi(): List<MenuItemUi>
+    fun getAppVersion(): String
 }
 
 class MenuInteractorImpl(
     private val uuidProvider: UuidProvider,
     private val resourceProvider: ResourceProvider,
+    private val configProvider: ConfigProvider,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : MenuInteractor {
 
@@ -96,4 +99,6 @@ class MenuInteractorImpl(
             }
         }
     }
+
+    override fun getAppVersion(): String = configProvider.appVersion
 }

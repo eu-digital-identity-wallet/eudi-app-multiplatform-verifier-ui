@@ -37,6 +37,7 @@ sealed interface MenuViewModelContract {
         val isLoading: Boolean,
         val screenTitle: String = "",
         val menuItems: List<MenuItemUi> = emptyList(),
+        val appVersion: String = ""
     ) : UiState
 
     sealed interface Event : UiEvent {
@@ -72,7 +73,7 @@ class MenuViewModel(
 
     override fun createInitialState(): State {
         return State(
-            isLoading = true,
+            isLoading = true
         )
     }
 
@@ -102,6 +103,7 @@ class MenuViewModel(
 
             val titleDeferred = async { interactor.getScreenTitle() }
             val menuItemsDeferred = async { interactor.getMenuItemsUi() }
+            val appVersion = interactor.getAppVersion()
 
             val screenTitle = titleDeferred.await()
             val menuItems = menuItemsDeferred.await()
@@ -110,7 +112,8 @@ class MenuViewModel(
                 copy(
                     screenTitle = screenTitle,
                     menuItems = menuItems,
-                    isLoading = false
+                    isLoading = false,
+                    appVersion = appVersion
                 )
             }
         }

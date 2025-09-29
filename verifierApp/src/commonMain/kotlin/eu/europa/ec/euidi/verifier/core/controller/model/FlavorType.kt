@@ -14,20 +14,14 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier.core.controller
+package eu.europa.ec.euidi.verifier.core.controller.model
 
-import eu.europa.ec.euidi.verifier.core.controller.model.BuildType
-import eu.europa.ec.euidi.verifier.core.controller.model.FlavorType
+enum class FlavorType {
+    Dev, Public;
 
-interface PlatformController {
-
-    val buildType: BuildType
-
-    val flavorType: FlavorType
-
-    val appVersion: String
-
-    fun closeApp()
-
-    fun openAppSettings()
+    companion object {
+        fun from(type: String): FlavorType =
+            entries.find { it.name == type }
+                ?: throw IllegalArgumentException("Invalid flavor type: $type")
+    }
 }

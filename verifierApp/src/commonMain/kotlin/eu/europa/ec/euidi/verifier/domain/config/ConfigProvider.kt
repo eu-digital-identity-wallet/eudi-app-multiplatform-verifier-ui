@@ -18,6 +18,7 @@ package eu.europa.ec.euidi.verifier.domain.config
 
 import eu.europa.ec.euidi.verifier.core.controller.PlatformController
 import eu.europa.ec.euidi.verifier.core.controller.model.BuildType
+import eu.europa.ec.euidi.verifier.core.controller.model.FlavorType
 import eu.europa.ec.euidi.verifier.domain.config.model.AttestationType
 import eu.europa.ec.euidi.verifier.domain.config.model.ClaimItem
 import eu.europa.ec.euidi.verifier.domain.config.model.DocumentMode
@@ -27,13 +28,33 @@ import eudiverifier.verifierapp.generated.resources.Res
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 
 interface ConfigProvider {
+
+    val buildType: BuildType
+
+    val flavorType: FlavorType
+
+    val appVersion: String
+
     val supportedDocuments: SupportedDocuments
+
     val logger: Logger
+
     fun getDocumentModes(attestationType: AttestationType): List<DocumentMode>
+
     suspend fun getCertificates(): List<String>
 }
 
 class ConfigProviderImpl(private val platformController: PlatformController) : ConfigProvider {
+
+    override val buildType: BuildType
+        get() = platformController.buildType
+
+    override val flavorType: FlavorType
+        get() = platformController.flavorType
+
+    override val appVersion: String
+        get() = "${platformController.appVersion}-${flavorType.name}"
+
     override fun getDocumentModes(attestationType: AttestationType): List<DocumentMode> {
         return when (attestationType) {
             AttestationType.Pid -> listOf(DocumentMode.FULL, DocumentMode.CUSTOM)
@@ -133,7 +154,7 @@ class ConfigProviderImpl(private val platformController: PlatformController) : C
     )
 
     override val logger: Logger
-        get() = when (platformController.buildType) {
+        get() = when (buildType) {
             BuildType.DEBUG -> Logger.LEVEL_DEBUG
             BuildType.RELEASE -> Logger.OFF
         }
