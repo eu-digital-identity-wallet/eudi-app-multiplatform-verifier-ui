@@ -51,11 +51,11 @@ platform :android do
     gradle(task: "clean")
     gradle(task: "assemble#{ENV["APP_BUILD_TYPE"]}Release")
 
-    # upload_firebase(
-    #   appId: ENV["FIREBASE_APP_ID"],
-    #   groups: ENV["FIREBASE_GROUPS"],
-    #   token: ENV["FIREBASE_TOKEN"]
-    # )
+    upload_firebase(
+      appId: ENV["FIREBASE_APP_ID"],
+      groups: ENV["FIREBASE_GROUPS"],
+      token: ENV["FIREBASE_TOKEN"]
+    )
 
     clean_build_artifacts
     reset_versioncode
