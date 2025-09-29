@@ -15,6 +15,7 @@
 
 require "date"
 require 'fileutils'
+require "digest"
 
 default_platform(:android)
 
@@ -131,12 +132,22 @@ platform :android do
 
     begin
       FileUtils.rm_f(new_apk_path)
-      FileUtils.mv(default_apk_path, new_apk_path)
-    rescue => e
-      raise "Failed to rename APK: #{e.message}"
+    rescue Errno::EACCES, Errno::EPERM
     end
 
-    puts "Renamed #{default_apk_name} -> #{new_apk_name}"
+    src_sha = Digest::SHA256.file(default_apk_path).hexdigest
+    FileUtils.cp(default_apk_path, new_apk_path, preserve: true)
+    dst_sha = Digest::SHA256.file(new_apk_path).hexdigest
+
+    raise "Checksum mismatch after copy" unless src_sha == dst_sha
+
+    begin
+      FileUtils.rm_f(default_apk_path)
+    rescue Errno::EACCES, Errno::EPERM
+      UI.important("Source still locked; keeping both #{default_apk_name} and #{new_apk_name}.")
+    end
+
+    puts "Prepared #{default_apk_name} -> #{new_apk_name}"
     puts "New APK Path For Upload: #{new_apk_path}"
     new_apk_path
   end
