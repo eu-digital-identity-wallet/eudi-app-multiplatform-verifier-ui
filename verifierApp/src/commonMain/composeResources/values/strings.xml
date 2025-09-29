@@ -1,0 +1,207 @@
+<!--
+  ~ Copyright (c) 2025 European Commission
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the European
+  ~ Commission - subsequent versions of the EUPL (the "Licence"); You may not use this work
+  ~ except in compliance with the Licence.
+  ~
+  ~ You may obtain a copy of the Licence at:
+  ~ https://joinup.ec.europa.eu/software/page/eupl
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under
+  ~ the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
+  ~ ANY KIND, either express or implied. See the Licence for the specific language
+  ~ governing permissions and limitations under the Licence.
+  -->
+
+<resources>
+
+    <!-- Generic -->
+    <string name="generic_error_message">Oups! Something went wrong</string>
+    <string name="generic_error_description">If the issue persists, please contact customer support</string>
+    <string name="generic_error_button_retry">TRY AGAIN</string>
+    <string name="generic_network_error_message">You are not connected to the internet</string>
+    <string name="generic_error_retry">Please try again</string>
+    <string name="generic_cancel">Cancel</string>
+    <string name="generic_done">Done</string>
+    <string name="generic_ok">OK</string>
+
+    <!-- Content Description -->
+    <string name="content_description_qr_code_image">QR code image</string>
+
+    <string name="content_description_arrow_back_icon">Go Back</string>
+    <string name="content_description_close_icon">Close</string>
+    <string name="content_description_more_vert_icon">More Items</string>
+    <string name="content_description_menu_icon">Menu</string>
+    <string name="content_description_chevron_right_icon">Next</string>
+    <string name="content_description_expand_less_icon">Expand less</string>
+    <string name="content_description_expand_more_icon">Expand more</string>
+    <string name="content_description_logo_full_icon">Full Logo icon</string>
+    <string name="content_description_logo_plain_icon">Plain Logo icon</string>
+    <string name="content_description_logo_text_icon">Text Logo icon</string>
+    <string name="content_description_nfc_icon">NFC</string>
+    <string name="content_description_search_icon">Search</string>
+    <string name="content_description_check_icon">Check</string>
+    <string name="content_description_home_icon">Home</string>
+    <string name="content_description_settings_icon">Settings</string>
+    <string name="content_description_user_icon">User</string>
+    <string name="content_description_error_icon">Error</string>
+    <string name="content_description_image_or_placeholder_icon">Image or placeholder icon</string>
+
+    <!-- Home -->
+    <string name="home_screen_title">EUDI Proximity Verifier</string>
+    <string name="home_screen_sticky_bottom_text">Scan QR Code</string>
+    <string name="home_screen_main_button_text_default">Tap to create request</string>
+    <string name="home_screen_main_button_text_separator">; </string>
+    <string name="home_screen_nfc_title">NFC ready to tap</string>
+
+    <!-- Menu -->
+    <string name="menu_screen_title">Menu</string>
+    <string name="menu_screen_item_home_name">Home</string>
+    <string name="menu_screen_item_settings_name">Settings</string>
+
+    <!-- Settings -->
+    <string name="settings_screen_title">Settings</string>
+    <string name="settings_screen_category_general_title">General</string>
+    <string name="settings_screen_category_data_retrieval_options_title">Data retrieval options</string>
+    <string name="settings_screen_category_data_retrieval_methods_title">Data retrieval methods</string>
+    <string name="settings_screen_category_data_retrieval_methods_description">Used for NFC negotiated handover</string>
+    <string name="settings_screen_item_retain_data_title">Retain data on device</string>
+    <string name="settings_screen_item_retain_data_description_selected">Retain data on device</string>
+    <string name="settings_screen_item_retain_data_description_unselected">Don't retain data on device</string>
+    <string name="settings_screen_item_use_l2cap_title">Use L2CAP if available</string>
+    <string name="settings_screen_item_use_l2cap_description_selected">Use L2CAP</string>
+    <string name="settings_screen_item_use_l2cap_description_unselected">Don't use L2CAP</string>
+    <string name="settings_screen_item_clear_ble_title">Clear BLE Service Cache</string>
+    <string name="settings_screen_item_clear_ble_description_selected">Clean the cache</string>
+    <string name="settings_screen_item_clear_ble_description_unselected">Don’t clean the cache</string>
+    <string name="settings_screen_item_ble_central_client_title">BLE central client mode</string>
+    <string name="settings_screen_item_ble_central_client_description_selected">BLE central client mode activated</string>
+    <string name="settings_screen_item_ble_central_client_description_unselected">BLE central client mode deactivated</string>
+    <string name="settings_screen_item_ble_peripheral_server_title">BLE peripheral server mode</string>
+    <string name="settings_screen_item_ble_peripheral_server_description_selected">BLE peripheral server mode activated</string>
+    <string name="settings_screen_item_ble_peripheral_server_description_unselected">BLE peripheral server mode deactivated</string>
+
+    <!-- Documents To Request -->
+    <string name="documents_to_request_screen_title">Documents to request</string>
+    <string name="documents_to_request_screen_status_connecting">Connecting...</string>">
+    <string name="documents_to_request_screen_status_connected">Connected</string>">
+    <string name="documents_to_request_screen_search_placeholder">Search documents</string>
+    <string name="documents_to_request_screen_request_header">Request</string>
+
+    <!-- Custom Request -->
+    <string name="custom_request_screen_title">Custom %1$s request</string>
+    <string name="custom_request_screen_select_deselect">Select/Deselect all</string>
+
+    <!-- Show Documents -->
+    <string name="show_documents_screen_title">Show Documents</string>
+    <string name="show_documents_screen_num_of_docs_description">Number of documents returned</string>
+    <string name="show_documents_screen_address_description">Address</string>
+    <string name="show_documents_screen_document_header">Doctype</string>
+    <string name="show_documents_screen_item_boolean_true_readable_value">yes</string>
+    <string name="show_documents_screen_item_boolean_false_readable_value">no</string>
+    <string name="show_documents_screen_item_gender_male">Male</string>
+    <string name="show_documents_screen_item_gender_female">Female</string>
+    <string name="show_documents_screen_item_gender_not_known">Not known</string>
+    <string name="show_documents_screen_item_gender_not_applicable">Not applicable</string>
+    <string name="show_documents_screen_item_is_data_integrity_intact">Is data integrity intact?</string>
+    <string name="show_documents_screen_item_is_device_signature_valid">Is device signature valid?</string>
+    <string name="show_documents_screen_item_is_issuer_signature_valid">Is issuer signature valid?</string>
+    <string name="show_documents_screen_item_signed">Signed</string>
+    <string name="show_documents_screen_item_valid_from">Valid from</string>
+    <string name="show_documents_screen_item_valid_until">Valid until</string>
+
+    <!-- Transfer Status -->
+    <string name="transfer_status_screen_title">Transfer Status</string>
+    <string name="transfer_status_screen_request_label">Requesting</string>
+    <string name="transfer_status_screen_request_status">Status: </string>
+    <string name="transfer_status_screen_no_permissions">One or more permissions are missing \n Tap here to go to App's Settings</string>
+    <string name="transfer_status_screen_status_connected">Connected</string>
+    <string name="transfer_status_screen_status_connecting">Connecting...</string>
+    <string name="transfer_status_screen_status_device_engagement_completed">Device engagement completed</string>
+    <string name="transfer_status_screen_status_disconnected">Disconnected</string>
+    <string name="transfer_status_screen_status_error">Error %1$s</string>
+    <string name="transfer_status_screen_status_on_response_received">Response received</string>
+    <string name="transfer_status_screen_status_request_sent">Request sent</string>
+
+    <!-- Document Types -->
+    <string name="document_type_pid">PID</string>
+    <string name="document_type_mdl">mDL</string>
+    <string name="document_type_age_verification">Age Verification</string>
+
+    <!-- Document Claim Translations -->
+    <string name="pid_family_name">Family Name(s)</string>
+    <string name="pid_given_name">Given Name(s)</string>
+    <string name="pid_birth_date">Date of Birth</string>
+    <string name="pid_expiry_date">Expiry Date</string>
+    <string name="pid_issuing_country">Issuing Country</string>
+    <string name="pid_issuing_authority">Issuing Authority</string>
+    <string name="pid_document_number">Document Number</string>
+    <string name="pid_portrait">Portrait</string>
+    <string name="pid_sex">Sex</string>
+    <string name="pid_nationality">Nationality</string>
+    <string name="pid_issuing_jurisdiction">Issuing Jurisdiction</string>
+    <string name="pid_resident_address">Resident Address</string>
+    <string name="pid_resident_country">Resident Country</string>
+    <string name="pid_resident_state">Resident State</string>
+    <string name="pid_resident_city">Resident City</string>
+    <string name="pid_resident_postal_code">Postal Code</string>
+    <string name="pid_age_in_years">Age in Years</string>
+    <string name="pid_age_birth_year">Birth Year</string>
+    <string name="pid_age_over_18">Age Over 18</string>
+    <string name="pid_issuance_date">Issuance Date</string>
+    <string name="pid_email_address">Email Address</string>
+    <string name="pid_resident_street">Street</string>
+    <string name="pid_resident_house_number">House Number</string>
+    <string name="pid_personal_administrative_number">Personal Administrative Number</string>
+    <string name="pid_mobile_phone_number">Mobile Phone Number</string>
+    <string name="pid_family_name_birth">Birth Family Name(s)</string>
+    <string name="pid_given_name_birth">Birth Given Name(s)</string>
+    <string name="pid_place_of_birth">Place of Birth</string>
+    <string name="pid_trust_anchor">Trust Anchor</string>
+
+    <string name="mdl_family_name">Family Name(s)</string>
+    <string name="mdl_given_name">Given Name(s)</string>
+    <string name="mdl_birth_date">Date of Birth</string>
+    <string name="mdl_expiry_date">Expiry Date</string>
+    <string name="mdl_issue_date">Date of issue</string>
+    <string name="mdl_issuing_country">Issuing Country</string>
+    <string name="mdl_issuing_authority">Issuing Authority</string>
+    <string name="mdl_document_number">Document Number</string>
+    <string name="mdl_portrait">Portrait</string>
+    <string name="mdl_sex">Sex</string>
+    <string name="mdl_nationality">Nationality</string>
+    <string name="mdl_issuing_jurisdiction">Issuing Jurisdiction</string>
+    <string name="mdl_resident_address">Permanent Residence</string>
+    <string name="mdl_resident_country">Resident Country</string>
+    <string name="mdl_resident_state">Resident State</string>
+    <string name="mdl_resident_city">Resident City</string>
+    <string name="mdl_resident_postal_code">Postal Code</string>
+    <string name="mdl_age_in_years">Age in Years</string>
+    <string name="mdl_age_birth_year">Birth Year</string>
+    <string name="mdl_age_over_18">Age Over 18</string>
+    <string name="mdl_driving_privileges">Driving Privileges</string>
+    <string name="mdl_un_distinguishing_sign">UN Distinguishing Sign</string>
+    <string name="mdl_administrative_number">Administrative Number</string>
+    <string name="mdl_height">Height</string>
+    <string name="mdl_weight">Weight</string>
+    <string name="mdl_eye_colour">Eye Colour</string>
+    <string name="mdl_hair_colour">Hair Colour</string>
+    <string name="mdl_birth_place">Place of Birth</string>
+    <string name="mdl_portrait_capture_date">Portrait Capture Date</string>
+    <string name="mdl_biometric_template_xx">Biometric Template</string>
+    <string name="mdl_family_name_national_character">Family Name (National Characters)</string>
+    <string name="mdl_given_name_national_character">Given Name (National Characters)</string>
+    <string name="mdl_signature_usual_mark">Signature / Usual Mark</string>
+
+    <string name="age_verification_age_over_18">Age Over 18</string>
+    <string name="age_verification_expiry_date">Expiry Date</string>
+    <string name="age_verification_issuance_date">Issuance Date</string>
+    <string name="age_verification_issuing_authority">Issuing Authority</string>
+    <string name="age_verification_issuing_country">Issuing Country</string>
+    <string name="age_verification_user_pseudonym">User Pseudonym</string>
+
+    <!-- Qr Scan -->
+    <string name="qr_scan_screen_title">Device Engagement</string>
+
+</resources>

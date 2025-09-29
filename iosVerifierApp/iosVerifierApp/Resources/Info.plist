@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
+    <key>NSCameraUsageDescription</key>
+    <string>$(PRODUCT_NAME) requests to access your camera.</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>$(PRODUCT_NAME) requests to access your photos library.</string>
+    <key>NSBluetoothAlwaysUsageDescription</key>
+    <string>$(PRODUCT_NAME) uses Bluetooth to discover and connect to nearby devices.</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>$(PRODUCT_NAME) uses your location to detect nearby devices.</string>
+</dict>
+</plist>
