@@ -17,11 +17,14 @@
 package eu.europa.ec.euidi.verifier.presentation.ui.container
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import eu.europa.ec.euidi.verifier.presentation.navigation.VerifierNavHost
 import eu.europa.ec.euidi.verifier.presentation.theme.appTypography
 import eu.europa.ec.euidi.verifier.presentation.theme.darkColors
@@ -42,6 +45,11 @@ fun ContainerView(
         colorScheme = colorScheme,
         typography = appTypography(),
     ) {
-        VerifierNavHost()
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.surface
+        ) {
+            VerifierNavHost()
+        }
     }
 }
