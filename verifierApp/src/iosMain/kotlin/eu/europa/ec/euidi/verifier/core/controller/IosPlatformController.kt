@@ -18,6 +18,7 @@ package eu.europa.ec.euidi.verifier.core.controller
 
 import eu.europa.ec.euidi.verifier.core.controller.model.BuildType
 import eu.europa.ec.euidi.verifier.core.controller.model.FlavorType
+import platform.Foundation.NSBundle
 import platform.Foundation.NSURL
 import platform.UIKit.UIApplication
 import platform.UIKit.UIApplicationOpenSettingsURLString
@@ -25,13 +26,13 @@ import platform.UIKit.UIApplicationOpenSettingsURLString
 class IosPlatformController : PlatformController {
 
     override val buildType: BuildType
-        get() = BuildType.DEBUG
+        get() = infoString("Build Type")?.let { BuildType.from(it) } ?: BuildType.DEBUG
 
     override val flavorType: FlavorType
-        get() = FlavorType.Dev
+        get() = infoString("Build Variant")?.let { FlavorType.from(it) } ?: FlavorType.Dev
 
     override val appVersion: String
-        get() = "yyyy.mm.v"
+        get() = infoString("CFBundleShortVersionString").orEmpty()
 
     override fun closeApp() {
         // no-op
@@ -50,4 +51,7 @@ class IosPlatformController : PlatformController {
                     )
             }
     }
+
+    private fun infoString(key: String): String? =
+        NSBundle.mainBundle.objectForInfoDictionaryKey(key) as? String
 }
