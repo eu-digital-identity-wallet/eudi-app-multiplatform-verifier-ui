@@ -18,9 +18,9 @@ package eu.europa.ec.euidi.verifier.core.di
 
 import eu.europa.ec.euidi.verifier.domain.di.ConfigModule
 import eu.europa.ec.euidi.verifier.domain.di.InteractorModule
+import eu.europa.ec.euidi.verifier.presentation.di.ViewModelModule
 import org.koin.core.context.startKoin
 import org.koin.dsl.KoinAppDeclaration
-import org.koin.ksp.generated.defaultModule
 import org.koin.ksp.generated.module
 
 fun initKoin(appDeclaration: KoinAppDeclaration = {}) =
@@ -33,7 +33,7 @@ fun initKoin(appDeclaration: KoinAppDeclaration = {}) =
             ProviderModule().module,
             ControllerModule().module,
             InteractorModule().module,
-            defaultModule // needed for generated viewModels
+            ViewModelModule().module
         )
     }
 
