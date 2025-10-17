@@ -48,6 +48,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.zIndex
 import eu.europa.ec.euidi.verifier.presentation.component.AppIcons
 import eu.europa.ec.euidi.verifier.presentation.component.IconDataUi
@@ -236,7 +237,9 @@ private fun DefaultToolBar(
             Text(
                 text = toolbarConfig?.title.orEmpty(),
                 color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.titleLarge,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
             )
         },
         navigationIcon = {

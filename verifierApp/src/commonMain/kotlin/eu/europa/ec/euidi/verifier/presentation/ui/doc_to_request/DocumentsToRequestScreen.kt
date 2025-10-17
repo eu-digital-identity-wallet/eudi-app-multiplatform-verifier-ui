@@ -248,10 +248,11 @@ fun SupportedDocumentContentCard(
                     it.id == supportedDoc.id && it.mode == mode
                 }
 
-                val label = if (supportedDoc.documentType == AttestationType.AgeVerification) {
-                    mode.displayName
-                } else {
-                    "${mode.displayName} ${supportedDoc.id}"
+                val label = when (supportedDoc.documentType) {
+                    is AttestationType.Pid,
+                    AttestationType.Mdl -> "${mode.displayName} ${supportedDoc.id}"
+
+                    else -> mode.displayName
                 }
 
                 WrapChip(
