@@ -60,6 +60,7 @@ class ConfigProviderImpl(private val platformController: PlatformController) : C
             AttestationType.Pid -> listOf(DocumentMode.FULL, DocumentMode.CUSTOM)
             AttestationType.Mdl -> listOf(DocumentMode.FULL, DocumentMode.CUSTOM)
             AttestationType.AgeVerification -> listOf(DocumentMode.FULL, DocumentMode.CUSTOM)
+            AttestationType.EmployeeId -> listOf(DocumentMode.FULL, DocumentMode.CUSTOM)
         }
     }
 
@@ -149,7 +150,17 @@ class ConfigProviderImpl(private val platformController: PlatformController) : C
                 ClaimItem("expiry_date"),
                 ClaimItem("issuing_authority"),
                 ClaimItem("issuing_country"),
-            )
+            ),
+            AttestationType.EmployeeId to listOf(
+                ClaimItem("given_name"),
+                ClaimItem("family_name"),
+                ClaimItem("birth_date"),
+                ClaimItem("employee_id"),
+                ClaimItem("employer_name"),
+                ClaimItem("employment_start_date"),
+                ClaimItem("employment_type"),
+                ClaimItem("country_code"),
+            ),
         )
     )
 

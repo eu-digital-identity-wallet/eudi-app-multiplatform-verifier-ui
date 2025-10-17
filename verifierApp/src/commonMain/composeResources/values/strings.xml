@@ -128,6 +128,7 @@
     <string name="document_type_pid">PID</string>
     <string name="document_type_mdl">mDL</string>
     <string name="document_type_age_verification">Age Verification</string>
+    <string name="document_type_employee_id">Employee ID</string>
 
     <!-- Document Claim Translations -->
     <string name="pid_family_name">Family Name(s)</string>
@@ -200,6 +201,15 @@
     <string name="age_verification_issuing_authority">Issuing Authority</string>
     <string name="age_verification_issuing_country">Issuing Country</string>
     <string name="age_verification_user_pseudonym">User Pseudonym</string>
+
+    <string name="employee_id_given_name">Given Name</string>
+    <string name="employee_id_family_name">Family Name</string>
+    <string name="employee_id_birth_date">Date of Birth</string>
+    <string name="employee_id_employee_id">Employee ID</string>
+    <string name="employee_id_employer_name">Employer Name</string>
+    <string name="employee_id_employment_start_date">Start Date</string>
+    <string name="employee_id_employment_type">Employment Type</string>
+    <string name="employee_id_country_code">Country</string>
 
     <!-- Qr Scan -->
     <string name="qr_scan_screen_title">Device Engagement</string>
