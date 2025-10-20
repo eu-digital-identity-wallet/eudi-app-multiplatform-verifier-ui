@@ -59,7 +59,6 @@ class ConfigProviderImpl(private val platformController: PlatformController) : C
         return when (attestationType) {
             AttestationType.Pid -> listOf(DocumentMode.FULL, DocumentMode.CUSTOM)
             AttestationType.Mdl -> listOf(DocumentMode.FULL, DocumentMode.CUSTOM)
-            AttestationType.AgeVerification -> listOf(DocumentMode.FULL, DocumentMode.CUSTOM)
             AttestationType.EmployeeId -> listOf(DocumentMode.FULL, DocumentMode.CUSTOM)
         }
     }
@@ -142,14 +141,6 @@ class ConfigProviderImpl(private val platformController: PlatformController) : C
                 ClaimItem("family_name_national_character"),
                 ClaimItem("given_name_national_character"),
                 ClaimItem("signature_usual_mark")
-            ),
-            AttestationType.AgeVerification to listOf(
-                ClaimItem("age_over_18"),
-                ClaimItem("issuance_date"),
-                ClaimItem("user_pseudonym"),
-                ClaimItem("expiry_date"),
-                ClaimItem("issuing_authority"),
-                ClaimItem("issuing_country"),
             ),
             AttestationType.EmployeeId to listOf(
                 ClaimItem("given_name"),
