@@ -20,7 +20,6 @@ import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
 import eu.europa.ec.euidi.verifier.presentation.utils.CommonParcelable
 import eu.europa.ec.euidi.verifier.presentation.utils.CommonParcelize
 import eudiverifier.verifierapp.generated.resources.Res
-import eudiverifier.verifierapp.generated.resources.document_type_age_verification
 import eudiverifier.verifierapp.generated.resources.document_type_employee_id
 import eudiverifier.verifierapp.generated.resources.document_type_mdl
 import eudiverifier.verifierapp.generated.resources.document_type_pid
@@ -48,15 +47,6 @@ sealed interface AttestationType : CommonParcelable {
             get() = "org.iso.18013.5.1.mDL"
     }
 
-    data object AgeVerification : AttestationType {
-
-        override val namespace: String
-            get() = "eu.europa.ec.eudi.pseudonym.age_over_18.1"
-
-        override val docType: String
-            get() = "eu.europa.ec.eudi.pseudonym.age_over_18.1"
-    }
-
     data object EmployeeId : AttestationType {
 
         override val namespace: String
@@ -73,7 +63,6 @@ sealed interface AttestationType : CommonParcelable {
             return when (this) {
                 Pid -> resourceProvider.getSharedString(Res.string.document_type_pid)
                 Mdl -> resourceProvider.getSharedString(Res.string.document_type_mdl)
-                AgeVerification -> resourceProvider.getSharedString(Res.string.document_type_age_verification)
                 EmployeeId -> resourceProvider.getSharedString(Res.string.document_type_employee_id)
             }
         }
@@ -82,7 +71,6 @@ sealed interface AttestationType : CommonParcelable {
             return when (docType) {
                 Pid.docType -> Pid
                 Mdl.docType -> Mdl
-                AgeVerification.docType -> AgeVerification
                 EmployeeId.docType -> EmployeeId
                 else -> throw IllegalArgumentException("Unknown docType: $docType")
             }

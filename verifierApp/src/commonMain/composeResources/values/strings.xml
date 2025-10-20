@@ -127,7 +127,6 @@
     <!-- Document Types -->
     <string name="document_type_pid">PID</string>
     <string name="document_type_mdl">mDL</string>
-    <string name="document_type_age_verification">Age Verification</string>
     <string name="document_type_employee_id">Employee ID</string>
 
     <!-- Document Claim Translations -->
@@ -194,13 +193,6 @@
     <string name="mdl_family_name_national_character">Family Name (National Characters)</string>
     <string name="mdl_given_name_national_character">Given Name (National Characters)</string>
     <string name="mdl_signature_usual_mark">Signature / Usual Mark</string>
-
-    <string name="age_verification_age_over_18">Age Over 18</string>
-    <string name="age_verification_expiry_date">Expiry Date</string>
-    <string name="age_verification_issuance_date">Issuance Date</string>
-    <string name="age_verification_issuing_authority">Issuing Authority</string>
-    <string name="age_verification_issuing_country">Issuing Country</string>
-    <string name="age_verification_user_pseudonym">User Pseudonym</string>
 
     <string name="employee_id_given_name">Given Name</string>
     <string name="employee_id_family_name">Family Name</string>
