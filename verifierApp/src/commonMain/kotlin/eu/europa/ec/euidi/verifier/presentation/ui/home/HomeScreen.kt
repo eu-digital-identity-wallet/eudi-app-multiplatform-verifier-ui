@@ -43,7 +43,6 @@ import eu.europa.ec.euidi.verifier.presentation.component.ListItemDataUi
 import eu.europa.ec.euidi.verifier.presentation.component.content.ContentScreen
 import eu.europa.ec.euidi.verifier.presentation.component.content.ScreenNavigateAction
 import eu.europa.ec.euidi.verifier.presentation.component.utils.LifecycleEffect
-import eu.europa.ec.euidi.verifier.presentation.component.utils.OneTimeLaunchedEffect
 import eu.europa.ec.euidi.verifier.presentation.component.utils.SPACING_EXTRA_LARGE
 import eu.europa.ec.euidi.verifier.presentation.component.utils.SPACING_MEDIUM
 import eu.europa.ec.euidi.verifier.presentation.component.utils.SPACING_SMALL
@@ -113,10 +112,6 @@ fun HomeScreen(
         val documents = navController
             .getFromCurrentBackStack<RequestedDocsHolder>(Constants.REQUESTED_DOCUMENTS)
         viewModel.setEvent(Event.OnResume(docs = documents?.items))
-    }
-
-    OneTimeLaunchedEffect {
-        viewModel.setEvent(Event.Init)
     }
 }
 

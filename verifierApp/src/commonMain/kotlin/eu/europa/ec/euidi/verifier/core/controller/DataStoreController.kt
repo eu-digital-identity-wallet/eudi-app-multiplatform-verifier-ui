@@ -62,13 +62,13 @@ interface DataStoreController {
     suspend fun putByteArray(key: PrefKey, value: ByteArray)
     suspend fun putLong(key: PrefKey, value: Long)
 
-    suspend fun getBoolean(key: PrefKey): Boolean?
-    suspend fun getInt(key: PrefKey): Int?
-    suspend fun getString(key: PrefKey): String?
-    suspend fun getDouble(key: PrefKey): Double?
-    suspend fun getFloat(key: PrefKey): Float?
-    suspend fun getByteArray(key: PrefKey): ByteArray?
-    suspend fun getLong(key: PrefKey): Long?
+    suspend fun getBoolean(key: PrefKey, default: Boolean? = null): Boolean?
+    suspend fun getInt(key: PrefKey, default: Int? = null): Int?
+    suspend fun getString(key: PrefKey, default: String? = null): String?
+    suspend fun getDouble(key: PrefKey, default: Double? = null): Double?
+    suspend fun getFloat(key: PrefKey, default: Float? = null): Float?
+    suspend fun getByteArray(key: PrefKey, default: ByteArray? = null): ByteArray?
+    suspend fun getLong(key: PrefKey, default: Long? = null): Long?
 
     fun getGeneralPrefs(): List<PrefKey>
     fun getRetrievalOptionsPrefs(): List<PrefKey>
@@ -99,26 +99,47 @@ class DataStoreControllerImpl(
     override suspend fun putLong(key: PrefKey, value: Long) =
         savePreference(longPreferencesKey(key.identifier), value)
 
-    override suspend fun getBoolean(key: PrefKey): Boolean? =
-        readPreference(booleanPreferencesKey(key.identifier))
+    override suspend fun getBoolean(key: PrefKey, default: Boolean?): Boolean? =
+        readPreference(
+            preferencesKey = booleanPreferencesKey(key.identifier),
+            defaultValue = default
+        )
 
-    override suspend fun getInt(key: PrefKey): Int? =
-        readPreference(intPreferencesKey(key.identifier))
+    override suspend fun getInt(key: PrefKey, default: Int?): Int? =
+        readPreference(
+            preferencesKey = intPreferencesKey(key.identifier),
+            defaultValue = default
+        )
 
-    override suspend fun getString(key: PrefKey): String? =
-        readPreference(stringPreferencesKey(key.identifier))
+    override suspend fun getString(key: PrefKey, default: String?): String? =
+        readPreference(
+            preferencesKey = stringPreferencesKey(key.identifier),
+            defaultValue = default
+        )
 
-    override suspend fun getDouble(key: PrefKey): Double? =
-        readPreference(doublePreferencesKey(key.identifier))
+    override suspend fun getDouble(key: PrefKey, default: Double?): Double? =
+        readPreference(
+            preferencesKey = doublePreferencesKey(key.identifier),
+            defaultValue = default
+        )
 
-    override suspend fun getFloat(key: PrefKey): Float? =
-        readPreference(floatPreferencesKey(key.identifier))
+    override suspend fun getFloat(key: PrefKey, default: Float?): Float? =
+        readPreference(
+            preferencesKey = floatPreferencesKey(key.identifier),
+            defaultValue = default
+        )
 
-    override suspend fun getByteArray(key: PrefKey): ByteArray? =
-        readPreference(byteArrayPreferencesKey(key.identifier))
+    override suspend fun getByteArray(key: PrefKey, default: ByteArray?): ByteArray? =
+        readPreference(
+            preferencesKey = byteArrayPreferencesKey(key.identifier),
+            defaultValue = default
+        )
 
-    override suspend fun getLong(key: PrefKey): Long? =
-        readPreference(longPreferencesKey(key.identifier))
+    override suspend fun getLong(key: PrefKey, default: Long?): Long? =
+        readPreference(
+            preferencesKey = longPreferencesKey(key.identifier),
+            defaultValue = default
+        )
 
     override fun getGeneralPrefs(): List<PrefKey> = generalPrefs
 
@@ -136,11 +157,12 @@ class DataStoreControllerImpl(
     }
 
     private suspend fun <T> readPreference(
-        preferencesKey: Preferences.Key<T>
+        preferencesKey: Preferences.Key<T>,
+        defaultValue: T?
     ): T? {
         return dataStore.data
             .map { prefs -> prefs[preferencesKey] }
-            .firstOrNull()
+            .firstOrNull() ?: defaultValue
     }
 
     companion object {

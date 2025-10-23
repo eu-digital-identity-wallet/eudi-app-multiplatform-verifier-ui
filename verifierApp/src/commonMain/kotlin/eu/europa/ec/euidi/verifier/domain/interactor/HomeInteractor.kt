@@ -43,8 +43,6 @@ interface HomeInteractor {
         existingMainButtonData: ListItemDataUi
     ): ListItemDataUi
 
-    suspend fun ensureHasRetrievalMethodsSelected()
-
     fun closeApp()
 }
 
@@ -95,22 +93,7 @@ class HomeInteractorImpl(
         }
     }
 
-    override suspend fun ensureHasRetrievalMethodsSelected() {
-        withContext(dispatcher) {
-            val retrievalMethodPrefs = dataStoreController.getRetrievalMethodPrefs()
-            val isAnyRetrievalMethodSelected = retrievalMethodPrefs.any { retrievalMethodPref ->
-                dataStoreController.getBoolean(key = retrievalMethodPref) == true
-            }
-            if (!isAnyRetrievalMethodSelected) {
-                retrievalMethodPrefs.map { retrievalMethodPref ->
-                    dataStoreController.putBoolean(key = retrievalMethodPref, value = true)
-                }
-            }
-        }
-    }
-
     override fun closeApp() {
         platformController.closeApp()
     }
-
 }
