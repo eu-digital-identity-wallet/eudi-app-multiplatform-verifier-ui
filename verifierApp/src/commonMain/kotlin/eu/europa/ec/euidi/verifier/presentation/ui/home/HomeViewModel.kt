@@ -30,13 +30,12 @@ import eu.europa.ec.euidi.verifier.presentation.navigation.NavItem
 import eu.europa.ec.euidi.verifier.presentation.ui.home.HomeViewModelContract.Effect
 import eu.europa.ec.euidi.verifier.presentation.ui.home.HomeViewModelContract.Event
 import eu.europa.ec.euidi.verifier.presentation.ui.home.HomeViewModelContract.State
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
 sealed interface HomeViewModelContract {
     data class State(
-        val isLoading: Boolean,
+        val isLoading: Boolean = true,
         val error: ContentErrorConfig? = null,
 
         val screenTitle: String = "",
@@ -79,20 +78,17 @@ class HomeViewModel(
 ) : MviViewModel<Event, State, Effect>() {
 
     override fun createInitialState(): State {
-        return State(
-            isLoading = true,
-        )
+        return State()
     }
 
     override fun handleEvent(event: Event) {
         when (event) {
             is Event.Init -> {
-                setScreenTitleAndMainButtonData()
+                ensureHasRetrievalMethodsSelected()
             }
 
             is Event.OnResume -> {
-                ensureHasRetrievalMethodsSelected()
-                handleDocs(docs = event.docs)
+                initiate(docs = event.docs)
             }
 
             is Event.DismissError -> {
@@ -135,47 +131,42 @@ class HomeViewModel(
         }
     }
 
-    private fun setScreenTitleAndMainButtonData() {
+    private fun initiate(docs: List<RequestedDocumentUi>?) {
         viewModelScope.launch {
-            setState {
-                copy(
-                    isLoading = true,
-                )
+
+            uiState.value.mainButtonData ?: run {
+                val title = interactor.getScreenTitle()
+                val buttonData = interactor.getDefaultMainButtonData()
+                setState {
+                    copy(
+                        screenTitle = title,
+                        mainButtonData = buttonData,
+                        isLoading = false
+                    )
+                }
             }
 
-            val screenTitleDeferred = async { interactor.getScreenTitle() }
-            val defaultMainButtonDeferred = async { interactor.getDefaultMainButtonData() }
-
-            val screenTitle = screenTitleDeferred.await()
-            val defaultMainButtonData = defaultMainButtonDeferred.await()
-
-            setState {
-                copy(
-                    screenTitle = screenTitle,
-                    mainButtonData = defaultMainButtonData,
-                    isLoading = false
-                )
-            }
+            handleDocs(docs = docs)
         }
     }
 
-    private fun handleDocs(docs: List<RequestedDocumentUi>?) {
-        viewModelScope.launch {
-            val baseButtonData = uiState.value.mainButtonData ?: return@launch
+    private suspend fun handleDocs(docs: List<RequestedDocumentUi>?) {
 
-            if (!docs.isNullOrEmpty()) {
-                val updatedButton = interactor.formatMainButtonData(
+        val baseButtonData = uiState.value.mainButtonData ?: return
+
+        if (!docs.isNullOrEmpty()) {
+            val updatedButton = interactor.formatMainButtonData(
+                requestedDocs = docs,
+                existingMainButtonData = baseButtonData
+            )
+
+            setState {
+                copy(
                     requestedDocs = docs,
-                    existingMainButtonData = baseButtonData
+                    isStickyButtonEnabled = true,
+                    mainButtonData = updatedButton,
+                    isLoading = false
                 )
-
-                setState {
-                    copy(
-                        requestedDocs = docs,
-                        isStickyButtonEnabled = true,
-                        mainButtonData = updatedButton,
-                    )
-                }
             }
         }
     }
