@@ -39,9 +39,7 @@ import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.StringResource
 
 interface SettingsInteractor {
-    suspend fun getPrefBoolean(key: PrefKey): Boolean
     suspend fun togglePrefBoolean(key: PrefKey)
-
     suspend fun getScreenTitle(): String
     suspend fun getSettingsItemsUi(): List<SettingsItemUi>
 }
@@ -64,16 +62,6 @@ class SettingsInteractorImpl(
     private val retrievalMethodPrefs = dataStoreController
         .getRetrievalMethodPrefs()
         .toSettingsTypeUi()
-
-    /**
-     * Retrieves a boolean preference.
-     *
-     * @param key The [PrefKey] of the preference to retrieve.
-     * @return The boolean value of the preference, or `false` if the preference is not set.
-     */
-    override suspend fun getPrefBoolean(key: PrefKey): Boolean {
-        return dataStoreController.getBoolean(key) ?: false
-    }
 
     /**
      * Toggles the boolean value of a preference.
@@ -129,7 +117,13 @@ class SettingsInteractorImpl(
             val preferences: Map<PrefKey, Boolean> = all
                 .map { it.prefKey }
                 .distinct()
-                .associateWith { getPrefBoolean(it) }
+                .associateWith {
+
+                    val defaultValue: Boolean? =
+                        retrievalMethodPrefs.find { pref -> it == pref.prefKey }?.let { true }
+
+                    getPrefBoolean(it, defaultValue)
+                }
 
             buildList {
                 addAll(
@@ -160,7 +154,7 @@ class SettingsInteractorImpl(
         }
     }
 
-    private suspend fun buildSection(
+    private fun buildSection(
         headerTitle: StringResource,
         headerDesc: StringResource? = null,
         sectionItems: List<SettingsTypeUi>,
@@ -216,5 +210,18 @@ class SettingsInteractorImpl(
                 PrefKey.BLE_PERIPHERAL_SERVER -> SettingsTypeUi.BlePeripheralServer
             }
         }
+    }
+
+    /**
+     * Retrieves a boolean preference value from the data store.
+     *
+     * This function fetches the boolean value associated with the given [key]. If the key does not
+     * exist or has no value, it defaults to `false`.
+     *
+     * @param key The [PrefKey] of the preference to retrieve.
+     * @return The boolean value of the preference, or `false` if not found.
+     */
+    private suspend fun getPrefBoolean(key: PrefKey, defaultValue: Boolean? = null): Boolean {
+        return dataStoreController.getBoolean(key, defaultValue) ?: false
     }
 }

@@ -90,10 +90,10 @@ class TransferStatusInteractorImpl(
             logger = configProvider.logger
         )
         transferController.initializeTransferManager(
-            bleCentralClientMode = getSettingsValue(PrefKey.BLE_CENTRAL_CLIENT),
-            blePeripheralServerMode = getSettingsValue(PrefKey.BLE_PERIPHERAL_SERVER),
-            useL2Cap = getSettingsValue(PrefKey.USE_L2CAP),
-            clearBleCache = getSettingsValue(PrefKey.CLEAR_BLE_CACHE)
+            bleCentralClientMode = getSettingsValue(PrefKey.BLE_CENTRAL_CLIENT, true),
+            blePeripheralServerMode = getSettingsValue(PrefKey.BLE_PERIPHERAL_SERVER, true),
+            useL2Cap = getSettingsValue(PrefKey.USE_L2CAP, false),
+            clearBleCache = getSettingsValue(PrefKey.CLEAR_BLE_CACHE, false)
         )
     }
 
@@ -106,7 +106,7 @@ class TransferStatusInteractorImpl(
     ): Flow<TransferStatus> {
         return transferController.sendRequest(
             requestedDocs = docs,
-            retainData = getSettingsValue(PrefKey.RETAIN_DATA)
+            retainData = getSettingsValue(PrefKey.RETAIN_DATA, false)
         )
     }
 
@@ -126,8 +126,8 @@ class TransferStatusInteractorImpl(
         transferController.stopConnection()
     }
 
-    private suspend fun getSettingsValue(prefKey: PrefKey): Boolean {
-        return dataStoreController.getBoolean(prefKey) ?: false
+    private suspend fun getSettingsValue(prefKey: PrefKey, defaultValue: Boolean): Boolean {
+        return dataStoreController.getBoolean(prefKey, defaultValue) ?: defaultValue
     }
 
     private suspend fun getRequestedDocumentTypes(docs: List<RequestedDocumentUi>): String {

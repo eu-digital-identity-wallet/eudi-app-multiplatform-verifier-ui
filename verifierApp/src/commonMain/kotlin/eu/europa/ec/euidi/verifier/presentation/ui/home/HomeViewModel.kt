@@ -46,7 +46,6 @@ sealed interface HomeViewModelContract {
     ) : UiState
 
     sealed interface Event : UiEvent {
-        data object Init : Event
         data class OnResume(
             val docs: List<RequestedDocumentUi>?
         ) : Event
@@ -83,9 +82,6 @@ class HomeViewModel(
 
     override fun handleEvent(event: Event) {
         when (event) {
-            is Event.Init -> {
-                ensureHasRetrievalMethodsSelected()
-            }
 
             is Event.OnResume -> {
                 initiate(docs = event.docs)
@@ -168,12 +164,6 @@ class HomeViewModel(
                     isLoading = false
                 )
             }
-        }
-    }
-
-    private fun ensureHasRetrievalMethodsSelected() {
-        viewModelScope.launch {
-            interactor.ensureHasRetrievalMethodsSelected()
         }
     }
 
