@@ -16,7 +16,6 @@
 
 package eu.europa.ec.euidi.verifier.domain.interactor
 
-import eu.europa.ec.euidi.verifier.core.controller.DataStoreController
 import eu.europa.ec.euidi.verifier.core.controller.PlatformController
 import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
 import eu.europa.ec.euidi.verifier.core.provider.UuidProvider
@@ -82,10 +81,10 @@ class HomeInteractorImpl(
             val separator =
                 resourceProvider.getSharedString(Res.string.home_screen_main_button_text_separator)
 
-            val displayText = requestedDocs.map { doc ->
+            val displayText = requestedDocs.joinToString(separator = separator) { doc ->
                 val displayName = doc.documentType.getDisplayName(resourceProvider)
                 "${doc.mode.displayName} $displayName"
-            }.joinToString(separator = separator)
+            }
 
             existingMainButtonData.copy(
                 mainContentData = ListItemMainContentDataUi.Text(text = displayText)
