@@ -47,7 +47,6 @@ interface HomeInteractor {
 
 class HomeInteractorImpl(
     private val platformController: PlatformController,
-    private val dataStoreController: DataStoreController,
     private val uuidProvider: UuidProvider,
     private val resourceProvider: ResourceProvider,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
