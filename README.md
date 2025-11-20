@@ -69,7 +69,7 @@ This approach allows the app to retrieve and update document configuration dynam
 You can configure the supported documents and claims by:
 
 •	Adding a new attestation type and updating supportedDocuments with its respective list of claims:
-```Kotlin
+```kotlin
 sealed interface AttestationType {
     data object YourDocument : AttestationType {
 
@@ -92,7 +92,7 @@ val supportedDocuments = SupportedDocuments(
 ```
 
 •	Specifying document modes (e.g., only FULL for some docs) and update getDocumentModes():
-```Kotlin
+```kotlin
 enum class DocumentMode(val displayName: String) {
     FULL(displayName = "Full"),
     CUSTOM(displayName = "Custom")
@@ -108,12 +108,12 @@ fun getDocumentModes(attestationType: AttestationType): List<DocumentMode> {
 The EUDI Verifier App also validates documents against trusted certificate authorities.
 
 •	To configure your own trust anchors, place PEM-encoded certificate files under:
-```Kotlin
+```text
 verifierApp -> commonMain -> composeResources -> files -> certs
 ```
 
 •	Then update getCertificates() to load them:
-```Kotlin
+```kotlin
 override suspend fun getCertificates(): List<String> = listOf(
     Res.readBytes("files/certs/your_trust_anchor.pem").decodeToString()
 )
