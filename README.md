@@ -68,56 +68,58 @@ This approach allows the app to retrieve and update document configuration dynam
 
 You can configure the supported documents and claims by:
 
-•	Adding a new attestation type and updating supportedDocuments with its respective list of claims:
-```kotlin
-sealed interface AttestationType {
-    data object YourDocument : AttestationType {
+- Adding a new attestation type and updating supportedDocuments with its respective list of claims:
 
-        override val namespace: String
-            get() = "your_namespace"
-
-        override val docType: String
-            get() = "your_doctype"
+    ```kotlin
+    sealed interface AttestationType {
+        data object YourDocument : AttestationType {
+    
+            override val namespace: String
+                get() = "your_namespace"
+    
+            override val docType: String
+                get() = "your_doctype"
+        }
     }
-}
-
-val supportedDocuments = SupportedDocuments(
-    mapOf(
-        AttestationType.YourDocument to listOf(
-            ClaimItem("your_claim_1"),
-            ClaimItem("your_claim_2")
+    
+    val supportedDocuments = SupportedDocuments(
+        mapOf(
+            AttestationType.YourDocument to listOf(
+                ClaimItem("your_claim_1"),
+                ClaimItem("your_claim_2")
+            )
         )
     )
-)
-```
+    ```
 
-•	Specifying document modes (e.g., only FULL for some docs) and update getDocumentModes():
-```kotlin
-enum class DocumentMode(val displayName: String) {
-    FULL(displayName = "Full"),
-    CUSTOM(displayName = "Custom")
-}
+- Specifying document modes (e.g., only FULL for some docs) and update getDocumentModes():
 
-fun getDocumentModes(attestationType: AttestationType): List<DocumentMode> {
-    return when (attestationType) {
-        AttestationType.YourDocument -> listOf(DocumentMode.FULL, DocumentMode.CUSTOM)
+    ```kotlin
+    enum class DocumentMode(val displayName: String) {
+        FULL(displayName = "Full"),
+        CUSTOM(displayName = "Custom")
     }
-}
-```
+    
+    fun getDocumentModes(attestationType: AttestationType): List<DocumentMode> {
+        return when (attestationType) {
+            AttestationType.YourDocument -> listOf(DocumentMode.FULL, DocumentMode.CUSTOM)
+        }
+    }
+    ```
 
 The EUDI Verifier App also validates documents against trusted certificate authorities.
 
-•	To configure your own trust anchors, place PEM-encoded certificate files under:
-```text
-verifierApp -> commonMain -> composeResources -> files -> certs
-```
+- To configure your own trust anchors, place PEM-encoded certificate files under:
+    ```kotlin
+    verifierApp -> commonMain -> composeResources -> files -> certs
+    ```
 
-•	Then update getCertificates() to load them:
-```kotlin
-override suspend fun getCertificates(): List<String> = listOf(
-    Res.readBytes("files/certs/your_trust_anchor.pem").decodeToString()
-)
-```
+- Then update getCertificates() to load them:
+    ```kotlin
+    override suspend fun getCertificates(): List<String> = listOf(
+        Res.readBytes("files/certs/your_trust_anchor.pem").decodeToString()
+    )
+    ```
 
 ## Disclaimer
 
