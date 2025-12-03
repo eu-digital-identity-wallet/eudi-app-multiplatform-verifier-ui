@@ -24,6 +24,7 @@ import eu.europa.ec.euidi.verifier.domain.config.model.ClaimItem
 import eu.europa.ec.euidi.verifier.domain.config.model.DocumentMode
 import eu.europa.ec.euidi.verifier.domain.model.SupportedDocumentUi
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -42,7 +43,7 @@ interface DocumentsToRequestInteractor {
         mode: DocumentMode
     ): DocSelectionResult
 
-    suspend fun searchDocuments(
+    fun searchDocuments(
         query: String,
         documents: List<SupportedDocumentUi>
     ): Flow<List<SupportedDocumentUi>>
@@ -52,19 +53,23 @@ interface DocumentsToRequestInteractor {
 
 class DocumentsToRequestInteractorImpl(
     private val configProvider: ConfigProvider,
-    private val resourceProvider: ResourceProvider
+    private val resourceProvider: ResourceProvider,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.Default
 ) : DocumentsToRequestInteractor {
 
-    override suspend fun getSupportedDocuments(): List<SupportedDocumentUi> =
-        configProvider.supportedDocuments
-            .documents
-            .map { (documentType, _) ->
-                SupportedDocumentUi(
-                    id = documentType.getDisplayName(resourceProvider),
-                    documentType = documentType,
-                    modes = configProvider.getDocumentModes(documentType)
-                )
-            }
+    override suspend fun getSupportedDocuments(): List<SupportedDocumentUi> {
+        return withContext(dispatcher) {
+            configProvider.supportedDocuments
+                .documents
+                .map { (documentType, _) ->
+                    SupportedDocumentUi(
+                        id = documentType.getDisplayName(resourceProvider),
+                        documentType = documentType,
+                        modes = configProvider.getDocumentModes(documentType)
+                    )
+                }
+        }
+    }
 
     override fun getDocumentClaims(attestationType: AttestationType): List<ClaimItem> =
         configProvider.supportedDocuments.documents[attestationType].orEmpty()
@@ -75,7 +80,7 @@ class DocumentsToRequestInteractorImpl(
         docType: AttestationType,
         mode: DocumentMode
     ): DocSelectionResult =
-        withContext(Dispatchers.Default) {
+        withContext(dispatcher) {
             // Case 1: already selected → remove it
             if (currentDocs.any { it.id == docId && it.mode == mode }) {
                 val updated = currentDocs.filterNot {
@@ -114,7 +119,7 @@ class DocumentsToRequestInteractorImpl(
             return@withContext DocSelectionResult.Updated(updatedDocs)
         }
 
-    override suspend fun searchDocuments(
+    override fun searchDocuments(
         query: String,
         documents: List<SupportedDocumentUi>
     ): Flow<List<SupportedDocumentUi>> =
@@ -133,13 +138,11 @@ class DocumentsToRequestInteractorImpl(
         }
 
     override suspend fun checkDocumentMode(requestedDocs: List<RequestedDocumentUi>): List<RequestedDocumentUi> =
-        withContext(Dispatchers.Default) {
+        withContext(dispatcher) {
             requestedDocs.map { requestedDoc ->
-                val expectedClaimsCount = configProvider.supportedDocuments.documents
-                    .filterKeys { it == requestedDoc.documentType }
-                    .values
-                    .flatten()
-                    .size
+                val expectedClaimsCount =
+                    configProvider.supportedDocuments.documents[requestedDoc.documentType]?.size
+                        ?: 0
 
                 if (requestedDoc.claims.size == expectedClaimsCount) {
                     requestedDoc.copy(mode = DocumentMode.FULL)
