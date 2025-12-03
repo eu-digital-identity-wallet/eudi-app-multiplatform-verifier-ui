@@ -60,7 +60,7 @@ class CustomRequestInteractorTest {
     private fun TestScope.createInteractor(
         supportedDocuments: SupportedDocuments = SupportedDocuments(emptyMap()),
         resourceProvider: ResourceProvider = FakeResourceProvider
-    ): CustomRequestInteractorImpl {
+    ): CustomRequestInteractor {
         // Use the dispatcher that runTest is already using
         val testDispatcher = coroutineContext[ContinuationInterceptor] as CoroutineDispatcher
 

@@ -52,7 +52,7 @@ class DocumentsToRequestInteractorTest {
      */
     private fun TestScope.createInteractor(
         supportedDocuments: SupportedDocuments = SupportedDocuments(emptyMap())
-    ): DocumentsToRequestInteractorImpl {
+    ): DocumentsToRequestInteractor {
         val dispatcher = coroutineContext[ContinuationInterceptor] as CoroutineDispatcher
         return DocumentsToRequestInteractorImpl(
             configProvider = FakeConfigProvider(supportedDocuments),
