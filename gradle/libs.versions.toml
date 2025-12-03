@@ -3,6 +3,7 @@ android-compileSdk = "36"
 android-minSdk = "29"
 android-targetSdk = "36"
 kotlin = "2.2.21"
+kotlinxCoroutinesTest = "1.10.2"
 ksp = "2.2.20-2.0.3"
 agp = "8.13.1"
 composeMultiplatform = "1.9.3"
@@ -33,6 +34,7 @@ core = "0.1.0"
 # Kotlin
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-testJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 
