@@ -130,7 +130,7 @@ class TransferStatusInteractorImpl(
         return dataStoreController.getBoolean(prefKey, defaultValue) ?: defaultValue
     }
 
-    private suspend fun getRequestedDocumentTypes(docs: List<RequestedDocumentUi>): String {
+    private fun getRequestedDocumentTypes(docs: List<RequestedDocumentUi>): String {
         if (docs.isEmpty()) return ""
 
         val parts = docs.map { doc ->

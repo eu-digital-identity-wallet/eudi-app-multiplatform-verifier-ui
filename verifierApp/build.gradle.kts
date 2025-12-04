@@ -26,6 +26,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlinParcelize)
     alias(libs.plugins.serialization)
+    alias(libs.plugins.kover)
 }
 
 kotlin {
@@ -101,6 +102,7 @@ kotlin {
         commonTest.dependencies {
             implementation(libs.kotlin.test)
             implementation(libs.koin.test)
+            implementation(libs.kotlinx.coroutines.test)
         }
     }
 
@@ -169,7 +171,10 @@ android {
             isDebuggable = false
             signingConfig = signingConfigs.getByName("release")
             buildConfigField("String", "BUILD_TYPE", "\"RELEASE\"")
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
         getByName("debug") {
             isDebuggable = true
@@ -197,6 +202,30 @@ android {
     }
     dependencies {
         implementation(libs.ktor.client.okhttp)
+    }
+}
+
+kover {
+    reports {
+        total {
+
+            html {
+                onCheck = false
+            }
+
+            xml {
+                onCheck = false
+            }
+
+            filters {
+                excludes {
+                    classes(
+                        "*BuildConfig*",
+                        "org.koin*",
+                    )
+                }
+            }
+        }
     }
 }
 

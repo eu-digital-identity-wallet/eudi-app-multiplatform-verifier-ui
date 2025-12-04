@@ -16,7 +16,6 @@
 
 package eu.europa.ec.euidi.verifier.domain.interactor
 
-import eu.europa.ec.euidi.verifier.core.controller.DataStoreController
 import eu.europa.ec.euidi.verifier.core.controller.PlatformController
 import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
 import eu.europa.ec.euidi.verifier.core.provider.UuidProvider
@@ -32,12 +31,11 @@ import eudiverifier.verifierapp.generated.resources.home_screen_main_button_text
 import eudiverifier.verifierapp.generated.resources.home_screen_title
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
 
 interface HomeInteractor {
-    suspend fun getScreenTitle(): String
-    suspend fun getDefaultMainButtonData(): ListItemDataUi
+    fun getScreenTitle(): String
+    fun getDefaultMainButtonData(): ListItemDataUi
     suspend fun formatMainButtonData(
         requestedDocs: List<RequestedDocumentUi>,
         existingMainButtonData: ListItemDataUi
@@ -48,30 +46,25 @@ interface HomeInteractor {
 
 class HomeInteractorImpl(
     private val platformController: PlatformController,
-    private val dataStoreController: DataStoreController,
     private val uuidProvider: UuidProvider,
     private val resourceProvider: ResourceProvider,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) : HomeInteractor {
 
-    override suspend fun getScreenTitle(): String {
-        return withContext(dispatcher) {
-            resourceProvider.getSharedString(Res.string.home_screen_title)
-        }
+    override fun getScreenTitle(): String {
+        return resourceProvider.getSharedString(Res.string.home_screen_title)
     }
 
-    override suspend fun getDefaultMainButtonData(): ListItemDataUi {
-        return withContext(dispatcher) {
-            ListItemDataUi(
-                itemId = uuidProvider.provideUuid(),
-                mainContentData = ListItemMainContentDataUi.Text(
-                    text = resourceProvider.getSharedString(Res.string.home_screen_main_button_text_default)
-                ),
-                trailingContentData = ListItemTrailingContentDataUi.Icon(
-                    iconData = AppIcons.ChevronRight
-                )
+    override fun getDefaultMainButtonData(): ListItemDataUi {
+        return ListItemDataUi(
+            itemId = uuidProvider.provideUuid(),
+            mainContentData = ListItemMainContentDataUi.Text(
+                text = resourceProvider.getSharedString(Res.string.home_screen_main_button_text_default)
+            ),
+            trailingContentData = ListItemTrailingContentDataUi.Icon(
+                iconData = AppIcons.ChevronRight
             )
-        }
+        )
     }
 
     override suspend fun formatMainButtonData(
@@ -82,12 +75,12 @@ class HomeInteractorImpl(
             val separator =
                 resourceProvider.getSharedString(Res.string.home_screen_main_button_text_separator)
 
-            val displayText = requestedDocs.map { doc ->
+            val displayText = requestedDocs.joinToString(separator = separator) { doc ->
                 val displayName = doc.documentType.getDisplayName(resourceProvider)
                 "${doc.mode.displayName} $displayName"
-            }.joinToString(separator = separator)
+            }
 
-            existingMainButtonData.copy(
+            return@withContext existingMainButtonData.copy(
                 mainContentData = ListItemMainContentDataUi.Text(text = displayText)
             )
         }
