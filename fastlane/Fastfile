@@ -20,6 +20,17 @@ default_platform(:android)
 
 platform :android do
 
+  desc "Runs all the unit tests"
+  lane :tests do
+
+    # Run tests
+    gradle(task: "clean")
+    gradle(task: "koverHtmlReport#{ENV["APP_BUILD_TYPE"]}Debug")
+
+    # Clean Artifacts
+    clean_build_artifacts
+  end
+
   desc "Build & Deploy Verifier"
   lane :deploy do
 
