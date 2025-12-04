@@ -80,8 +80,7 @@ class CustomRequestViewModel(
                         val claims = interactor.getDocumentClaims(attestationType = attestationType)
 
                         val uiItems = interactor.transformToUiItems(
-                            documentType = it.documentType,
-                            claims = claims
+                            documentType = it.documentType, claims = claims
                         )
 
                         val screenTitle =

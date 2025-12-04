@@ -34,7 +34,7 @@ import org.jetbrains.compose.resources.StringResource
 
 object UiTransformer {
 
-    suspend fun transformToUiItems(
+    fun transformToUiItems(
         fields: List<ClaimItem>,
         attestationType: AttestationType,
         resourceProvider: ResourceProvider
@@ -65,7 +65,7 @@ object UiTransformer {
         }
     }
 
-    suspend fun ReceivedDocumentUi.toListItemDataUi(
+    fun ReceivedDocumentUi.toListItemDataUi(
         itemId: String,
         claimKey: ClaimItem,
         claimValue: ClaimValue,
@@ -119,7 +119,7 @@ object UiTransformer {
         }
     }
 
-    suspend fun getClaimTranslation(
+    fun getClaimTranslation(
         attestationType: String,
         claimLabel: String,
         resourceProvider: ResourceProvider

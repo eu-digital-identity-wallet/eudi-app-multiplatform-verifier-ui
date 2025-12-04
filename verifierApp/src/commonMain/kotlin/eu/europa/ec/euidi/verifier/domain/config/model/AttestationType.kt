@@ -57,7 +57,7 @@ sealed interface AttestationType : CommonParcelable {
     }
 
     companion object {
-        suspend fun AttestationType.getDisplayName(
+        fun AttestationType.getDisplayName(
             resourceProvider: ResourceProvider
         ): String {
             return when (this) {

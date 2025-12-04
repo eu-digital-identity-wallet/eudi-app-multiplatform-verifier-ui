@@ -30,7 +30,6 @@ import eudiverifier.verifierapp.generated.resources.Res
 import eudiverifier.verifierapp.generated.resources.custom_request_screen_title
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
 
 interface CustomRequestInteractor {
@@ -55,7 +54,7 @@ interface CustomRequestInteractor {
 class CustomRequestInteractorImpl(
     private val configProvider: ConfigProvider,
     private val resourceProvider: ResourceProvider,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val dispatcher: CoroutineDispatcher = Dispatchers.Default
 ) : CustomRequestInteractor {
     override suspend fun getScreenTitle(attestationType: AttestationType): String {
         return withContext(dispatcher) {
@@ -71,12 +70,13 @@ class CustomRequestInteractorImpl(
     }
 
     override suspend fun transformToClaimItems(items: List<ListItemDataUi>): List<ClaimItem> =
-        withContext(Dispatchers.Default) {
+        withContext(dispatcher) {
             items
                 .filter { uiItem ->
                     (uiItem.trailingContentData as? ListItemTrailingContentDataUi.Checkbox)
                         ?.checkboxData
-                        ?.isChecked != false
+                        ?.isChecked
+                        ?: false
                 }
                 .map { uiItem ->
                     ClaimItem(label = uiItem.itemId)
