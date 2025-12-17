@@ -167,7 +167,7 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		B9DA97BD2DC1472D00A4DA20 /* Debug Dev */ = {
+		B9DA97BD2DC1472D00A4DA20 /* DebugDev */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -229,9 +229,9 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
-			name = "Debug Dev";
+			name = DebugDev;
 		};
-		B9DA97BE2DC1472D00A4DA20 /* Release Public */ = {
+		B9DA97BE2DC1472D00A4DA20 /* ReleasePublic */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -286,9 +286,9 @@
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 			};
-			name = "Release Public";
+			name = ReleasePublic;
 		};
-		B9DA97C02DC1472D00A4DA20 /* Debug Dev */ = {
+		B9DA97C02DC1472D00A4DA20 /* DebugDev */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReferenceAnchor = B9DA98002DC14AA900A4DA20 /* Configuration */;
 			baseConfigurationReferenceRelativePath = Dev/DevDebugConfig.xcconfig;
@@ -329,9 +329,9 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
-			name = "Debug Dev";
+			name = DebugDev;
 		};
-		B9DA97C12DC1472D00A4DA20 /* Release Public */ = {
+		B9DA97C12DC1472D00A4DA20 /* ReleasePublic */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReferenceAnchor = B9DA98002DC14AA900A4DA20 /* Configuration */;
 			baseConfigurationReferenceRelativePath = Public/PublicReleaseConfig.xcconfig;
@@ -371,9 +371,9 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
-			name = "Release Public";
+			name = ReleasePublic;
 		};
-		F0CEB2BE2E606925007CEA0E /* Debug Public */ = {
+		F0CEB2BE2E606925007CEA0E /* DebugPublic */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -435,9 +435,9 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
-			name = "Debug Public";
+			name = DebugPublic;
 		};
-		F0CEB2BF2E606925007CEA0E /* Debug Public */ = {
+		F0CEB2BF2E606925007CEA0E /* DebugPublic */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReferenceAnchor = B9DA98002DC14AA900A4DA20 /* Configuration */;
 			baseConfigurationReferenceRelativePath = Public/PublicDebugConfig.xcconfig;
@@ -478,9 +478,9 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
-			name = "Debug Public";
+			name = DebugPublic;
 		};
-		F0CEB2C02E60693C007CEA0E /* Release Dev */ = {
+		F0CEB2C02E60693C007CEA0E /* ReleaseDev */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -542,9 +542,9 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
-			name = "Release Dev";
+			name = ReleaseDev;
 		};
-		F0CEB2C12E60693C007CEA0E /* Release Dev */ = {
+		F0CEB2C12E60693C007CEA0E /* ReleaseDev */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReferenceAnchor = B9DA98002DC14AA900A4DA20 /* Configuration */;
 			baseConfigurationReferenceRelativePath = Dev/DevReleaseConfig.xcconfig;
@@ -585,7 +585,7 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
-			name = "Release Dev";
+			name = ReleaseDev;
 		};
 /* End XCBuildConfiguration section */
 
@@ -593,24 +593,24 @@
 		B9DA97AC2DC1472C00A4DA20 /* Build configuration list for PBXProject "iosVerifierApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				B9DA97BD2DC1472D00A4DA20 /* Debug Dev */,
-				F0CEB2BE2E606925007CEA0E /* Debug Public */,
-				F0CEB2C02E60693C007CEA0E /* Release Dev */,
-				B9DA97BE2DC1472D00A4DA20 /* Release Public */,
+				B9DA97BD2DC1472D00A4DA20 /* DebugDev */,
+				F0CEB2BE2E606925007CEA0E /* DebugPublic */,
+				F0CEB2C02E60693C007CEA0E /* ReleaseDev */,
+				B9DA97BE2DC1472D00A4DA20 /* ReleasePublic */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = "Release Public";
+			defaultConfigurationName = ReleasePublic;
 		};
 		B9DA97BF2DC1472D00A4DA20 /* Build configuration list for PBXNativeTarget "Verifier" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				B9DA97C02DC1472D00A4DA20 /* Debug Dev */,
-				F0CEB2BF2E606925007CEA0E /* Debug Public */,
-				F0CEB2C12E60693C007CEA0E /* Release Dev */,
-				B9DA97C12DC1472D00A4DA20 /* Release Public */,
+				B9DA97C02DC1472D00A4DA20 /* DebugDev */,
+				F0CEB2BF2E606925007CEA0E /* DebugPublic */,
+				F0CEB2C12E60693C007CEA0E /* ReleaseDev */,
+				B9DA97C12DC1472D00A4DA20 /* ReleasePublic */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = "Release Public";
+			defaultConfigurationName = ReleasePublic;
 		};
 /* End XCConfigurationList section */
 	};
