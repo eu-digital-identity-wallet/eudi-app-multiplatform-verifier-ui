@@ -81,7 +81,7 @@ platform :android do
         tag: tagVersion,
       )
     end
-  
+
     if ENV['DEV_REMOTE_REPO']
       upload_tag(
         remoteUrl: ENV['DEV_REMOTE_REPO'],
@@ -122,7 +122,7 @@ platform :android do
     project_root = File.expand_path("..", __dir__)
     base_dir = File.join(
       project_root, 
-      "verifierApp", 
+      "androidVerifierApp",
       "build", 
       "outputs", 
       "apk", 
