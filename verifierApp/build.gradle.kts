@@ -58,9 +58,6 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "VerifierApp"
             isStatic = true
-            freeCompilerArgs += listOf(
-                "-Xbinary=bundleId=eu.europa.ec.euidi.verifier.shared"
-            )
         }
     }
 
@@ -167,15 +164,10 @@ kover {
 }
 
 afterEvaluate {
-
-    val kspCommon = tasks.findByName("kspCommonMainKotlinMetadata")
-        ?: tasks.findByName("kspCommonMainMetadata")
-        ?: return@afterEvaluate
-
     tasks.matching { it.name.startsWith("kspKotlin") }.configureEach {
-        dependsOn(kspCommon)
+        dependsOn(tasks.named("kspCommonMainKotlinMetadata"))
     }
     tasks.matching { it.name.startsWith("compile") }.configureEach {
-        dependsOn(kspCommon)
+        dependsOn(tasks.named("kspCommonMainKotlinMetadata"))
     }
 }
