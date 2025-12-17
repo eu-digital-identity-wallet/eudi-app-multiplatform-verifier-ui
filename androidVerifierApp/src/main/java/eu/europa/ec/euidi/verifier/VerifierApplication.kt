@@ -17,21 +17,20 @@
 package eu.europa.ec.euidi.verifier
 
 import android.app.Application
-import eu.europa.ec.euidi.verifier.core.di.initKoin
-import org.koin.android.ext.koin.androidContext
+import eu.europa.ec.euidi.verifier.core.provider.RuntimeProvider
 
 class VerifierApplication : Application() {
     override fun onCreate() {
         super.onCreate()
-        instance = this
-
-        initKoin {
-            androidContext(this@VerifierApplication)
-        }
+        initialize()
     }
 
-    companion object {
-        lateinit var instance: VerifierApplication
-            private set
+    private fun initialize() {
+        RuntimeProvider.init(
+            context = this,
+            versionName = BuildConfig.VERSION_NAME,
+            buildType = BuildConfig.BUILD_TYPE,
+            flavor = BuildConfig.FLAVOR
+        )
     }
 }

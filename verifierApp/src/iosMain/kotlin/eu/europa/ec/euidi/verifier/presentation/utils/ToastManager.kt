@@ -27,17 +27,17 @@ import platform.darwin.dispatch_time
 
 actual open class ToastManager {
     actual fun showToast(message: String) {
+
         // Dismiss the keyboard if it's open
         dismissKeyboard()
 
-        val alert = UIAlertController.Companion.alertControllerWithTitle(
+        val alert = UIAlertController.alertControllerWithTitle(
             title = null,
             message = message,
             preferredStyle = UIAlertControllerStyleAlert
         )
 
-        val rootViewController =
-            UIApplication.Companion.sharedApplication.keyWindow?.rootViewController
+        val rootViewController = UIApplication.sharedApplication.keyWindow?.rootViewController
         rootViewController?.presentViewController(alert, animated = true, completion = null)
 
         // Dismiss the alert after 2 seconds to mimic a toast
@@ -49,7 +49,7 @@ actual open class ToastManager {
 
     //Function to dismiss the keyboard
     private fun dismissKeyboard() {
-        val keyWindow = UIApplication.Companion.sharedApplication.keyWindow
+        val keyWindow = UIApplication.sharedApplication.keyWindow
         keyWindow?.endEditing(true)
     }
 }

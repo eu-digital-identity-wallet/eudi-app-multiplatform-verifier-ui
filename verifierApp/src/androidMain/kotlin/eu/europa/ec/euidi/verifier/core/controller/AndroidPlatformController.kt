@@ -21,9 +21,9 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
-import eu.europa.ec.euidi.verifier.BuildConfig
 import eu.europa.ec.euidi.verifier.core.controller.model.BuildType
 import eu.europa.ec.euidi.verifier.core.controller.model.FlavorType
+import eu.europa.ec.euidi.verifier.core.provider.RuntimeProvider
 import java.lang.ref.WeakReference
 
 class AndroidPlatformController(
@@ -36,13 +36,13 @@ class AndroidPlatformController(
     }
 
     override val buildType: BuildType
-        get() = BuildType.from(BuildConfig.BUILD_TYPE)
+        get() = RuntimeProvider.buildType
 
     override val flavorType: FlavorType
-        get() = FlavorType.from(BuildConfig.FLAVOR)
+        get() = RuntimeProvider.flavor
 
     override val appVersion: String
-        get() = BuildConfig.VERSION_NAME
+        get() = RuntimeProvider.versionName
 
     override fun closeApp() {
         activityRef?.get()?.finish()
