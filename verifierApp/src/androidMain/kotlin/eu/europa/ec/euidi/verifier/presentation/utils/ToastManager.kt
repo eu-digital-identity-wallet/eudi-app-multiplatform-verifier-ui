@@ -17,11 +17,11 @@
 package eu.europa.ec.euidi.verifier.presentation.utils
 
 import android.widget.Toast
-import eu.europa.ec.euidi.verifier.VerifierApplication
+import eu.europa.ec.euidi.verifier.core.provider.RuntimeProvider
 
 actual open class ToastManager actual constructor() {
     actual fun showToast(message: String) {
-        val context = VerifierApplication.Companion.instance.baseContext
+        val context = RuntimeProvider.appContext
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 }

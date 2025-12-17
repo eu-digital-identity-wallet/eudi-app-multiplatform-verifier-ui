@@ -44,3 +44,4 @@ dependencyResolutionManagement {
 }
 
 include(":verifierApp")
+include(":androidVerifierApp")
