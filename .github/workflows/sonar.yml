@@ -1,14 +1,11 @@
-name: SAST - SonarCloud (VerifierApp KMP)
+name: SAST - SonarCloud
 
 on:
-  workflow_call:
-    secrets:
-      SONAR_TOKEN:
-        required: true
-      DOJO_TOKEN:
-        required: false
-      DOJO_URL:
-        required: false
+  push:
+    branches-ignore:
+      - 'dependabot/**'
+  pull_request_target:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -17,40 +14,47 @@ jobs:
   analysis:
     name: SonarCloud Analysis
     runs-on: ubuntu-latest
+
     env:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       DOJO_TOKEN: ${{ secrets.DOJO_TOKEN }}
       DOJO_URL: ${{ secrets.DOJO_URL }}
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-java@v4
+      - name: Set up Java
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
 
-      - uses: gradle/actions/wrapper-validation@v4
-      - uses: gradle/actions/setup-gradle@v4
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@v4
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Set project metadata
         run: |
           echo "PROJECT_KEY=${{ github.repository_owner }}_$(basename ${{ github.repository }})" >> $GITHUB_ENV
           echo "SCAN_DATE=$(TZ='EET' date '+%Y-%m-%d')" >> $GITHUB_ENV
 
-      - name: Clean build
+      - name: Clean Gradle build
         run: ./gradlew clean
 
       - name: Run JVM tests (best effort)
-        run: ./gradlew test || echo "No JVM tests found"
+        run: |
+          ./gradlew test || echo "No JVM tests found"
 
-      - name: Generate Kover XML coverage
-        run: ./gradlew koverXmlReport || echo "Kover report not generated"
+      - name: Generate Kover XML coverage (best effort)
+        run: |
+          ./gradlew koverXmlReport || echo "Kover XML report not generated"
 
-      # 🔒 STATIC, PROJECT-SPECIFIC SONAR CONFIG
-      - name: Configure Sonar sources (static)
+      - name: Configure Sonar sources
         run: |
           echo "SONAR_SOURCES=verifierApp/src/commonMain,verifierApp/src/androidMain,androidVerifierApp/src/main" >> $GITHUB_ENV
           echo "SONAR_EXCLUSIONS=**/iosVerifierApp/**,**/build/**,**/.gradle/**,**/fastlane/**" >> $GITHUB_ENV
@@ -58,7 +62,8 @@ jobs:
           echo "Using Sonar sources:"
           echo "$SONAR_SOURCES"
 
-      - uses: sonarsource/sonarqube-scan-action@v6.0.0
+      - name: Run SonarCloud Scan
+        uses: sonarsource/sonarqube-scan-action@v6.0.0
         with:
           projectBaseDir: ${{ github.workspace }}
           args: >
@@ -70,8 +75,9 @@ jobs:
             -Dsonar.coverage.jacoco.xmlReportPaths=build/reports/kover/report.xml
             -Dsonar.scanner.skipJreProvisioning=true
 
-      - uses: actions/setup-node@v4
+      - name: Set up Node (main branch only)
         if: github.repository_owner == 'eu-digital-identity-wallet' && github.ref_name == 'main'
+        uses: actions/setup-node@v4
         with:
           node-version: 18
 
