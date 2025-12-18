@@ -1,4 +1,5 @@
-name: SAST - SonarCloud (BT) Caller
+name: SAST - SonarCloud
+
 on:
   push:
     branches-ignore:
@@ -6,11 +7,104 @@ on:
   pull_request_target:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
-   SAST_caller:
-      uses: eu-digital-identity-wallet/eudi-infra-ci/.github/workflows/sast_action_android_cov.yml@main
-      secrets:
-       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-       DOJO_TOKEN: ${{ secrets.DOJO_TOKEN }}
-       DOJO_URL: ${{ secrets.DOJO_URL }}
+  analysis:
+    name: SonarCloud Analysis
+    runs-on: ubuntu-latest
+
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      DOJO_TOKEN: ${{ secrets.DOJO_TOKEN }}
+      DOJO_URL: ${{ secrets.DOJO_URL }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@v4
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Set project metadata
+        run: |
+          echo "PROJECT_KEY=${{ github.repository_owner }}_$(basename ${{ github.repository }})" >> $GITHUB_ENV
+          echo "SCAN_DATE=$(TZ='EET' date '+%Y-%m-%d')" >> $GITHUB_ENV
+
+      - name: Clean Gradle build
+        run: ./gradlew clean
+
+      - name: Run JVM tests (best effort)
+        run: |
+          ./gradlew test || echo "No JVM tests found"
+
+      - name: Generate Kover XML coverage (best effort)
+        run: |
+          ./gradlew koverXmlReport || echo "Kover XML report not generated"
+
+      - name: Configure Sonar sources
+        run: |
+          echo "SONAR_SOURCES=verifierApp/src/commonMain,verifierApp/src/androidMain,androidVerifierApp/src/main" >> $GITHUB_ENV
+          echo "SONAR_EXCLUSIONS=**/iosVerifierApp/**,**/build/**,**/.gradle/**,**/fastlane/**" >> $GITHUB_ENV
+
+          echo "Using Sonar sources:"
+          echo "$SONAR_SOURCES"
+
+      - name: Run SonarCloud Scan
+        uses: sonarsource/sonarqube-scan-action@v6.0.0
+        with:
+          projectBaseDir: ${{ github.workspace }}
+          args: >
+            -Dsonar.organization=${{ github.repository_owner }}
+            -Dsonar.projectKey=${{ env.PROJECT_KEY }}
+            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.sources=${{ env.SONAR_SOURCES }}
+            -Dsonar.exclusions=${{ env.SONAR_EXCLUSIONS }}
+            -Dsonar.coverage.jacoco.xmlReportPaths=build/reports/kover/report.xml
+            -Dsonar.scanner.skipJreProvisioning=true
+
+      - name: Set up Node (main branch only)
+        if: github.repository_owner == 'eu-digital-identity-wallet' && github.ref_name == 'main'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Generate and Upload Sonar Report to DefectDojo
+        if: github.repository_owner == 'eu-digital-identity-wallet' && github.ref_name == 'main'
+        run: |
+          npm cache clean --force
+          npm install -g sonar-report@3.0.10
+
+          sonar-report \
+            --sonarurl="https://sonarcloud.io" \
+            --sonarorganization="${{ github.repository_owner }}" \
+            --branch="${{ github.ref_name }}" \
+            --sonartoken="${{ secrets.SONAR_TOKEN }}" \
+            --output sonarreport.html \
+            --application="${{ env.PROJECT_KEY }}" \
+            --sonarcomponent="${{ env.PROJECT_KEY }}"
+
+          curl -X POST "$DOJO_URL/api/v2/reimport-scan/" \
+            -H "Authorization: Token $DOJO_TOKEN" \
+            -F "active=true" \
+            -F "scan_type=SonarQube Scan detailed" \
+            -F "minimum_severity=Info" \
+            -F "skip_duplicates=true" \
+            -F "close_old_findings=true" \
+            -F "file=@sonarreport.html" \
+            -F "scan_date=${{ env.SCAN_DATE }}" \
+            -F "auto_create_context=True" \
+            -F "product_name=${{ github.repository }}-${{ github.ref_name }}" \
+            -F "engagement_name=Static Application Security Testing - ${{ github.repository }}-${{ github.ref_name }}"
