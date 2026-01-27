@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import eu.europa.ec.euidi.verifier.presentation.component.AppIcons
@@ -37,7 +38,6 @@ import eu.europa.ec.euidi.verifier.presentation.component.preview.PreviewTheme
 import eu.europa.ec.euidi.verifier.presentation.component.preview.TextLengthPreviewProvider
 import eu.europa.ec.euidi.verifier.presentation.component.preview.ThemeModePreviews
 import eu.europa.ec.euidi.verifier.presentation.component.utils.SPACING_MEDIUM
-import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
 
 @Composable
 fun WrapListItems(

@@ -16,7 +16,8 @@
 
 package eu.europa.ec.euidi.verifier.presentation.component.preview
 
-import org.jetbrains.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+
 
 /**
  * Provides different strings in order to test view's behavior based on string length
