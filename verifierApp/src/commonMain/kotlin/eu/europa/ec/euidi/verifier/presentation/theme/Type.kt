@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
@@ -38,7 +39,6 @@ import eudiverifier.verifierapp.generated.resources.roboto_light
 import eudiverifier.verifierapp.generated.resources.roboto_medium
 import eudiverifier.verifierapp.generated.resources.roboto_regular
 import org.jetbrains.compose.resources.Font
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 private fun appFontFamily() = FontFamily(

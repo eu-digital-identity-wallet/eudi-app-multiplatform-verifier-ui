@@ -25,11 +25,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import eu.europa.ec.euidi.verifier.presentation.navigation.VerifierNavHost
 import eu.europa.ec.euidi.verifier.presentation.theme.appTypography
 import eu.europa.ec.euidi.verifier.presentation.theme.darkColors
 import eu.europa.ec.euidi.verifier.presentation.theme.lightColors
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 @Preview

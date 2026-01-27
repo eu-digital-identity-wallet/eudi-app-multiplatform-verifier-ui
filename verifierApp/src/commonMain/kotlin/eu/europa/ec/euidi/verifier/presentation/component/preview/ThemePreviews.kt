@@ -16,7 +16,7 @@
 
 package eu.europa.ec.euidi.verifier.presentation.component.preview
 
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.Preview
 
-@Preview()
+@Preview
 annotation class ThemeModePreviews

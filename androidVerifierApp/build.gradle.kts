@@ -14,14 +14,14 @@
  * governing permissions and limitations under the Licence.
  */
 
+import com.android.build.api.dsl.ApplicationExtension
 import java.util.Properties
 
 plugins {
     alias(libs.plugins.androidApplication)
-    alias(libs.plugins.kotlinAndroid)
 }
 
-android {
+configure<ApplicationExtension> {
 
     val version = getProperty<String>(
         "VERSION_NAME",
