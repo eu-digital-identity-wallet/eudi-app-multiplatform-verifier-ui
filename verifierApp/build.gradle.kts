@@ -31,7 +31,7 @@ kotlin {
     val basePackage = "eu.europa.ec.euidi.verifier"
     val parcelizeAnnotationPath = "$basePackage.presentation.utils"
 
-    androidLibrary {
+    android {
 
         namespace = "eu.europa.ec.euidi.verifier.shared"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
@@ -97,7 +97,6 @@ kotlin {
             implementation(project.dependencies.platform(libs.koin.bom))
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
-            implementation(libs.koin.annotations)
 
             api(libs.androidx.datastore.preferences.core)
             api(libs.androidx.datastore.core.okio)
@@ -125,10 +124,6 @@ kotlin {
     compilerOptions {
         freeCompilerArgs.add("-Xexpect-actual-classes")
     }
-
-    ksp {
-        arg("KOIN_USE_COMPOSE_VIEWMODEL", "true")
-    }
 }
 
 kotlin.sourceSets
@@ -137,14 +132,6 @@ kotlin.sourceSets
         languageSettings.optIn("kotlinx.cinterop.ExperimentalForeignApi")
         languageSettings.optIn("kotlin.experimental.ExperimentalObjCName")
     }
-
-
-dependencies {
-    add("kspIosSimulatorArm64", libs.koin.ksp.compiler)
-    add("kspIosX64", libs.koin.ksp.compiler)
-    add("kspIosArm64", libs.koin.ksp.compiler)
-    add("kspCommonMainMetadata", libs.koin.ksp.compiler)
-}
 
 kover {
     reports {

@@ -20,15 +20,14 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import eu.europa.ec.euidi.verifier.core.controller.DataStoreController
 import eu.europa.ec.euidi.verifier.core.controller.DataStoreControllerImpl
-import org.koin.core.annotation.Module
-import org.koin.core.annotation.Single
+import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
+import eu.europa.ec.euidi.verifier.core.provider.ResourceProviderImpl
+import eu.europa.ec.euidi.verifier.core.provider.UuidProvider
+import eu.europa.ec.euidi.verifier.core.provider.UuidProviderImpl
+import org.koin.dsl.module
 
-@Module
-class ControllerModule {
-
-    @Single
-    fun provideDataStoreController(
-        dataStore: DataStore<Preferences>
-    ): DataStoreController = DataStoreControllerImpl(dataStore)
-
+val coreModule = module {
+    single<DataStoreController> { DataStoreControllerImpl(get<DataStore<Preferences>>()) }
+    single<UuidProvider> { UuidProviderImpl() }
+    single<ResourceProvider> { ResourceProviderImpl() }
 }

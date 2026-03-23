@@ -29,7 +29,6 @@ import eu.europa.ec.euidi.verifier.presentation.ui.qr_scan.QrScanViewModelContra
 import eu.europa.ec.euidi.verifier.presentation.ui.qr_scan.QrScanViewModelContract.Event
 import eu.europa.ec.euidi.verifier.presentation.ui.qr_scan.QrScanViewModelContract.State
 import kotlinx.coroutines.launch
-import org.koin.android.annotation.KoinViewModel
 
 sealed interface QrScanViewModelContract {
     data class State(
@@ -64,7 +63,6 @@ sealed interface QrScanViewModelContract {
     }
 }
 
-@KoinViewModel
 class QrScanViewModel(
     private val interactor: QrScanInteractor,
 ) : MviViewModel<Event, State, Effect>() {

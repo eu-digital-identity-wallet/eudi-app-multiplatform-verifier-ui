@@ -30,7 +30,6 @@ import eu.europa.ec.euidi.verifier.presentation.ui.menu.model.MenuItemUi
 import eu.europa.ec.euidi.verifier.presentation.ui.menu.model.MenuTypeUi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import org.koin.android.annotation.KoinViewModel
 
 sealed interface MenuViewModelContract {
     data class State(
@@ -66,7 +65,6 @@ sealed interface MenuViewModelContract {
     }
 }
 
-@KoinViewModel
 class MenuViewModel(
     private val interactor: MenuInteractor,
 ) : MviViewModel<Event, State, Effect>() {

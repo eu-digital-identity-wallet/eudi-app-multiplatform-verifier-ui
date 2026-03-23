@@ -30,7 +30,6 @@ import eu.europa.ec.euidi.verifier.presentation.ui.settings.model.SettingsItemUi
 import eu.europa.ec.euidi.verifier.presentation.ui.settings.model.SettingsTypeUi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import org.koin.android.annotation.KoinViewModel
 
 sealed interface SettingsViewModelContract {
     data class State(
@@ -68,7 +67,6 @@ sealed interface SettingsViewModelContract {
     }
 }
 
-@KoinViewModel
 class SettingsViewModel(
     private val interactor: SettingsInteractor,
 ) : MviViewModel<Event, State, Effect>() {

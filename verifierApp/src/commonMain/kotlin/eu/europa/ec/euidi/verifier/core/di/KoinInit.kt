@@ -16,25 +16,21 @@
 
 package eu.europa.ec.euidi.verifier.core.di
 
-import eu.europa.ec.euidi.verifier.domain.di.ConfigModule
-import eu.europa.ec.euidi.verifier.domain.di.InteractorModule
-import eu.europa.ec.euidi.verifier.presentation.di.ViewModelModule
+import eu.europa.ec.euidi.verifier.domain.di.domainModule
+import eu.europa.ec.euidi.verifier.presentation.di.presentationModule
 import org.koin.core.context.startKoin
 import org.koin.dsl.KoinAppDeclaration
-import org.koin.ksp.generated.module
 
-fun initKoin(appDeclaration: KoinAppDeclaration = {}) =
-    startKoin {
-        appDeclaration()
-
-        modules(
+fun initKoin(appDeclaration: KoinAppDeclaration = {}) = startKoin {
+    appDeclaration()
+    modules(
+        listOf(
             platformModule(),
-            ConfigModule().module,
-            ProviderModule().module,
-            ControllerModule().module,
-            InteractorModule().module,
-            ViewModelModule().module
+            coreModule,
+            domainModule,
+            presentationModule
         )
-    }
+    )
+}
 
 fun initKoin() = initKoin {} // called by iOS
