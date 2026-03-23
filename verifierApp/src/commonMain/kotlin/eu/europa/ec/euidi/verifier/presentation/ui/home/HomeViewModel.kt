@@ -31,7 +31,6 @@ import eu.europa.ec.euidi.verifier.presentation.ui.home.HomeViewModelContract.Ef
 import eu.europa.ec.euidi.verifier.presentation.ui.home.HomeViewModelContract.Event
 import eu.europa.ec.euidi.verifier.presentation.ui.home.HomeViewModelContract.State
 import kotlinx.coroutines.launch
-import org.koin.android.annotation.KoinViewModel
 
 sealed interface HomeViewModelContract {
     data class State(
@@ -71,7 +70,6 @@ sealed interface HomeViewModelContract {
     }
 }
 
-@KoinViewModel
 class HomeViewModel(
     private val interactor: HomeInteractor,
 ) : MviViewModel<Event, State, Effect>() {

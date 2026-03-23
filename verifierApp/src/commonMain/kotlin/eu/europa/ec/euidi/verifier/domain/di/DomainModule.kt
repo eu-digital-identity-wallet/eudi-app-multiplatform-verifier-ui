@@ -22,6 +22,7 @@ import eu.europa.ec.euidi.verifier.core.controller.TransferController
 import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
 import eu.europa.ec.euidi.verifier.core.provider.UuidProvider
 import eu.europa.ec.euidi.verifier.domain.config.ConfigProvider
+import eu.europa.ec.euidi.verifier.domain.config.ConfigProviderImpl
 import eu.europa.ec.euidi.verifier.domain.interactor.CustomRequestInteractor
 import eu.europa.ec.euidi.verifier.domain.interactor.CustomRequestInteractorImpl
 import eu.europa.ec.euidi.verifier.domain.interactor.DocumentsToRequestInteractor
@@ -38,89 +39,70 @@ import eu.europa.ec.euidi.verifier.domain.interactor.ShowDocumentsInteractor
 import eu.europa.ec.euidi.verifier.domain.interactor.ShowDocumentsInteractorImpl
 import eu.europa.ec.euidi.verifier.domain.interactor.TransferStatusInteractor
 import eu.europa.ec.euidi.verifier.domain.interactor.TransferStatusInteractorImpl
-import org.koin.core.annotation.Factory
-import org.koin.core.annotation.Module
+import org.koin.dsl.module
 
-@Module
-class InteractorModule {
+val domainModule = module {
 
-    @Factory
-    fun provideHomeInteractor(
-        platformController: PlatformController,
-        uuidProvider: UuidProvider,
-        resourceProvider: ResourceProvider,
-    ): HomeInteractor = HomeInteractorImpl(
-        platformController,
-        uuidProvider,
-        resourceProvider,
-    )
+    single<ConfigProvider> { ConfigProviderImpl(get<PlatformController>()) }
 
-    @Factory
-    fun provideDocumentsToRequestInteractor(
-        configProvider: ConfigProvider,
-        resourceProvider: ResourceProvider
-    ): DocumentsToRequestInteractor =
-        DocumentsToRequestInteractorImpl(configProvider, resourceProvider)
+    factory<HomeInteractor> {
+        HomeInteractorImpl(
+            get<PlatformController>(),
+            get<UuidProvider>(),
+            get<ResourceProvider>()
+        )
+    }
 
-    @Factory
-    fun provideCustomRequestInteractor(
-        resourceProvider: ResourceProvider,
-        configProvider: ConfigProvider,
-    ): CustomRequestInteractor =
+    factory<DocumentsToRequestInteractor> {
+        DocumentsToRequestInteractorImpl(
+            get<ConfigProvider>(),
+            get<ResourceProvider>()
+        )
+    }
+
+    factory<CustomRequestInteractor> {
         CustomRequestInteractorImpl(
-            resourceProvider = resourceProvider,
-            configProvider = configProvider
+            resourceProvider = get<ResourceProvider>(),
+            configProvider = get<ConfigProvider>()
         )
+    }
 
-    @Factory
-    fun provideShowDocumentsInteractor(
-        resourceProvider: ResourceProvider,
-        uuidProvider: UuidProvider
-    ): ShowDocumentsInteractor =
-        ShowDocumentsInteractorImpl(resourceProvider, uuidProvider)
+    factory<ShowDocumentsInteractor> {
+        ShowDocumentsInteractorImpl(
+            get<ResourceProvider>(),
+            get<UuidProvider>()
+        )
+    }
 
-    @Factory
-    fun provideTransferStatusInteractor(
-        resourceProvider: ResourceProvider,
-        uuidProvider: UuidProvider,
-        transferController: TransferController,
-        dataStoreController: DataStoreController,
-        configProvider: ConfigProvider
-    ): TransferStatusInteractor =
+    factory<TransferStatusInteractor> {
         TransferStatusInteractorImpl(
-            resourceProvider,
-            uuidProvider,
-            transferController,
-            dataStoreController,
-            configProvider
+            get<ResourceProvider>(),
+            get<UuidProvider>(),
+            get<TransferController>(),
+            get<DataStoreController>(),
+            get<ConfigProvider>()
         )
+    }
 
-    @Factory
-    fun provideMenuInteractor(
-        uuidProvider: UuidProvider,
-        resourceProvider: ResourceProvider,
-        configProvider: ConfigProvider
-    ): MenuInteractor = MenuInteractorImpl(
-        uuidProvider,
-        resourceProvider,
-        configProvider
-    )
+    factory<MenuInteractor> {
+        MenuInteractorImpl(
+            get<UuidProvider>(),
+            get<ResourceProvider>(),
+            get<ConfigProvider>()
+        )
+    }
 
-    @Factory
-    fun provideSettingsInteractor(
-        uuidProvider: UuidProvider,
-        resourceProvider: ResourceProvider,
-        dataStoreController: DataStoreController,
-    ): SettingsInteractor = SettingsInteractorImpl(
-        uuidProvider,
-        resourceProvider,
-        dataStoreController,
-    )
+    factory<SettingsInteractor> {
+        SettingsInteractorImpl(
+            get<UuidProvider>(),
+            get<ResourceProvider>(),
+            get<DataStoreController>()
+        )
+    }
 
-    @Factory
-    fun provideQrScanInteractor(
-        resourceProvider: ResourceProvider,
-    ): QrScanInteractor = QrScanInteractorImpl(
-        resourceProvider,
-    )
+    factory<QrScanInteractor> {
+        QrScanInteractorImpl(
+            get<ResourceProvider>()
+        )
+    }
 }

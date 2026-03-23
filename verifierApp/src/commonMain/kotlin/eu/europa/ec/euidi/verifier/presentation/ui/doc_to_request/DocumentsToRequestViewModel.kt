@@ -29,7 +29,6 @@ import eu.europa.ec.euidi.verifier.presentation.architecture.UiState
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocsHolder
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
 import kotlinx.coroutines.launch
-import org.koin.android.annotation.KoinViewModel
 
 sealed interface DocToRequestContract {
     data class State(
@@ -66,7 +65,6 @@ sealed interface DocToRequestContract {
     }
 }
 
-@KoinViewModel
 class DocumentsToRequestViewModel(
     private val interactor: DocumentsToRequestInteractor,
 ) : MviViewModel<DocToRequestContract.Event, DocToRequestContract.State, DocToRequestContract.Effect>() {

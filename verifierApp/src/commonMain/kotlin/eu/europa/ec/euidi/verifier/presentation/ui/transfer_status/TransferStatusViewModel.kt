@@ -38,8 +38,6 @@ import eudiverifier.verifierapp.generated.resources.transfer_status_screen_statu
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import org.koin.android.annotation.KoinViewModel
-import org.koin.core.annotation.InjectedParam
 
 sealed interface TransferStatusViewModelContract {
     data class State(
@@ -77,11 +75,10 @@ sealed interface TransferStatusViewModelContract {
     }
 }
 
-@KoinViewModel
 class TransferStatusViewModel(
     private val transferStatusInteractor: TransferStatusInteractor,
     private val resourceProvider: ResourceProvider,
-    @InjectedParam private val qrCode: String
+    private val qrCode: String
 ) : MviViewModel<TransferStatusViewModelContract.Event, TransferStatusViewModelContract.State, TransferStatusViewModelContract.Effect>() {
 
     override fun createInitialState(): TransferStatusViewModelContract.State =

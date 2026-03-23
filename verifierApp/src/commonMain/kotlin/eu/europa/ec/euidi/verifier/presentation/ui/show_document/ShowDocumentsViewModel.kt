@@ -26,7 +26,6 @@ import eu.europa.ec.euidi.verifier.presentation.model.ReceivedDocumentUi
 import eu.europa.ec.euidi.verifier.presentation.navigation.NavItem
 import eu.europa.ec.euidi.verifier.presentation.ui.show_document.model.DocumentUi
 import kotlinx.coroutines.launch
-import org.koin.android.annotation.KoinViewModel
 
 sealed interface ShowDocumentViewModelContract {
     data class State(
@@ -54,7 +53,6 @@ sealed interface ShowDocumentViewModelContract {
     }
 }
 
-@KoinViewModel
 class ShowDocumentsViewModel(
     private val interactor: ShowDocumentsInteractor
 ) : MviViewModel<ShowDocumentViewModelContract.Event, ShowDocumentViewModelContract.State, ShowDocumentViewModelContract.Effect>() {

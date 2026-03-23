@@ -29,7 +29,6 @@ import eu.europa.ec.euidi.verifier.presentation.component.extension.hasAnyChecke
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocsHolder
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
 import kotlinx.coroutines.launch
-import org.koin.android.annotation.KoinViewModel
 
 sealed interface CustomRequestContract {
     data class State(
@@ -63,7 +62,6 @@ sealed interface CustomRequestContract {
     }
 }
 
-@KoinViewModel
 class CustomRequestViewModel(
     private val interactor: CustomRequestInteractor,
 ) : MviViewModel<CustomRequestContract.Event, CustomRequestContract.State, CustomRequestContract.Effect>() {
