@@ -88,6 +88,7 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodel.compose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(libs.navigation.compose)
+            implementation(libs.navigationevent.compose)
             implementation(libs.backhandler.cmp)
 
             implementation(libs.kotlinx.serialization.json)
