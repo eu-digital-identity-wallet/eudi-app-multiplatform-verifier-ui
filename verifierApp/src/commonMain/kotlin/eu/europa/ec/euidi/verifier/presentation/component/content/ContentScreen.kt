@@ -43,13 +43,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.backhandler.BackHandler
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.zIndex
+import androidx.navigationevent.NavigationEventInfo
+import androidx.navigationevent.compose.NavigationBackHandler
+import androidx.navigationevent.compose.rememberNavigationEventState
 import eu.europa.ec.euidi.verifier.presentation.component.AppIcons
 import eu.europa.ec.euidi.verifier.presentation.component.IconDataUi
 import eu.europa.ec.euidi.verifier.presentation.component.loader.LoadingIndicator
@@ -105,6 +107,8 @@ fun ContentScreen(
     bodyContent: @Composable (PaddingValues) -> Unit
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
+
+    val backState = rememberNavigationEventState(NavigationEventInfo.None)
 
     val hasToolBar = contentErrorConfig != null
             || navigatableAction != ScreenNavigateAction.NONE
@@ -216,11 +220,13 @@ fun ContentScreen(
         }
     }
 
-    BackHandler(enabled = true) {
-        contentErrorConfig?.let {
-            contentErrorConfig.onCancel()
-        } ?: onBack?.invoke()
-    }
+    NavigationBackHandler(
+        state = backState,
+        isBackEnabled = true,
+        onBackCompleted = {
+            contentErrorConfig?.onCancel() ?: onBack?.invoke()
+        }
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
