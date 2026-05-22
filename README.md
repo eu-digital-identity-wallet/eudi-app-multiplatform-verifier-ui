@@ -1,6 +1,15 @@
 # EUDI Multiplatform Verifier Application
 
-:heavy_exclamation_mark: **Important!** Before you proceed, please read
+[![License: EUPL 1.2](https://img.shields.io/badge/License-EUPL%201.2-blue.svg)](https://joinup.ec.europa.eu/software/page/eupl)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.3.21-7F52FF.svg?logo=kotlin)](https://kotlinlang.org)
+[![Compose Multiplatform](https://img.shields.io/badge/Compose%20Multiplatform-1.11-4285F4.svg)](https://www.jetbrains.com/lp/compose-multiplatform/)
+[![Android API](https://img.shields.io/badge/Android%20API-29%2B-3DDC84.svg?logo=android)](https://developer.android.com/about/versions/10)
+[![iOS](https://img.shields.io/badge/iOS-18.2%2B-000000.svg?logo=apple)](https://developer.apple.com/ios/)
+[![SonarCloud](https://img.shields.io/badge/SonarCloud-enabled-F3702A.svg?logo=sonarcloud)](https://sonarcloud.io)
+[![Dependency Check](https://img.shields.io/badge/Dependency--Check-enabled-005A9C.svg)](https://owasp.org/www-project-dependency-check/)
+[![Gitleaks](https://img.shields.io/badge/Gitleaks-enabled-orange.svg)](https://github.com/gitleaks/gitleaks)
+
+⚠️ **Important!** Before you proceed, please read
 the [EUDI Wallet Reference Implementation project description](https://github.com/eu-digital-identity-wallet/.github/blob/main/profile/reference-implementation.md)
 
 ----
@@ -37,7 +46,7 @@ Currently, the project supports building both Android and iOS applications. Howe
 ### Minimum device requirements
 
 - API level 29 (Android 10) or higher.
-- iOS 16 or higher
+- iOS 18.2 or higher
 
 ### Prerequisites
 
@@ -45,25 +54,94 @@ You can download the application (APK file) through GitHub releases [here](https
 
 Alternatively, you can build it yourself using Xcode for iOS or Android Studio for Android.
 
+### Build from source
+
+#### Required tools
+
+- **JDK 17** (the Gradle toolchain is pinned to 17)
+- **Android Studio** (latest stable) — for the Android app
+- **Xcode 16 or newer** — for the iOS app (note that iOS is currently UI-only)
+- **Git**
+
+#### Clone
+
+```bash
+git clone https://github.com/eu-digital-identity-wallet/eudi-app-multiplatform-verifier-ui.git
+cd eudi-app-multiplatform-verifier-ui
+```
+
+#### Android
+
+The Android app ships with two product flavors on the `environment` dimension:
+
+| Flavor | Application ID | Label |
+|---|---|---|
+| `Dev` | `eu.europa.ec.euidi.verifier.dev` | `(Dev) EUDI Verifier` |
+| `Public` | `eu.europa.ec.euidi.verifier` | `EUDI Verifier` |
+
+Common Gradle commands (use `gradlew.bat` on Windows):
+
+```bash
+# Build a debug APK with the Dev flavor
+./gradlew :androidVerifierApp:assembleDevDebug
+
+# Build a release APK with the Public flavor (requires signing config, see below)
+./gradlew :androidVerifierApp:assemblePublicRelease
+
+# Run checks on the shared KMP module
+./gradlew :verifierApp:check
+```
+
+Release builds are signed with the keystore at the repository root (`sign`). Provide the credentials either via `local.properties`:
+
+```properties
+androidKeyAlias=<your-alias>
+androidKeyPassword=<your-password>
+```
+
+…or via environment variables `ANDROID_KEY_ALIAS` and `ANDROID_KEY_PASSWORD`.
+
+#### iOS
+
+Open the Xcode project and build / run from there:
+
+```bash
+open iosVerifierApp/iosVerifierApp.xcodeproj
+```
+
+Xcode will trigger the KMP framework build for the shared `verifierApp` module on first launch. As noted above, the iOS target currently renders the UI but does not yet perform proximity verification.
+
 ### Proximity flow
+
+The verification flow involves both apps: the user holding the **EUDI Wallet** initiates a presentation, and the **EUDI Verifier** reads it. The steps below assume you already have an [EUDI Wallet](https://github.com/eu-digital-identity-wallet) installed and set up alongside this Verifier app.
+
+#### On the EUDI Wallet app
 
 1. Log in to the EUDI Wallet app.
 2. You will be on the "Home" tab of the "Dashboard" screen.
 3. Tap the "Authenticate" button on the first informative card. A modal with two options will appear.
 4. Select "In person".
-5. You will be prompted to enable Bluetooth (if it is not already enabled) and grant the necessary permissions for the app to use it (if you have not already done so).
-6. In the EUDI Verifier app, select the document (e.g., PID, MDL, etc.) you want to request from the EUDI Wallet app.
-7. Scan the presented QR code with the EUDI Verifier app.
-8. The EUDI Wallet app's "Request" screen will load. Here, you can select or deselect which attributes to share with the EUDI Verifier app. You must choose at least one attribute to proceed.
+5. You will be prompted to enable Bluetooth (if it is not already enabled) and grant the necessary permissions for the app to use it (if you have not already done so). The Wallet will then present a QR code.
+
+#### On the EUDI Verifier app
+
+6. Select the document (e.g., PID, MDL, etc.) you want to request from the EUDI Wallet app.
+7. Scan the QR code presented by the Wallet.
+
+#### Back on the EUDI Wallet app
+
+8. The "Request" screen will load. Here, you can select or deselect which attributes to share with the EUDI Verifier app. You must choose at least one attribute to proceed.
 9. Tap "Share".
 10. Enter the PIN you set up during the initial steps.
-11. Upon successful authentication, tap "Close".
-12. The EUDI Verifier app will receive the data you’ve chosen to share and display them to you.
-13. In the EUDI Wallet app, you will be returned to the "Home" tab of the "Dashboard" screen. The flow is now complete.
+11. Upon successful authentication, tap "Close". You will be returned to the "Home" tab of the "Dashboard" screen.
+
+#### Back on the EUDI Verifier app
+
+12. The EUDI Verifier app will receive the data you've chosen to share and display it to you. The flow is now complete.
 
 ## Application configuration
 
-The EUDI Verifier App utilizes a ConfigProvider (verifierApp -> commonMain -> domain -> config -> ConfigProvider.kt) to define which credential types and claims are supported, as well as which document modes (FULL, CUSTOM) are available for each credential type.
+The EUDI Verifier App utilizes a `ConfigProvider` ([verifierApp/src/commonMain/kotlin/eu/europa/ec/euidi/verifier/domain/config/ConfigProvider.kt](verifierApp/src/commonMain/kotlin/eu/europa/ec/euidi/verifier/domain/config/ConfigProvider.kt)) to define which credential types and claims are supported, as well as which document modes (FULL, CUSTOM) are available for each credential type.
 This approach allows the app to retrieve and update document configuration dynamically.
 
 You can configure the supported documents and claims by:
@@ -107,14 +185,14 @@ You can configure the supported documents and claims by:
     }
     ```
 
-The EUDI Verifier App also validates documents against trusted certificate authorities.
+The EUDI Verifier App also validates documents against trusted certificate authorities. The repository ships with PEM-encoded PID issuer trust anchors for **CZ, EE, EU, LU, NL, PT, and UT** under [verifierApp/src/commonMain/composeResources/files/certs](verifierApp/src/commonMain/composeResources/files/certs).
 
 - To configure your own trust anchors, place PEM-encoded certificate files under:
-    ```kotlin
-    verifierApp -> commonMain -> composeResources -> files -> certs
+    ```
+    verifierApp/src/commonMain/composeResources/files/certs
     ```
 
-- Then update getCertificates() to load them:
+- Then update `getCertificates()` to load them:
     ```kotlin
     override suspend fun getCertificates(): List<String> = listOf(
         Res.readBytes("files/certs/your_trust_anchor.pem").decodeToString()
@@ -143,7 +221,7 @@ involved, follow the guidelines found in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ### License details
 
-Copyright (c) 2025 European Commission
+Copyright (c) 2026 European Commission
 
 Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the European
 Commission - subsequent versions of the EUPL (the "Licence"); You may not use this work

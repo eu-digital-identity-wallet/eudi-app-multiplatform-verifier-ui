@@ -21,6 +21,10 @@ plugins {
     alias(libs.plugins.androidApplication)
 }
 
+val sdkVersion: String by project
+val targetSdkVersion: String by project
+val minSDKVersion: String by project
+
 configure<ApplicationExtension> {
 
     val version = getProperty<String>(
@@ -29,12 +33,12 @@ configure<ApplicationExtension> {
     ).orEmpty()
 
     namespace = "eu.europa.ec.euidi.verifier"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
+    compileSdk = Integer.parseInt(sdkVersion)
 
     defaultConfig {
         applicationId = "eu.europa.ec.euidi.verifier"
-        minSdk = libs.versions.android.minSdk.get().toInt()
-        targetSdk = libs.versions.android.targetSdk.get().toInt()
+        minSdk = Integer.parseInt(minSDKVersion)
+        targetSdk = Integer.parseInt(targetSdkVersion)
         versionCode = 1
         versionName = version
     }
@@ -55,6 +59,7 @@ configure<ApplicationExtension> {
     buildTypes {
         getByName("release") {
             isMinifyEnabled = true
+            isShrinkResources = true
             isDebuggable = false
             signingConfig = signingConfigs.getByName("release")
             buildConfigField("String", "BUILD_TYPE", "\"RELEASE\"")
