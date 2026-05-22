@@ -27,6 +27,9 @@ plugins {
     alias(libs.plugins.kover)
 }
 
+val sdkVersion: String by project
+val minSDKVersion: String by project
+
 kotlin {
     val basePackage = "eu.europa.ec.euidi.verifier"
     val parcelizeAnnotationPath = "$basePackage.presentation.utils"
@@ -34,8 +37,8 @@ kotlin {
     android {
 
         namespace = "eu.europa.ec.euidi.verifier.shared"
-        compileSdk = libs.versions.android.compileSdk.get().toInt()
-        minSdk = libs.versions.android.minSdk.get().toInt()
+        compileSdk = Integer.parseInt(sdkVersion)
+        minSdk = Integer.parseInt(minSDKVersion)
 
         experimentalProperties["android.experimental.kmp.enableAndroidResources"] = true
 
@@ -51,7 +54,6 @@ kotlin {
     }
 
     listOf(
-        iosX64(),
         iosArm64(),
         iosSimulatorArm64()
     ).forEach { iosTarget ->
