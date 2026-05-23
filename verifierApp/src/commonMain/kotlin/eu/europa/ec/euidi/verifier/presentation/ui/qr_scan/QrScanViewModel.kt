@@ -77,11 +77,7 @@ class QrScanViewModel(
         when (event) {
             is Event.Init -> {
                 setScreenTitle()
-
-                event.docs?.let { safeDocs ->
-                    setDocuments(safeDocs)
-                } //TODO what happens if docs are null?
-
+                handleInitialDocuments(docs = event.docs)
             }
 
             is Event.OnBackClicked -> {
@@ -97,7 +93,6 @@ class QrScanViewModel(
             }
 
             is Event.OnQrScanFailed -> {
-                handleQrScanned(qrCode = null)
                 handleQrScanFailed(error = event.error)
             }
         }
@@ -122,6 +117,15 @@ class QrScanViewModel(
         }
     }
 
+    private fun handleInitialDocuments(docs: List<RequestedDocumentUi>?) {
+        if (docs.isNullOrEmpty()) {
+            setState { copy(finishedScanning = true) }
+            showError { interactor.getMissingDocumentsMessage() }
+        } else {
+            setDocuments(docs)
+        }
+    }
+
     private fun goToTransferStatusScreen(qrCode: String) {
         setEffect {
             Effect.Navigation.NavigateToTransferStatusScreen(
@@ -133,36 +137,49 @@ class QrScanViewModel(
         }
     }
 
-    private fun handleQrScanFailed(error: String) {
-        setState {
-            copy(
-                error = ContentErrorConfig(
-                    errorSubTitle = error,
-                    onCancel = {
-                        setEvent(Event.DismissError)
-                        goBack()
-                    }
-                )
-            )
-        }
-    }
-
-    private fun handleQrScanned(qrCode: String?) {
+    private fun handleQrScanned(qrCode: String) {
         if (uiState.value.finishedScanning) {
             return
         }
 
-        qrCode?.let { safeQrCode ->
-            if (!interactor.qrCodeIsValid(safeQrCode)) {
-                return
-            }
+        setState { copy(finishedScanning = true) }
 
-            setState {
-                copy(finishedScanning = true)
-            }
-            goToTransferStatusScreen(safeQrCode)
+        if (interactor.qrCodeIsValid(qrCode)) {
+            goToTransferStatusScreen(qrCode)
+        } else {
+            showError { interactor.getInvalidQrCodeMessage() }
         }
     }
+
+    private fun handleQrScanFailed(error: String) {
+        if (uiState.value.error != null) {
+            return
+        }
+        setState {
+            copy(
+                finishedScanning = true,
+                error = buildErrorConfig(errorSubTitle = error)
+            )
+        }
+    }
+
+    private fun showError(message: suspend () -> String) {
+        viewModelScope.launch {
+            val resolvedMessage = message()
+            setState {
+                copy(error = buildErrorConfig(errorSubTitle = resolvedMessage))
+            }
+        }
+    }
+
+    private fun buildErrorConfig(errorSubTitle: String): ContentErrorConfig =
+        ContentErrorConfig(
+            errorSubTitle = errorSubTitle,
+            onCancel = {
+                setEvent(Event.DismissError)
+                goBack()
+            }
+        )
 
     private fun goBack() {
         setEffect { Effect.Navigation.Pop }

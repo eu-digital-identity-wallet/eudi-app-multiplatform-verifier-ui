@@ -205,5 +205,7 @@
 
     <!-- Qr Scan -->
     <string name="qr_scan_screen_title">Device Engagement</string>
+    <string name="qr_scan_screen_error_invalid_code">The scanned QR code is not a supported device engagement code.</string>
+    <string name="qr_scan_screen_error_missing_documents">No documents have been selected to request. Please go back and select at least one document.</string>
 
 </resources>
