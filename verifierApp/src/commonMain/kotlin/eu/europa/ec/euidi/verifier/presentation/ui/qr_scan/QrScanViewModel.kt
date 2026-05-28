@@ -100,6 +100,7 @@ class QrScanViewModel(
 
     private fun setScreenTitle() {
         viewModelScope.launch {
+
             setState {
                 copy(
                     isLoading = true,
@@ -138,6 +139,7 @@ class QrScanViewModel(
     }
 
     private fun handleQrScanned(qrCode: String) {
+
         if (uiState.value.finishedScanning) {
             return
         }
@@ -176,7 +178,7 @@ class QrScanViewModel(
         ContentErrorConfig(
             errorSubTitle = errorSubTitle,
             onCancel = {
-                setEvent(Event.DismissError)
+                setState { copy(error = null) }
                 goBack()
             }
         )
@@ -192,5 +194,4 @@ class QrScanViewModel(
             )
         }
     }
-
 }
