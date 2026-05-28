@@ -19,6 +19,8 @@ package eu.europa.ec.euidi.verifier.domain.interactor
 import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
 import eu.europa.ec.euidi.verifier.core.utils.Constants
 import eudiverifier.verifierapp.generated.resources.Res
+import eudiverifier.verifierapp.generated.resources.qr_scan_screen_error_invalid_code
+import eudiverifier.verifierapp.generated.resources.qr_scan_screen_error_missing_documents
 import eudiverifier.verifierapp.generated.resources.qr_scan_screen_title
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -28,6 +30,8 @@ import kotlinx.coroutines.withContext
 interface QrScanInteractor {
     suspend fun getScreenTitle(): String
     fun qrCodeIsValid(qrCode: String): Boolean
+    suspend fun getInvalidQrCodeMessage(): String
+    suspend fun getMissingDocumentsMessage(): String
 }
 
 class QrScanInteractorImpl(
@@ -43,5 +47,17 @@ class QrScanInteractorImpl(
 
     override fun qrCodeIsValid(qrCode: String): Boolean {
         return qrCode.startsWith(prefix = Constants.Generic.MDOC_PREFIX, ignoreCase = true)
+    }
+
+    override suspend fun getInvalidQrCodeMessage(): String {
+        return withContext(dispatcher) {
+            resourceProvider.getSharedString(Res.string.qr_scan_screen_error_invalid_code)
+        }
+    }
+
+    override suspend fun getMissingDocumentsMessage(): String {
+        return withContext(dispatcher) {
+            resourceProvider.getSharedString(Res.string.qr_scan_screen_error_missing_documents)
+        }
     }
 }
