@@ -156,7 +156,7 @@ class SettingsInteractorImpl(
 
     private fun buildSection(
         headerTitle: StringResource,
-        headerDesc: StringResource? = null,
+        headerDesc: StringResource?,
         sectionItems: List<SettingsTypeUi>,
         preferences: Map<PrefKey, Boolean>
     ): List<SettingsItemUi> {
@@ -172,7 +172,7 @@ class SettingsInteractorImpl(
             // each item
             sectionItems.forEachIndexed { index, sectionItem ->
                 val isLast = index == sectionItems.lastIndex
-                val checked = preferences[sectionItem.prefKey] ?: false
+                val checked = preferences.getValue(sectionItem.prefKey)
                 val supportingText = resourceProvider.getSharedString(
                     if (checked) {
                         sectionItem.selectedDescriptionRes

@@ -16,6 +16,13 @@
 
 package eu.europa.ec.euidi.verifier.domain.interactor
 
+import dev.mokkery.MockMode
+import dev.mokkery.answering.calls
+import dev.mokkery.answering.returns
+import dev.mokkery.every
+import dev.mokkery.mock
+import dev.mokkery.verify
+import dev.mokkery.verify.VerifyMode.Companion.exactly
 import eu.europa.ec.euidi.verifier.core.controller.PlatformController
 import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
 import eu.europa.ec.euidi.verifier.core.provider.UuidProvider
@@ -37,7 +44,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
-import org.jetbrains.compose.resources.StringResource
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -46,54 +52,41 @@ import kotlin.test.assertIs
 class HomeInteractorTest {
 
     /**
-     * A test factory function for creating an instance of [HomeInteractor] with its dependencies,
-     * suitable for use within a [TestScope].
-     *
-     * This function simplifies the setup of the interactor for testing by providing default fake
-     * implementations for its dependencies. The fakes can be overridden by passing in specific
-     * instances.
-     *
-     * @param platformController A [FakePlatformController] instance. Defaults to a new instance.
-     * @param uuidProvider A [UuidProvider] instance. Defaults to a [FakeUuidProvider].
-     * @param resourceProvider A [ResourceProvider] instance. Defaults to a [FakeResourceProvider].
-     * @return A [Pair] containing the created [HomeInteractor] instance and the
-     * [FakePlatformController] used, allowing for verification of interactions with the platform.
+     * Builds the SUT, [HomeInteractorImpl], with a dispatcher that shares the `runTest` scheduler
+     * and Mokkery mocks for its collaborators. Pass overrides to customise behaviour or to verify
+     * interactions (e.g. the [PlatformController]).
      */
     private fun TestScope.createInteractor(
-        platformController: FakePlatformController = FakePlatformController(),
-        uuidProvider: UuidProvider = FakeUuidProvider(),
-        resourceProvider: ResourceProvider = FakeResourceProvider(),
-    ): Pair<HomeInteractor, FakePlatformController> {
+        platformController: PlatformController = mock<PlatformController>(MockMode.autoUnit),
+        uuidProvider: UuidProvider = sequentialUuidProvider(),
+        resourceProvider: ResourceProvider = stringResourceProvider(),
+    ): HomeInteractor {
         val dispatcher = coroutineContext[ContinuationInterceptor] as CoroutineDispatcher
-
-        val interactor = HomeInteractorImpl(
+        return HomeInteractorImpl(
             platformController = platformController,
             uuidProvider = uuidProvider,
             resourceProvider = resourceProvider,
             dispatcher = dispatcher
         )
-
-        return Pair(interactor, platformController)
     }
 
     //region getScreenTitle
 
     @Test
     fun `getScreenTitle returns localized title`() = runTest(StandardTestDispatcher()) {
-        val (interactor, _) = createInteractor()
+        val interactor = createInteractor()
 
-        val title = interactor.getScreenTitle()
-
-        assertEquals("Home Screen title", title)
+        assertEquals("Home Screen title", interactor.getScreenTitle())
     }
 
     //endregion
 
     //region getDefaultMainButtonData
+
     @Test
     fun `getDefaultMainButtonData uses uuidProvider default text and chevron icon`() =
         runTest(StandardTestDispatcher()) {
-            val (interactor, _) = createInteractor()
+            val interactor = createInteractor()
 
             val item = interactor.getDefaultMainButtonData()
 
@@ -118,7 +111,7 @@ class HomeInteractorTest {
     @Test
     fun `formatMainButtonData formats single requested document`() =
         runTest(StandardTestDispatcher()) {
-            val (interactor, _) = createInteractor()
+            val interactor = createInteractor()
 
             val baseItem = ListItemDataUi(
                 itemId = "base-id",
@@ -158,7 +151,7 @@ class HomeInteractorTest {
     @Test
     fun `formatMainButtonData joins multiple requested documents with separator`() =
         runTest(StandardTestDispatcher()) {
-            val (interactor, _) = createInteractor()
+            val interactor = createInteractor()
 
             val baseItem = ListItemDataUi(
                 itemId = "base-id",
@@ -199,87 +192,36 @@ class HomeInteractorTest {
     //region closeApp
 
     @Test
-    fun `closeApp delegates to PlatformController`() =
-        runTest(StandardTestDispatcher()) {
-            val (interactor, fakePlatformController) = createInteractor()
+    fun `closeApp delegates to PlatformController`() = runTest(StandardTestDispatcher()) {
+        val platformController = mock<PlatformController>(MockMode.autoUnit)
+        val interactor = createInteractor(platformController = platformController)
 
-            assertEquals(0, fakePlatformController.closeAppCalls)
+        interactor.closeApp()
 
-            interactor.closeApp()
-
-            assertEquals(1, fakePlatformController.closeAppCalls)
-            assertEquals(0, fakePlatformController.openAppSettingsCalls)
-        }
+        verify(exactly(1)) { platformController.closeApp() }
+        verify(exactly(0)) { platformController.openAppSettings() }
+    }
 
     //endregion
 
-    //region Fakes
+    //region Mocks
 
-    private class FakePlatformController : PlatformController {
-
-        private enum class Function {
-            CLOSE_APP,
-            OPEN_APP_SETTINGS
-        }
-
-        private val functionCallCounts: MutableMap<Function, Int> = mutableMapOf()
-
-        override val buildType
-            get() = error("Not used in these tests")
-
-        override val flavorType
-            get() = error("Not used in these tests")
-
-        override val appVersion: String
-            get() = error("Not used in these tests")
-
-        val closeAppCalls: Int
-            get() = functionCallCounts[Function.CLOSE_APP] ?: 0
-
-        val openAppSettingsCalls: Int
-            get() = functionCallCounts[Function.OPEN_APP_SETTINGS] ?: 0
-
-        override fun closeApp() {
-            functionCallCounts[Function.CLOSE_APP] =
-                (functionCallCounts[Function.CLOSE_APP] ?: 0) + 1
-        }
-
-        override fun openAppSettings() {
-            functionCallCounts[Function.OPEN_APP_SETTINGS] =
-                (functionCallCounts[Function.OPEN_APP_SETTINGS] ?: 0) + 1
+    private fun sequentialUuidProvider(): UuidProvider {
+        var counter = 0
+        return mock {
+            every { provideUuid() } calls { "uuid-${counter++}" }
         }
     }
 
-    private class FakeUuidProvider : UuidProvider {
-        private var counter = 0
-
-        override fun provideUuid(): String {
-            return "uuid-${counter++}"
-        }
-    }
-
-    private class FakeResourceProvider : ResourceProvider {
-
-        override fun getSharedString(resource: StringResource): String {
-            return when (resource) {
-                Res.string.home_screen_title -> "Home Screen title"
-                Res.string.home_screen_main_button_text_default -> "Home Screen main button text default"
-                Res.string.home_screen_main_button_text_separator -> " ; "
-                Res.string.document_type_pid -> "PID"
-                Res.string.document_type_mdl -> "MDL"
-                Res.string.document_type_employee_id -> "Employee ID"
-                else -> "Unknown string"
-            }
-        }
-
-        override fun getSharedString(
-            resource: StringResource,
-            vararg formatArgs: Any
-        ): String = getSharedString(resource)
-
-        override fun genericErrorMessage(): String = "GENERIC_ERROR"
-
-        override fun genericNetworkErrorMessage(): String = "GENERIC_NETWORK_ERROR"
+    private fun stringResourceProvider(): ResourceProvider = mock {
+        every { getSharedString(Res.string.home_screen_title) } returns "Home Screen title"
+        every {
+            getSharedString(Res.string.home_screen_main_button_text_default)
+        } returns "Home Screen main button text default"
+        every { getSharedString(Res.string.home_screen_main_button_text_separator) } returns " ; "
+        every { getSharedString(Res.string.document_type_pid) } returns "PID"
+        every { getSharedString(Res.string.document_type_mdl) } returns "MDL"
+        every { getSharedString(Res.string.document_type_employee_id) } returns "Employee ID"
     }
 
     //endregion

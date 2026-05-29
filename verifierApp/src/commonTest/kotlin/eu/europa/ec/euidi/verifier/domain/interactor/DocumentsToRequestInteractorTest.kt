@@ -16,10 +16,12 @@
 
 package eu.europa.ec.euidi.verifier.domain.interactor
 
+import dev.mokkery.answering.returns
+import dev.mokkery.every
+import dev.mokkery.mock
 import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
 import eu.europa.ec.euidi.verifier.domain.config.ConfigProvider
 import eu.europa.ec.euidi.verifier.domain.config.model.AttestationType
-import eu.europa.ec.euidi.verifier.domain.config.model.AttestationType.Companion.getDisplayName
 import eu.europa.ec.euidi.verifier.domain.config.model.ClaimItem
 import eu.europa.ec.euidi.verifier.domain.config.model.DocumentMode
 import eu.europa.ec.euidi.verifier.domain.config.model.SupportedDocuments
@@ -34,7 +36,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
-import org.jetbrains.compose.resources.StringResource
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -55,8 +56,8 @@ class DocumentsToRequestInteractorTest {
     ): DocumentsToRequestInteractor {
         val dispatcher = coroutineContext[ContinuationInterceptor] as CoroutineDispatcher
         return DocumentsToRequestInteractorImpl(
-            configProvider = FakeConfigProvider(supportedDocuments),
-            resourceProvider = FakeResourceProvider,
+            configProvider = configProvider(supportedDocuments),
+            resourceProvider = stringResourceProvider(),
             dispatcher = dispatcher
         )
     }
@@ -302,6 +303,107 @@ class DocumentsToRequestInteractorTest {
             assertTrue(result.docs.any { it.documentType == AttestationType.Pid })
         }
 
+    @Test
+    fun `handleDocumentOptionSelection removes only the matching type and mode when already selected`() =
+        runTest(StandardTestDispatcher()) {
+            val interactor = createInteractor()
+            val currentDocs = listOf(
+                RequestedDocumentUi(
+                    id = "PID_DOC",
+                    documentType = AttestationType.Pid,
+                    mode = DocumentMode.FULL,
+                    claims = emptyList()
+                ),
+                RequestedDocumentUi(
+                    id = "PID_CUSTOM",
+                    documentType = AttestationType.Pid,
+                    mode = DocumentMode.CUSTOM,
+                    claims = emptyList()
+                ),
+                RequestedDocumentUi(
+                    id = "MDL_DOC",
+                    documentType = AttestationType.Mdl,
+                    mode = DocumentMode.FULL,
+                    claims = emptyList()
+                )
+            )
+
+            val result = interactor.handleDocumentOptionSelection(
+                currentDocs = currentDocs,
+                docId = "PID_DOC",
+                docType = AttestationType.Pid,
+                mode = DocumentMode.FULL
+            ) as DocSelectionResult.Updated
+
+            // Only the PID/FULL doc is removed; the PID/CUSTOM and MDL/FULL docs remain.
+            assertEquals(2, result.docs.size)
+            assertTrue(
+                result.docs.any {
+                    it.documentType == AttestationType.Pid && it.mode == DocumentMode.CUSTOM
+                }
+            )
+            assertTrue(result.docs.any { it.documentType == AttestationType.Mdl })
+        }
+
+    @Test
+    fun `handleDocumentOptionSelection custom mode keeps unrelated docs when navigating`() =
+        runTest(StandardTestDispatcher()) {
+            val interactor = createInteractor()
+            val currentDocs = listOf(
+                RequestedDocumentUi(
+                    id = "MDL_DOC",
+                    documentType = AttestationType.Mdl,
+                    mode = DocumentMode.FULL,
+                    claims = emptyList()
+                )
+            )
+
+            val result = interactor.handleDocumentOptionSelection(
+                currentDocs = currentDocs,
+                docId = "PID_DOC",
+                docType = AttestationType.Pid,
+                mode = DocumentMode.CUSTOM
+            ) as DocSelectionResult.NavigateToCustomRequest
+
+            // No doc shares the id, so nothing is removed before navigating.
+            assertEquals(currentDocs, result.docs)
+            assertEquals(DocumentMode.CUSTOM, result.customDoc.mode)
+        }
+
+    @Test
+    fun `handleDocumentOptionSelection full mode appends when same type and mode exist under another id`() =
+        runTest(StandardTestDispatcher()) {
+            val pidClaims = listOf(ClaimItem("family_name"))
+            val supportedDocs = SupportedDocuments(
+                documents = mapOf(AttestationType.Pid to pidClaims)
+            )
+            val interactor = createInteractor(supportedDocs)
+
+            val currentDocs = listOf(
+                RequestedDocumentUi(
+                    id = "PID_OTHER",
+                    documentType = AttestationType.Pid,
+                    mode = DocumentMode.FULL,
+                    claims = pidClaims
+                )
+            )
+
+            val result = interactor.handleDocumentOptionSelection(
+                currentDocs = currentDocs,
+                docId = "PID_DOC",
+                docType = AttestationType.Pid,
+                mode = DocumentMode.FULL
+            ) as DocSelectionResult.Updated
+
+            // No existing PID doc has a *different* mode, so none are filtered out; the new doc is appended.
+            assertEquals(2, result.docs.size)
+            assertTrue(
+                result.docs.all {
+                    it.documentType == AttestationType.Pid && it.mode == DocumentMode.FULL
+                }
+            )
+        }
+
     // endregion
 
     // region searchDocuments
@@ -311,12 +413,12 @@ class DocumentsToRequestInteractorTest {
         runTest(StandardTestDispatcher()) {
             val docs = listOf(
                 SupportedDocumentUi(
-                    id = AttestationType.Pid.getDisplayName(FakeResourceProvider),
+                    id = "PID",
                     documentType = AttestationType.Pid,
                     modes = listOf(DocumentMode.FULL)
                 ),
                 SupportedDocumentUi(
-                    id = AttestationType.Mdl.getDisplayName(FakeResourceProvider),
+                    id = "MDL",
                     documentType = AttestationType.Mdl,
                     modes = listOf(DocumentMode.CUSTOM)
                 )
@@ -338,12 +440,12 @@ class DocumentsToRequestInteractorTest {
         runTest(StandardTestDispatcher()) {
             val docs = listOf(
                 SupportedDocumentUi(
-                    id = AttestationType.Pid.getDisplayName(FakeResourceProvider),
+                    id = "PID",
                     documentType = AttestationType.Pid,
                     modes = listOf(DocumentMode.FULL)
                 ),
                 SupportedDocumentUi(
-                    id = AttestationType.Mdl.getDisplayName(FakeResourceProvider),
+                    id = "MDL",
                     documentType = AttestationType.Mdl,
                     modes = listOf(DocumentMode.CUSTOM)
                 )
@@ -498,53 +600,54 @@ class DocumentsToRequestInteractorTest {
             assertEquals(DocumentMode.CUSTOM, updated.mode)
         }
 
+    @Test
+    fun `checkDocumentMode keeps mode when document type is not configured`() =
+        runTest(StandardTestDispatcher()) {
+            // Empty supported documents -> expected claim count resolves to 0 via the elvis fallback,
+            // so a doc with claims never matches and the mode is kept.
+            val interactor = createInteractor()
+
+            val requestedDocs = listOf(
+                RequestedDocumentUi(
+                    id = "PID_DOC",
+                    documentType = AttestationType.Pid,
+                    mode = DocumentMode.CUSTOM,
+                    claims = listOf(ClaimItem("family_name"))
+                )
+            )
+
+            val result = interactor.checkDocumentMode(requestedDocs)
+
+            assertEquals(DocumentMode.CUSTOM, result.single().mode)
+        }
+
     // endregion
 
-    // region Fakes
+    // region Mocks
 
-    private class FakeConfigProvider(
-        override val supportedDocuments: SupportedDocuments
-    ) : ConfigProvider {
-
-        override val buildType
-            get() = error("Not used in these tests")
-
-        override val flavorType
-            get() = error("Not used in these tests")
-
-        override val appVersion: String
-            get() = "test"
-
-        override val logger
-            get() = error("Not used in these tests")
-
-        override fun getDocumentModes(attestationType: AttestationType): List<DocumentMode> =
-            when (attestationType) {
-                AttestationType.Pid -> listOf(DocumentMode.FULL, DocumentMode.CUSTOM)
-                AttestationType.Mdl -> listOf(DocumentMode.FULL)
-                AttestationType.EmployeeId -> emptyList()
-            }
-
-        override suspend fun getCertificates(): List<String> =
-            error("Not used in these tests")
+    private fun configProvider(supportedDocuments: SupportedDocuments): ConfigProvider {
+        val configProvider = mock<ConfigProvider>()
+        every { configProvider.supportedDocuments } returns supportedDocuments
+        every {
+            configProvider.getDocumentModes(AttestationType.Pid)
+        } returns listOf(DocumentMode.FULL, DocumentMode.CUSTOM)
+        every {
+            configProvider.getDocumentModes(AttestationType.Mdl)
+        } returns listOf(DocumentMode.FULL)
+        every {
+            configProvider.getDocumentModes(AttestationType.EmployeeId)
+        } returns emptyList()
+        return configProvider
     }
 
-    private object FakeResourceProvider : ResourceProvider {
-
-        override fun getSharedString(resource: StringResource): String =
-            when (resource) {
-                Res.string.document_type_pid -> "PID"
-                Res.string.document_type_mdl -> "MDL"
-                Res.string.document_type_employee_id -> "EMPLOYEE_ID"
-                else -> "UNKNOWN_STRING"
-            }
-
-        override fun getSharedString(resource: StringResource, vararg formatArgs: Any): String =
-            getSharedString(resource)
-
-        override fun genericErrorMessage(): String = "GENERIC_ERROR"
-
-        override fun genericNetworkErrorMessage(): String = "GENERIC_NETWORK_ERROR"
+    private fun stringResourceProvider(): ResourceProvider {
+        val resourceProvider = mock<ResourceProvider>()
+        every { resourceProvider.getSharedString(Res.string.document_type_pid) } returns "PID"
+        every { resourceProvider.getSharedString(Res.string.document_type_mdl) } returns "MDL"
+        every {
+            resourceProvider.getSharedString(Res.string.document_type_employee_id)
+        } returns "EMPLOYEE_ID"
+        return resourceProvider
     }
 
     // endregion
