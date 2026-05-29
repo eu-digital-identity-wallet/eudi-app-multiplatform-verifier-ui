@@ -1,7 +1,8 @@
 [versions]
-kotlin = "2.3.21"
+kotlin = "2.3.20"
+mokkery = "3.3.0"
 kotlinxCoroutinesTest = "1.11.0"
-ksp = "2.3.4"
+ksp = "2.3.9"
 agp = "9.2.1"
 composeMultiplatform = "1.11.0"
 androidx-activity = "1.13.0"
@@ -83,3 +84,4 @@ kotlinParcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = 
 serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+mokkery = { id = "dev.mokkery", version.ref = "mokkery" }

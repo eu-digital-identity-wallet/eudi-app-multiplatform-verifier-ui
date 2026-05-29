@@ -16,6 +16,11 @@
 
 package eu.europa.ec.euidi.verifier.domain.interactor
 
+import dev.mokkery.answering.calls
+import dev.mokkery.answering.returns
+import dev.mokkery.every
+import dev.mokkery.matcher.any
+import dev.mokkery.mock
 import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
 import eu.europa.ec.euidi.verifier.domain.config.ConfigProvider
 import eu.europa.ec.euidi.verifier.domain.config.model.AttestationType
@@ -26,7 +31,6 @@ import eu.europa.ec.euidi.verifier.presentation.component.ListItemMainContentDat
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemTrailingContentDataUi
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.CheckboxDataUi
 import eudiverifier.verifierapp.generated.resources.Res
-import eudiverifier.verifierapp.generated.resources.custom_request_screen_title
 import eudiverifier.verifierapp.generated.resources.document_type_employee_id
 import eudiverifier.verifierapp.generated.resources.document_type_mdl
 import eudiverifier.verifierapp.generated.resources.document_type_pid
@@ -48,24 +52,24 @@ class CustomRequestInteractorTest {
      * dispatcher that shares the `runTest` scheduler. This ensures that coroutines launched
      * by the interactor run deterministically within the test's scope.
      *
-     * It initializes the interactor with optional fake configurations and a resource provider,
+     * It initializes the interactor with Mokkery mocks for its collaborators,
      * making it easy to set up different test scenarios.
      *
      * @param supportedDocuments The configuration of supported documents and their claims.
      * Defaults to an empty configuration.
-     * @param resourceProvider The provider for retrieving string resources. Defaults to a
-     * [FakeResourceProvider].
+     * @param resourceProvider The provider for retrieving string resources. Defaults to the
+     * mock built by [stringResourceProvider].
      * @return An instance of [CustomRequestInteractorImpl] configured for testing.
      */
     private fun TestScope.createInteractor(
         supportedDocuments: SupportedDocuments = SupportedDocuments(emptyMap()),
-        resourceProvider: ResourceProvider = FakeResourceProvider
+        resourceProvider: ResourceProvider = stringResourceProvider()
     ): CustomRequestInteractor {
         // Use the dispatcher that runTest is already using
         val testDispatcher = coroutineContext[ContinuationInterceptor] as CoroutineDispatcher
 
         return CustomRequestInteractorImpl(
-            configProvider = FakeConfigProvider(supportedDocuments),
+            configProvider = configProvider(supportedDocuments),
             resourceProvider = resourceProvider,
             dispatcher = testDispatcher
         )
@@ -80,9 +84,8 @@ class CustomRequestInteractorTest {
 
             val result = interactor.getScreenTitle(AttestationType.Pid)
 
-            // FakeResourceProvider is defined to:
-            // - map PID -> "PID"
-            // - map custom_request_screen_title -> "CustomRequestTitle(label)"
+            // The resource provider mock maps PID -> "PID" and the title's vararg overload
+            // -> "CustomRequestTitle(PID)".
             assertEquals("CustomRequestTitle(PID)", result)
         }
 
@@ -182,8 +185,7 @@ class CustomRequestInteractorTest {
             )
 
             val interactor = createInteractor(
-                supportedDocuments = SupportedDocuments(emptyMap()),
-                resourceProvider = FakeResourceProvider
+                supportedDocuments = SupportedDocuments(emptyMap())
             )
 
             // WHEN
@@ -272,6 +274,23 @@ class CustomRequestInteractorTest {
             assertFalse(result.hasSelectedItems)
         }
 
+    @Test
+    fun `handleItemSelection leaves a matched item without a checkbox unchanged`() =
+        runTest(StandardTestDispatcher()) {
+            val interactor = createInteractor()
+
+            val noCheckbox = listItemWithoutCheckbox(id = "id_1")
+
+            val result = interactor.handleItemSelection(
+                items = listOf(noCheckbox),
+                identifier = "id_1"
+            ) as HandleItemSelectionPartialState.Updated
+
+            // The id matches but the item has no checkbox, so it is returned unchanged.
+            assertEquals(noCheckbox, result.items.single())
+            assertFalse(result.hasSelectedItems)
+        }
+
     // endregion
 
     // region helpers
@@ -303,69 +322,33 @@ class CustomRequestInteractorTest {
 
     // endregion
 
-    // region Fakes
+    // region Mocks
 
-    /**
-     * Very small fake ConfigProvider for these tests.
-     *
-     * Note: we don't need to construct BuildType, FlavorType, DocumentMode, or Logger,
-     * so getters just throw if accessed. The interactor only uses supportedDocuments.
-     */
-    private class FakeConfigProvider(
-        override val supportedDocuments: SupportedDocuments
-    ) : ConfigProvider {
-
-        override val buildType
-            get() = error("Not used in these tests")
-
-        override val flavorType
-            get() = error("Not used in these tests")
-
-        override val appVersion: String
-            get() = "test"
-
-        override val logger
-            get() = error("Not used in these tests")
-
-        override fun getDocumentModes(attestationType: AttestationType) =
-            error("Not used in these tests")
-
-        override suspend fun getCertificates(): List<String> =
-            error("Not used in these tests")
+    private fun configProvider(supportedDocuments: SupportedDocuments): ConfigProvider {
+        val configProvider = mock<ConfigProvider>()
+        every { configProvider.supportedDocuments } returns supportedDocuments
+        return configProvider
     }
 
     /**
-     * Simple fake ResourceProvider that returns predictable strings
-     * so we can assert on them in tests.
+     * Mocks the [ResourceProvider]. The single-argument overload maps the document-type labels and
+     * returns a non-empty fallback for the dynamic claim translations resolved by `UiTransformer`.
+     * The vararg overload backs `getScreenTitle`, whose only test exercises the PID document.
      */
-    private object FakeResourceProvider : ResourceProvider {
-
-        override fun getSharedString(resource: StringResource): String {
-            return when (resource) {
+    private fun stringResourceProvider(): ResourceProvider {
+        val resourceProvider = mock<ResourceProvider>()
+        every { resourceProvider.getSharedString(any()) } calls { (resource: StringResource) ->
+            when (resource) {
                 Res.string.document_type_pid -> "PID"
                 Res.string.document_type_mdl -> "MDL"
                 Res.string.document_type_employee_id -> "EMPLOYEE_ID"
-                else -> "UNKNOWN_STRING"
+                else -> "translated"
             }
         }
-
-        override fun getSharedString(
-            resource: StringResource,
-            vararg formatArgs: Any
-        ): String {
-            return when (resource) {
-                Res.string.custom_request_screen_title -> {
-                    val label = formatArgs.firstOrNull() as? String ?: ""
-                    "CustomRequestTitle($label)"
-                }
-
-                else -> "UNKNOWN_FORMATTED_STRING(${formatArgs.joinToString()})"
-            }
-        }
-
-        override fun genericErrorMessage(): String = "GENERIC_ERROR"
-
-        override fun genericNetworkErrorMessage(): String = "GENERIC_NETWORK_ERROR"
+        every {
+            resourceProvider.getSharedString(any(), *any())
+        } returns "CustomRequestTitle(PID)"
+        return resourceProvider
     }
 
     // endregion

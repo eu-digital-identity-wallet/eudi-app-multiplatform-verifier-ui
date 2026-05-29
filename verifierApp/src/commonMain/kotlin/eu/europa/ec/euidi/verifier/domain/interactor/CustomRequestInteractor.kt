@@ -73,10 +73,9 @@ class CustomRequestInteractorImpl(
         withContext(dispatcher) {
             items
                 .filter { uiItem ->
-                    (uiItem.trailingContentData as? ListItemTrailingContentDataUi.Checkbox)
-                        ?.checkboxData
-                        ?.isChecked
-                        ?: false
+                    val trailingContentData = uiItem.trailingContentData
+                    trailingContentData is ListItemTrailingContentDataUi.Checkbox &&
+                            trailingContentData.checkboxData.isChecked
                 }
                 .map { uiItem ->
                     ClaimItem(label = uiItem.itemId)

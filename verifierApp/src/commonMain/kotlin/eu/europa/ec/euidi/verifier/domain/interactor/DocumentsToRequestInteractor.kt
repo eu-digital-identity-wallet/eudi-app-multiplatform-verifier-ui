@@ -91,8 +91,10 @@ class DocumentsToRequestInteractorImpl(
 
             // Case 2: Custom mode → remove FULL if exists, then navigate
             if (mode == DocumentMode.CUSTOM) {
+                // Case 1 above already returned for any (docId, CUSTOM) match, so any remaining
+                // doc sharing this id is necessarily in FULL mode.
                 val updated =
-                    if (currentDocs.any { it.id == docId && it.mode == DocumentMode.FULL }) {
+                    if (currentDocs.any { it.id == docId }) {
                         currentDocs.filterNot { it.id == docId }
                     } else {
                         currentDocs

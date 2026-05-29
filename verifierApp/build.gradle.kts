@@ -25,6 +25,7 @@ plugins {
     alias(libs.plugins.kotlinParcelize)
     alias(libs.plugins.serialization)
     alias(libs.plugins.kover)
+    alias(libs.plugins.mokkery)
 }
 
 val sdkVersion: String by project
