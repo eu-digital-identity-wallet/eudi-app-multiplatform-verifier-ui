@@ -17,7 +17,6 @@
 package eu.europa.ec.euidi.verifier.domain.interactor
 
 import dev.mokkery.MockMode
-import dev.mokkery.answering.calls
 import dev.mokkery.answering.returns
 import dev.mokkery.every
 import dev.mokkery.mock
@@ -26,17 +25,14 @@ import dev.mokkery.verify.VerifyMode.Companion.exactly
 import eu.europa.ec.euidi.verifier.core.controller.PlatformController
 import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
 import eu.europa.ec.euidi.verifier.core.provider.UuidProvider
-import eu.europa.ec.euidi.verifier.domain.config.model.AttestationType
-import eu.europa.ec.euidi.verifier.domain.config.model.DocumentMode
 import eu.europa.ec.euidi.verifier.presentation.component.AppIcons
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemDataUi
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemMainContentDataUi
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemTrailingContentDataUi
-import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
+import eu.europa.ec.euidi.verifier.testutil.TestData
+import eu.europa.ec.euidi.verifier.testutil.documentTypeResourceProvider
+import eu.europa.ec.euidi.verifier.testutil.sequentialUuidProvider
 import eudiverifier.verifierapp.generated.resources.Res
-import eudiverifier.verifierapp.generated.resources.document_type_employee_id
-import eudiverifier.verifierapp.generated.resources.document_type_mdl
-import eudiverifier.verifierapp.generated.resources.document_type_pid
 import eudiverifier.verifierapp.generated.resources.home_screen_main_button_text_default
 import eudiverifier.verifierapp.generated.resources.home_screen_main_button_text_separator
 import eudiverifier.verifierapp.generated.resources.home_screen_title
@@ -123,14 +119,7 @@ class HomeInteractorTest {
                 )
             )
 
-            val requestedDocs = listOf(
-                RequestedDocumentUi(
-                    id = "PID_DOC",
-                    documentType = AttestationType.Pid,
-                    mode = DocumentMode.FULL,
-                    claims = emptyList()
-                )
-            )
+            val requestedDocs = listOf(TestData.pidFullRequestedDocument)
 
             val updated = interactor.formatMainButtonData(
                 requestedDocs = requestedDocs,
@@ -164,18 +153,8 @@ class HomeInteractorTest {
             )
 
             val requestedDocs = listOf(
-                RequestedDocumentUi(
-                    id = "PID_DOC",
-                    documentType = AttestationType.Pid,
-                    mode = DocumentMode.FULL,
-                    claims = emptyList()
-                ),
-                RequestedDocumentUi(
-                    id = "MDL_DOC",
-                    documentType = AttestationType.Mdl,
-                    mode = DocumentMode.CUSTOM,
-                    claims = emptyList()
-                )
+                TestData.pidFullRequestedDocument,
+                TestData.mdlCustomRequestedDocument,
             )
 
             val updated = interactor.formatMainButtonData(
@@ -206,22 +185,18 @@ class HomeInteractorTest {
 
     //region Mocks
 
-    private fun sequentialUuidProvider(): UuidProvider {
-        var counter = 0
-        return mock {
-            every { provideUuid() } calls { "uuid-${counter++}" }
-        }
-    }
-
-    private fun stringResourceProvider(): ResourceProvider = mock {
-        every { getSharedString(Res.string.home_screen_title) } returns "Home Screen title"
+    private fun stringResourceProvider(): ResourceProvider {
+        val resourceProvider = documentTypeResourceProvider()
         every {
-            getSharedString(Res.string.home_screen_main_button_text_default)
+            resourceProvider.getSharedString(Res.string.home_screen_title)
+        } returns "Home Screen title"
+        every {
+            resourceProvider.getSharedString(Res.string.home_screen_main_button_text_default)
         } returns "Home Screen main button text default"
-        every { getSharedString(Res.string.home_screen_main_button_text_separator) } returns " ; "
-        every { getSharedString(Res.string.document_type_pid) } returns "PID"
-        every { getSharedString(Res.string.document_type_mdl) } returns "MDL"
-        every { getSharedString(Res.string.document_type_employee_id) } returns "Employee ID"
+        every {
+            resourceProvider.getSharedString(Res.string.home_screen_main_button_text_separator)
+        } returns " ; "
+        return resourceProvider
     }
 
     //endregion

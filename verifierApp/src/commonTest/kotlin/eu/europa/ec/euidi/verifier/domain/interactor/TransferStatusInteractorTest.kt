@@ -34,16 +34,13 @@ import eu.europa.ec.euidi.verifier.core.provider.UuidProvider
 import eu.europa.ec.euidi.verifier.domain.config.ConfigProvider
 import eu.europa.ec.euidi.verifier.domain.config.model.AttestationType
 import eu.europa.ec.euidi.verifier.domain.config.model.ClaimItem
-import eu.europa.ec.euidi.verifier.domain.config.model.DocumentMode
 import eu.europa.ec.euidi.verifier.domain.config.model.Logger
 import eu.europa.ec.euidi.verifier.domain.model.DocumentValidityDomain
 import eu.europa.ec.euidi.verifier.domain.model.ReceivedDocumentDomain
-import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
-import eu.europa.ec.euidi.verifier.presentation.ui.show_document.model.DocumentValidityUi
+import eu.europa.ec.euidi.verifier.testutil.TestData
+import eu.europa.ec.euidi.verifier.testutil.documentTypeResourceProvider
+import eu.europa.ec.euidi.verifier.testutil.sequentialUuidProvider
 import eudiverifier.verifierapp.generated.resources.Res
-import eudiverifier.verifierapp.generated.resources.document_type_employee_id
-import eudiverifier.verifierapp.generated.resources.document_type_mdl
-import eudiverifier.verifierapp.generated.resources.document_type_pid
 import eudiverifier.verifierapp.generated.resources.transfer_status_screen_request_label
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -117,17 +114,7 @@ class TransferStatusInteractorTest {
             assertEquals("uuid-0", doc.id)
             assertEquals(AttestationType.Pid, doc.documentType)
             assertEquals(mapOf(ClaimItem("given_name") to "John"), doc.claims)
-            assertEquals(
-                DocumentValidityUi(
-                    isDeviceSignatureValid = true,
-                    isIssuerSignatureValid = true,
-                    isDataIntegrityIntact = true,
-                    signed = null,
-                    validFrom = null,
-                    validUntil = null,
-                ),
-                doc.documentValidity
-            )
+            assertEquals(TestData.validDocumentValidityUi, doc.documentValidity)
         }
 
     @Test
@@ -236,13 +223,7 @@ class TransferStatusInteractorTest {
                 dataStoreController = dataStore(stored = mapOf(PrefKey.RETAIN_DATA to true))
             )
 
-            val docs = listOf(
-                RequestedDocumentUi(
-                    id = "PID_DOC",
-                    documentType = AttestationType.Pid,
-                    mode = DocumentMode.FULL,
-                )
-            )
+            val docs = listOf(TestData.pidFullRequestedDocument)
 
             val status = interactor.getConnectionStatus(docs).first()
 
@@ -260,16 +241,8 @@ class TransferStatusInteractorTest {
             val interactor = createInteractor()
 
             val docs = listOf(
-                RequestedDocumentUi(
-                    id = "PID_DOC",
-                    documentType = AttestationType.Pid,
-                    mode = DocumentMode.FULL,
-                ),
-                RequestedDocumentUi(
-                    id = "MDL_DOC",
-                    documentType = AttestationType.Mdl,
-                    mode = DocumentMode.CUSTOM,
-                )
+                TestData.pidFullRequestedDocument,
+                TestData.mdlCustomRequestedDocument,
             )
 
             val result = interactor.getRequestData(docs)
@@ -306,13 +279,6 @@ class TransferStatusInteractorTest {
 
     //region Mocks
 
-    private fun sequentialUuidProvider(): UuidProvider {
-        var counter = 0
-        return mock {
-            every { provideUuid() } calls { "uuid-${counter++}" }
-        }
-    }
-
     private fun transferController(
         statusFlow: Flow<TransferStatus> = flowOf(TransferStatus.Connected)
     ): TransferController {
@@ -345,15 +311,10 @@ class TransferStatusInteractorTest {
     }
 
     private fun stringResourceProvider(): ResourceProvider {
-        val resourceProvider = mock<ResourceProvider>()
+        val resourceProvider = documentTypeResourceProvider()
         every {
             resourceProvider.getSharedString(Res.string.transfer_status_screen_request_label)
         } returns "Requesting:"
-        every { resourceProvider.getSharedString(Res.string.document_type_pid) } returns "PID"
-        every { resourceProvider.getSharedString(Res.string.document_type_mdl) } returns "MDL"
-        every {
-            resourceProvider.getSharedString(Res.string.document_type_employee_id)
-        } returns "Employee ID"
         return resourceProvider
     }
 

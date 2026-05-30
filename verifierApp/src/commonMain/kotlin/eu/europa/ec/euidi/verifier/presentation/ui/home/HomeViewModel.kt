@@ -128,7 +128,7 @@ class HomeViewModel(
     private fun initiate(docs: List<RequestedDocumentUi>?) {
         viewModelScope.launch {
 
-            uiState.value.mainButtonData ?: run {
+            val baseButtonData = uiState.value.mainButtonData ?: run {
                 val title = interactor.getScreenTitle()
                 val buttonData = interactor.getDefaultMainButtonData()
                 setState {
@@ -138,16 +138,17 @@ class HomeViewModel(
                         isLoading = false
                     )
                 }
+                buttonData
             }
 
-            handleDocs(docs = docs)
+            handleDocs(docs = docs, baseButtonData = baseButtonData)
         }
     }
 
-    private suspend fun handleDocs(docs: List<RequestedDocumentUi>?) {
-
-        val baseButtonData = uiState.value.mainButtonData ?: return
-
+    private suspend fun handleDocs(
+        docs: List<RequestedDocumentUi>?,
+        baseButtonData: ListItemDataUi,
+    ) {
         if (!docs.isNullOrEmpty()) {
             val updatedButton = interactor.formatMainButtonData(
                 requestedDocs = docs,

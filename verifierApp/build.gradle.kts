@@ -118,6 +118,7 @@ kotlin {
             implementation(libs.kotlin.test)
             implementation(libs.koin.test)
             implementation(libs.kotlinx.coroutines.test)
+            implementation(libs.turbine)
         }
     }
 
@@ -144,9 +145,42 @@ kover {
             xml { onCheck = false }
             filters {
                 excludes {
+
+                    annotatedBy("androidx.compose.runtime.Composable")
+                    annotatedBy("kotlinx.parcelize.Parcelize")
+
                     classes(
                         "*BuildConfig*",
                         "org.koin*",
+                        "*ScreenKt*",
+                        "*RouterKt*",
+                        "*ComposableSingletons*",
+                        "*ConfigProviderImpl*",
+                        "*ByteArrayExtensionsKt*",
+                        "*PermissionsControllerExtensionsKt*",
+                        "*Constants",
+                        "*AndroidPlatformController*",
+                        "*AndroidTransferController*",
+                        "*RuntimeProvider*",
+                        "*ContainerActivity*",
+                        "*DocumentKeyValueUiParser*",
+                        "*ToastManager*",
+                        "*DocumentClaimsKt*",
+                    )
+
+                    packages(
+                        "eu.europa.ec.euidi.verifier.core.di",
+                        "eu.europa.ec.euidi.verifier.domain.di",
+                        "eu.europa.ec.euidi.verifier.presentation.di",
+                        "eu.europa.ec.euidi.verifier.core.controller.model",
+                        "eu.europa.ec.euidi.verifier.core.provider",
+                        "eu.europa.ec.euidi.verifier.presentation.theme",
+                        "eu.europa.ec.euidi.verifier.presentation.navigation",
+                        "eu.europa.ec.euidi.verifier.presentation.component",
+                        "eu.europa.ec.euidi.verifier.presentation.utils",
+                        "eu.europa.ec.euidi.verifier.presentation.model",
+                        "eu.europa.ec.euidi.verifier.presentation.ui.container",
+                        "eudiverifier.verifierapp.generated",
                     )
                 }
             }

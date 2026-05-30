@@ -33,6 +33,7 @@ import eu.europa.ec.euidi.verifier.presentation.component.ListItemMainContentDat
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemTrailingContentDataUi
 import eu.europa.ec.euidi.verifier.presentation.ui.settings.model.SettingsItemUi
 import eu.europa.ec.euidi.verifier.presentation.ui.settings.model.SettingsTypeUi
+import eu.europa.ec.euidi.verifier.testutil.sequentialUuidProvider
 import eudiverifier.verifierapp.generated.resources.Res
 import eudiverifier.verifierapp.generated.resources.settings_screen_category_data_retrieval_methods_description
 import eudiverifier.verifierapp.generated.resources.settings_screen_category_data_retrieval_methods_title
@@ -260,13 +261,6 @@ class SettingsInteractorTest {
     //endregion
 
     //region Mocks
-
-    private fun sequentialUuidProvider(): UuidProvider {
-        var counter = 0
-        return mock {
-            every { provideUuid() } calls { "uuid-${counter++}" }
-        }
-    }
 
     /**
      * Mocks the [DataStoreController]. The three pref-grouping lists mirror production so the

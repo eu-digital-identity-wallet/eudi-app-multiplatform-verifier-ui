@@ -47,7 +47,7 @@ fun String.decodeBase64ToBytesOrNull(): ByteArray? {
         if (isUrlSafe) {
             Base64.UrlSafe.decode(source = padded)
         } else {
-            Base64.Default.decode(source = padded)
+            Base64.decode(source = padded)
         }
     }.getOrNull()
 }
