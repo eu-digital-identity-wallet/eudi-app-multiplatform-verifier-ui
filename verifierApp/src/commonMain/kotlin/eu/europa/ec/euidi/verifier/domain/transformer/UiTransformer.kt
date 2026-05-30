@@ -127,9 +127,12 @@ object UiTransformer {
         val allStringResources: Map<String, StringResource> = Res.allStringResources
         val resourceKey = "${attestationType.replace(" ", "_")}_${claimLabel}".lowercase()
 
-        return allStringResources[resourceKey]?.let {
-            resourceProvider.getSharedString(it)
-        } ?: claimLabel
+        val resource = allStringResources[resourceKey]
+        return if (resource != null) {
+            resourceProvider.getSharedString(resource)
+        } else {
+            claimLabel
+        }
     }
 
     fun keyIsPortrait(key: String): Boolean {

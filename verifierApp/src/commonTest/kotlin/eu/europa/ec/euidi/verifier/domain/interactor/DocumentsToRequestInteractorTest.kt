@@ -19,18 +19,13 @@ package eu.europa.ec.euidi.verifier.domain.interactor
 import dev.mokkery.answering.returns
 import dev.mokkery.every
 import dev.mokkery.mock
-import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
 import eu.europa.ec.euidi.verifier.domain.config.ConfigProvider
 import eu.europa.ec.euidi.verifier.domain.config.model.AttestationType
-import eu.europa.ec.euidi.verifier.domain.config.model.ClaimItem
 import eu.europa.ec.euidi.verifier.domain.config.model.DocumentMode
 import eu.europa.ec.euidi.verifier.domain.config.model.SupportedDocuments
-import eu.europa.ec.euidi.verifier.domain.model.SupportedDocumentUi
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
-import eudiverifier.verifierapp.generated.resources.Res
-import eudiverifier.verifierapp.generated.resources.document_type_employee_id
-import eudiverifier.verifierapp.generated.resources.document_type_mdl
-import eudiverifier.verifierapp.generated.resources.document_type_pid
+import eu.europa.ec.euidi.verifier.testutil.TestData
+import eu.europa.ec.euidi.verifier.testutil.documentTypeResourceProvider
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -57,7 +52,7 @@ class DocumentsToRequestInteractorTest {
         val dispatcher = coroutineContext[ContinuationInterceptor] as CoroutineDispatcher
         return DocumentsToRequestInteractorImpl(
             configProvider = configProvider(supportedDocuments),
-            resourceProvider = stringResourceProvider(),
+            resourceProvider = documentTypeResourceProvider(),
             dispatcher = dispatcher
         )
     }
@@ -69,8 +64,8 @@ class DocumentsToRequestInteractorTest {
         runTest(StandardTestDispatcher()) {
             val supportedDocs = SupportedDocuments(
                 documents = mapOf(
-                    AttestationType.Pid to listOf(ClaimItem("family_name")),
-                    AttestationType.Mdl to listOf(ClaimItem("given_name"))
+                    AttestationType.Pid to listOf(TestData.familyNameClaim),
+                    AttestationType.Mdl to listOf(TestData.givenNameClaim)
                 )
             )
 
@@ -100,10 +95,7 @@ class DocumentsToRequestInteractorTest {
     @Test
     fun `getDocumentClaims returns configured claims for attestation type`() =
         runTest(StandardTestDispatcher()) {
-            val pidClaims = listOf(
-                ClaimItem("family_name"),
-                ClaimItem("age")
-            )
+            val pidClaims = TestData.pidClaims
             val supportedDocs = SupportedDocuments(
                 documents = mapOf(
                     AttestationType.Pid to pidClaims
@@ -122,7 +114,7 @@ class DocumentsToRequestInteractorTest {
         runTest(StandardTestDispatcher()) {
             val supportedDocs = SupportedDocuments(
                 documents = mapOf(
-                    AttestationType.Pid to listOf(ClaimItem("family_name"))
+                    AttestationType.Pid to listOf(TestData.familyNameClaim)
                 )
             )
 
@@ -142,12 +134,7 @@ class DocumentsToRequestInteractorTest {
         runTest(StandardTestDispatcher()) {
             val interactor = createInteractor()
             val currentDocs = listOf(
-                RequestedDocumentUi(
-                    id = "PID_DOC",
-                    documentType = AttestationType.Pid,
-                    mode = DocumentMode.FULL,
-                    claims = emptyList()
-                )
+                TestData.pidFullRequestedDocument
             )
 
             val result = interactor.handleDocumentOptionSelection(
@@ -165,12 +152,7 @@ class DocumentsToRequestInteractorTest {
         runTest(StandardTestDispatcher()) {
             val interactor = createInteractor()
             val currentDocs = listOf(
-                RequestedDocumentUi(
-                    id = "PID_DOC",
-                    documentType = AttestationType.Pid,
-                    mode = DocumentMode.FULL,
-                    claims = emptyList()
-                )
+                TestData.pidFullRequestedDocument
             )
 
             val result = interactor.handleDocumentOptionSelection(
@@ -210,10 +192,7 @@ class DocumentsToRequestInteractorTest {
     @Test
     fun `handleDocumentOptionSelection full mode adds new doc with all claims when none selected`() =
         runTest(StandardTestDispatcher()) {
-            val pidClaims = listOf(
-                ClaimItem("family_name"),
-                ClaimItem("age")
-            )
+            val pidClaims = TestData.pidClaims
             val supportedDocs = SupportedDocuments(
                 documents = mapOf(AttestationType.Pid to pidClaims)
             )
@@ -238,10 +217,7 @@ class DocumentsToRequestInteractorTest {
     @Test
     fun `handleDocumentOptionSelection full mode replaces existing custom doc for same type`() =
         runTest(StandardTestDispatcher()) {
-            val pidClaims = listOf(
-                ClaimItem("family_name"),
-                ClaimItem("age")
-            )
+            val pidClaims = TestData.pidClaims
             val supportedDocs = SupportedDocuments(
                 documents = mapOf(AttestationType.Pid to pidClaims)
             )
@@ -253,7 +229,7 @@ class DocumentsToRequestInteractorTest {
                     id = "PID_DOC",
                     documentType = AttestationType.Pid,
                     mode = DocumentMode.CUSTOM,
-                    claims = listOf(ClaimItem("family_name")) // subset
+                    claims = listOf(TestData.familyNameClaim) // subset
                 )
             )
 
@@ -274,7 +250,7 @@ class DocumentsToRequestInteractorTest {
     @Test
     fun `handleDocumentOptionSelection full mode keeps other document types`() =
         runTest(StandardTestDispatcher()) {
-            val pidClaims = listOf(ClaimItem("family_name"))
+            val pidClaims = listOf(TestData.familyNameClaim)
             val supportedDocs = SupportedDocuments(
                 documents = mapOf(AttestationType.Pid to pidClaims)
             )
@@ -282,12 +258,7 @@ class DocumentsToRequestInteractorTest {
             val interactor = createInteractor(supportedDocs)
 
             val currentDocs = listOf(
-                RequestedDocumentUi(
-                    id = "MDL_DOC",
-                    documentType = AttestationType.Mdl,
-                    mode = DocumentMode.FULL,
-                    claims = emptyList()
-                )
+                TestData.mdlFullRequestedDocument
             )
 
             val result = interactor.handleDocumentOptionSelection(
@@ -308,24 +279,14 @@ class DocumentsToRequestInteractorTest {
         runTest(StandardTestDispatcher()) {
             val interactor = createInteractor()
             val currentDocs = listOf(
-                RequestedDocumentUi(
-                    id = "PID_DOC",
-                    documentType = AttestationType.Pid,
-                    mode = DocumentMode.FULL,
-                    claims = emptyList()
-                ),
+                TestData.pidFullRequestedDocument,
                 RequestedDocumentUi(
                     id = "PID_CUSTOM",
                     documentType = AttestationType.Pid,
                     mode = DocumentMode.CUSTOM,
                     claims = emptyList()
                 ),
-                RequestedDocumentUi(
-                    id = "MDL_DOC",
-                    documentType = AttestationType.Mdl,
-                    mode = DocumentMode.FULL,
-                    claims = emptyList()
-                )
+                TestData.mdlFullRequestedDocument
             )
 
             val result = interactor.handleDocumentOptionSelection(
@@ -350,12 +311,7 @@ class DocumentsToRequestInteractorTest {
         runTest(StandardTestDispatcher()) {
             val interactor = createInteractor()
             val currentDocs = listOf(
-                RequestedDocumentUi(
-                    id = "MDL_DOC",
-                    documentType = AttestationType.Mdl,
-                    mode = DocumentMode.FULL,
-                    claims = emptyList()
-                )
+                TestData.mdlFullRequestedDocument
             )
 
             val result = interactor.handleDocumentOptionSelection(
@@ -373,7 +329,7 @@ class DocumentsToRequestInteractorTest {
     @Test
     fun `handleDocumentOptionSelection full mode appends when same type and mode exist under another id`() =
         runTest(StandardTestDispatcher()) {
-            val pidClaims = listOf(ClaimItem("family_name"))
+            val pidClaims = listOf(TestData.familyNameClaim)
             val supportedDocs = SupportedDocuments(
                 documents = mapOf(AttestationType.Pid to pidClaims)
             )
@@ -411,18 +367,7 @@ class DocumentsToRequestInteractorTest {
     @Test
     fun `searchDocuments filters by document display name`() =
         runTest(StandardTestDispatcher()) {
-            val docs = listOf(
-                SupportedDocumentUi(
-                    id = "PID",
-                    documentType = AttestationType.Pid,
-                    modes = listOf(DocumentMode.FULL)
-                ),
-                SupportedDocumentUi(
-                    id = "MDL",
-                    documentType = AttestationType.Mdl,
-                    modes = listOf(DocumentMode.CUSTOM)
-                )
-            )
+            val docs = TestData.searchableSupportedDocuments
 
             val interactor = createInteractor()
 
@@ -438,18 +383,7 @@ class DocumentsToRequestInteractorTest {
     @Test
     fun `searchDocuments ignores case sensitivity when searching by display name`() =
         runTest(StandardTestDispatcher()) {
-            val docs = listOf(
-                SupportedDocumentUi(
-                    id = "PID",
-                    documentType = AttestationType.Pid,
-                    modes = listOf(DocumentMode.FULL)
-                ),
-                SupportedDocumentUi(
-                    id = "MDL",
-                    documentType = AttestationType.Mdl,
-                    modes = listOf(DocumentMode.CUSTOM)
-                )
-            )
+            val docs = TestData.searchableSupportedDocuments
 
             val interactor = createInteractor()
             val result = interactor.searchDocuments(
@@ -464,18 +398,7 @@ class DocumentsToRequestInteractorTest {
     @Test
     fun `searchDocuments filters by document mode display name`() =
         runTest(StandardTestDispatcher()) {
-            val docs = listOf(
-                SupportedDocumentUi(
-                    id = "PID",
-                    documentType = AttestationType.Pid,
-                    modes = listOf(DocumentMode.FULL)
-                ),
-                SupportedDocumentUi(
-                    id = "MDL",
-                    documentType = AttestationType.Mdl,
-                    modes = listOf(DocumentMode.CUSTOM)
-                )
-            )
+            val docs = TestData.searchableSupportedDocuments
 
             val interactor = createInteractor()
 
@@ -491,18 +414,7 @@ class DocumentsToRequestInteractorTest {
     @Test
     fun `searchDocuments filters by document mode display name ignoring case sensitivity`() =
         runTest(StandardTestDispatcher()) {
-            val docs = listOf(
-                SupportedDocumentUi(
-                    id = "PID",
-                    documentType = AttestationType.Pid,
-                    modes = listOf(DocumentMode.FULL)
-                ),
-                SupportedDocumentUi(
-                    id = "MDL",
-                    documentType = AttestationType.Mdl,
-                    modes = listOf(DocumentMode.CUSTOM)
-                )
-            )
+            val docs = TestData.searchableSupportedDocuments
 
             val interactor = createInteractor()
             val result = interactor.searchDocuments(
@@ -517,18 +429,7 @@ class DocumentsToRequestInteractorTest {
     @Test
     fun `searchDocuments returns empty list when no matches`() =
         runTest(StandardTestDispatcher()) {
-            val docs = listOf(
-                SupportedDocumentUi(
-                    id = "PID",
-                    documentType = AttestationType.Pid,
-                    modes = listOf(DocumentMode.FULL)
-                ),
-                SupportedDocumentUi(
-                    id = "MDL",
-                    documentType = AttestationType.Mdl,
-                    modes = listOf(DocumentMode.CUSTOM)
-                )
-            )
+            val docs = TestData.searchableSupportedDocuments
 
             val interactor = createInteractor()
             val result = interactor.searchDocuments(
@@ -546,10 +447,7 @@ class DocumentsToRequestInteractorTest {
     @Test
     fun `checkDocumentMode sets mode to FULL when all claims are selected`() =
         runTest(StandardTestDispatcher()) {
-            val pidClaims = listOf(
-                ClaimItem("family_name"),
-                ClaimItem("age")
-            )
+            val pidClaims = TestData.pidClaims
             val supportedDocs = SupportedDocuments(
                 documents = mapOf(AttestationType.Pid to pidClaims)
             )
@@ -575,10 +473,7 @@ class DocumentsToRequestInteractorTest {
     @Test
     fun `checkDocumentMode keeps mode when not all claims are selected`() =
         runTest(StandardTestDispatcher()) {
-            val pidClaims = listOf(
-                ClaimItem("family_name"),
-                ClaimItem("age")
-            )
+            val pidClaims = TestData.pidClaims
             val supportedDocs = SupportedDocuments(
                 documents = mapOf(AttestationType.Pid to pidClaims)
             )
@@ -590,7 +485,7 @@ class DocumentsToRequestInteractorTest {
                     id = "PID_DOC",
                     documentType = AttestationType.Pid,
                     mode = DocumentMode.CUSTOM,
-                    claims = listOf(ClaimItem("family_name")) // partial
+                    claims = listOf(TestData.familyNameClaim) // partial
                 )
             )
 
@@ -612,7 +507,7 @@ class DocumentsToRequestInteractorTest {
                     id = "PID_DOC",
                     documentType = AttestationType.Pid,
                     mode = DocumentMode.CUSTOM,
-                    claims = listOf(ClaimItem("family_name"))
+                    claims = listOf(TestData.familyNameClaim)
                 )
             )
 
@@ -638,16 +533,6 @@ class DocumentsToRequestInteractorTest {
             configProvider.getDocumentModes(AttestationType.EmployeeId)
         } returns emptyList()
         return configProvider
-    }
-
-    private fun stringResourceProvider(): ResourceProvider {
-        val resourceProvider = mock<ResourceProvider>()
-        every { resourceProvider.getSharedString(Res.string.document_type_pid) } returns "PID"
-        every { resourceProvider.getSharedString(Res.string.document_type_mdl) } returns "MDL"
-        every {
-            resourceProvider.getSharedString(Res.string.document_type_employee_id)
-        } returns "EMPLOYEE_ID"
-        return resourceProvider
     }
 
     // endregion

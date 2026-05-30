@@ -27,6 +27,7 @@ import eu.europa.ec.euidi.verifier.domain.config.model.ClaimItem
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemMainContentDataUi
 import eu.europa.ec.euidi.verifier.presentation.model.ReceivedDocumentUi
 import eu.europa.ec.euidi.verifier.presentation.ui.show_document.model.DocumentValidityUi
+import eu.europa.ec.euidi.verifier.testutil.sequentialUuidProvider
 import eudiverifier.verifierapp.generated.resources.Res
 import eudiverifier.verifierapp.generated.resources.document_type_pid
 import eudiverifier.verifierapp.generated.resources.show_documents_screen_title
@@ -120,13 +121,6 @@ class ShowDocumentsInteractorTest {
     //endregion
 
     //region Mocks
-
-    private fun sequentialUuidProvider(): UuidProvider {
-        var counter = 0
-        return mock {
-            every { provideUuid() } calls { "uuid-${counter++}" }
-        }
-    }
 
     /**
      * The interactor resolves claim translations dynamically via `UiTransformer.getClaimTranslation`,

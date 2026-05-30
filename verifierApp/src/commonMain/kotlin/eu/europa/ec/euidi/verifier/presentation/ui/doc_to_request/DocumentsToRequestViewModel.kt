@@ -156,13 +156,7 @@ class DocumentsToRequestViewModel(
         }
     }
 
-    private fun checkEnableDoneButton(
-        requestedDocs: List<RequestedDocumentUi> = uiState.value.requestedDocuments
-    ) {
-        requestedDocs.any {
-            it.id in uiState.value.filteredDocuments.map { doc -> doc.id }
-        }
-
+    private fun checkEnableDoneButton(requestedDocs: List<RequestedDocumentUi>) {
         setState {
             copy(isButtonEnabled = requestedDocs.isNotEmpty())
         }

@@ -16,7 +16,6 @@
 
 package eu.europa.ec.euidi.verifier.domain.interactor
 
-import dev.mokkery.answering.calls
 import dev.mokkery.answering.returns
 import dev.mokkery.every
 import dev.mokkery.mock
@@ -28,6 +27,7 @@ import eu.europa.ec.euidi.verifier.presentation.component.ListItemLeadingContent
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemMainContentDataUi
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemTrailingContentDataUi
 import eu.europa.ec.euidi.verifier.presentation.ui.menu.model.MenuTypeUi
+import eu.europa.ec.euidi.verifier.testutil.sequentialUuidProvider
 import eudiverifier.verifierapp.generated.resources.Res
 import eudiverifier.verifierapp.generated.resources.menu_screen_item_home_name
 import eudiverifier.verifierapp.generated.resources.menu_screen_item_settings_name
@@ -134,13 +134,6 @@ class MenuInteractorTest {
     //endregion
 
     //region Mocks
-
-    private fun sequentialUuidProvider(): UuidProvider {
-        var counter = 0
-        return mock {
-            every { provideUuid() } calls { "uuid-${counter++}" }
-        }
-    }
 
     private fun stringResourceProvider(): ResourceProvider = mock {
         every { getSharedString(Res.string.menu_screen_title) } returns "Menu title"
