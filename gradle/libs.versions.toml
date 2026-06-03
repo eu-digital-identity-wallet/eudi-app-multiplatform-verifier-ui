@@ -1,89 +1,134 @@
 [versions]
-kotlin = "2.3.20"
-mokkery = "3.3.0"
-turbine = "1.2.1"
-kotlinxCoroutinesTest = "1.11.0"
-ksp = "2.3.9"
+
+# Android Gradle Plugin, Kotlin & symbol processing
 agp = "9.2.1"
-composeMultiplatform = "1.11.0"
+kotlin = "2.3.20"
+ksp = "2.3.9"
+
+# Compose Multiplatform
+composeMultiplatform = "1.11.1"
+composeMaterial3 = "1.10.0-alpha05"
+
+# AndroidX / Jetpack (Activity, Lifecycle, Navigation, Material)
 androidx-activity = "1.13.0"
 androidx-lifecycle = "2.10.0"
-kover = "0.9.8"
-koin = "4.2.1"
-koinComposeMultiplatform = "4.2.1"
-kotlinxSerializationJson = "1.11.0"
-kotlinxDatetime = "0.8.0"
 navigationCompose = "2.9.2"
 navigationEvent = "1.1.0"
 material = "1.14.0"
+
+# Dependency injection — Koin
+koin = "4.2.1"
+koinComposeMultiplatform = "4.2.1"
+
+# Serialization & date-time
+kotlinxSerializationJson = "1.11.0"
+kotlinxDatetime = "0.8.0"
+
+# Persistence — DataStore & Okio
 dataStore = "1.2.1"
 okio = "3.17.0"
+
+# Networking — Ktor
 ktor = "3.5.0"
+
+# QR scanning & runtime permissions
 qrKit = "3.1.3"
 mokoPermissions = "0.20.1"
+
+# EUDI Verifier core (ISO 18013-5 proximity)
 core = "0.1.0"
-composeMaterial3 = "1.10.0-alpha05"
+
+# Code coverage — Kover
+kover = "0.9.8"
+
+# Testing
+mokkery = "3.3.0"
+turbine = "1.2.1"
+kotlinxCoroutinesTest = "1.11.0"
+
 
 [libraries]
-kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
-kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
-turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
-kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
+
+# Kotlin — serialization & date-time
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
 
-androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity" }
-
-androidx-lifecycle-viewmodel-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "androidx-lifecycle" }
-androidx-lifecycle-runtimeCompose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
-
-navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
-navigationevent-compose = { module = "org.jetbrains.androidx.navigationevent:navigationevent-compose", version.ref = "navigationEvent" }
-
-backhandler-cmp = { module = "org.jetbrains.compose.ui:ui-backhandler", version.ref = "composeMultiplatform" }
-
-material = { module = "com.google.android.material:material", version.ref = "material" }
-
-koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
-koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
-koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
-koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koin" }
-koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koinComposeMultiplatform" }
-koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin" }
-koin-test = { module = "io.insert-koin:koin-test", version.ref = "koin" }
-
-androidx-datastore-preferences-core = { group = "androidx.datastore", name = "datastore-preferences-core", version.ref = "dataStore" }
-androidx-datastore-core-okio = { group = "androidx.datastore", name = "datastore-core-okio", version.ref = "dataStore" }
-
-okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
-
-ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
-ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
-ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
-
-qr-kit = { module = "network.chaintech:qr-kit", version.ref = "qrKit" }
-
-moko-permissions-compose = { module = "dev.icerock.moko:permissions-compose", version.ref = "mokoPermissions" }
-moko-permissions-ble = { module = "dev.icerock.moko:permissions-bluetooth", version.ref = "mokoPermissions" }
-moko-permissions-location = { module = "dev.icerock.moko:permissions-location", version.ref = "mokoPermissions" }
-
-core = { module = "eu.europa.ec.eudi:eudi-lib-android-verifier-core", version.ref = "core" }
-
+# Compose Multiplatform — UI
 compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "composeMultiplatform" }
 compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "composeMultiplatform" }
 compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "composeMultiplatform" }
 compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "composeMaterial3" }
 compose-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeMultiplatform" }
 compose-uiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "composeMultiplatform" }
+backhandler-cmp = { module = "org.jetbrains.compose.ui:ui-backhandler", version.ref = "composeMultiplatform" }
+
+# AndroidX / Jetpack — Activity & Lifecycle
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity" }
+androidx-lifecycle-viewmodel-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "androidx-lifecycle" }
+androidx-lifecycle-runtimeCompose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
+
+# Navigation
+navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+navigationevent-compose = { module = "org.jetbrains.androidx.navigationevent:navigationevent-compose", version.ref = "navigationEvent" }
+
+# Material Components (Android)
+material = { module = "com.google.android.material:material", version.ref = "material" }
+
+# Dependency injection — Koin
+koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin" }
+koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
+koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
+koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
+koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koin" }
+koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koinComposeMultiplatform" }
+koin-test = { module = "io.insert-koin:koin-test", version.ref = "koin" }
+
+# Persistence — DataStore & Okio
+androidx-datastore-preferences-core = { module = "androidx.datastore:datastore-preferences-core", version.ref = "dataStore" }
+androidx-datastore-core-okio = { module = "androidx.datastore:datastore-core-okio", version.ref = "dataStore" }
+okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
+
+# Networking — Ktor
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
+ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
+
+# QR scanning
+qr-kit = { module = "network.chaintech:qr-kit", version.ref = "qrKit" }
+
+# Runtime permissions — Moko
+moko-permissions-compose = { module = "dev.icerock.moko:permissions-compose", version.ref = "mokoPermissions" }
+moko-permissions-ble = { module = "dev.icerock.moko:permissions-bluetooth", version.ref = "mokoPermissions" }
+moko-permissions-location = { module = "dev.icerock.moko:permissions-location", version.ref = "mokoPermissions" }
+
+# EUDI Verifier core (ISO 18013-5 proximity)
+core = { module = "eu.europa.ec.eudi:eudi-lib-android-verifier-core", version.ref = "core" }
+
+# Testing
+kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
+turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
+
 
 [plugins]
+
+# Android
 androidApplication = { id = "com.android.application", version.ref = "agp" }
+kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+
+# Kotlin Multiplatform
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
+
+# Compose
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+
+# Kotlin compiler plugins
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 kotlinParcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
 serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+
+# Quality & testing
 kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
-kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 mokkery = { id = "dev.mokkery", version.ref = "mokkery" }
