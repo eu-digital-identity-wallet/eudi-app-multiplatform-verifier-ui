@@ -53,21 +53,6 @@ The codebase is one shared module plus two thin platform shells:
 | `androidVerifierApp` | Android application shell — `ContainerActivity`, manifest, launcher icons, product flavors and signing. |
 | `iosVerifierApp` | iOS application shell — a SwiftUI `ComposeView` hosting the shared `ContainerViewController`. |
 
-Inside `verifierApp` (`commonMain`), code is organised in three layers under `eu.europa.ec.euidi.verifier`:
-
-```
-core/          platform plumbing — controllers (Platform, Transfer, DataStore),
-               providers (Resource, Uuid), extensions, expect/actual PlatformModule
-domain/        business logic — config/ (ConfigProvider), interactor/ (one per feature),
-               transformer/ (UiTransformer), DomainModule
-presentation/  UI — architecture/ (MVI base), ui/<feature>/ (Screen + ViewModel),
-               component/ (Wrap* design system, AppIcons), theme/, navigation/, PresentationModule
-```
-
-**Pattern — MVI.** Each screen is a `Screen` composable plus a `ViewModel` extending `MviViewModel<Event, State, Effect>` ([architecture/MviViewModel.kt](verifierApp/src/commonMain/kotlin/eu/europa/ec/euidi/verifier/presentation/architecture/MviViewModel.kt)): the UI sends an `Event`, the ViewModel reduces it into a single `StateFlow<State>` and emits one-shot `Effect`s (navigation, toasts). ViewModels delegate to **Interactors** in `domain/`, which use `ConfigProvider` and the external EUDI verifier core library (Android) for ISO 18013-5 transfer.
-
-**Dependency injection — Koin.** `initKoin()` ([core/di/KoinInit.kt](verifierApp/src/commonMain/kotlin/eu/europa/ec/euidi/verifier/core/di/KoinInit.kt)) loads `platformModule()` (expect/actual), `coreModule`, `domainModule` and `presentationModule`. Android initialises it from `VerifierApplication`; iOS calls `initKoin()` at startup.
-
 ## How to use the application
 
 ### Minimum device requirements
