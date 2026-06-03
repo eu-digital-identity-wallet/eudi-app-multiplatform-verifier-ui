@@ -18,8 +18,10 @@ the [EUDI Wallet Reference Implementation project description](https://github.co
 
 * [Overview](#overview)
 * [Important things to know](#important-things-to-know)
+* [Architecture](#architecture)
 * [How to use the application](#how-to-use-the-application)
 * [Application configuration](#application-configuration)
+* [Theming and branding](#theming-and-branding)
 * [Disclaimer](#disclaimer)
 * [How to contribute](#how-to-contribute)
 * [License](#license)
@@ -40,6 +42,31 @@ This repository contains the source code for the multi-platform app, while crede
 ## Important things to know
 
 Currently, the project supports building both Android and iOS applications. However, only the Android version is fully operational. The iOS version builds the user interface, but no actions are functional, as the ISO 18013-5 library has not yet been implemented. Support for this functionality is planned for a future release.
+
+## Architecture
+
+The codebase is one shared module plus two thin platform shells:
+
+| Module | Role |
+|---|---|
+| `verifierApp` | Kotlin Multiplatform module holding **all** business logic and the Compose Multiplatform UI (Android + iOS). |
+| `androidVerifierApp` | Android application shell — `ContainerActivity`, manifest, launcher icons, product flavors and signing. |
+| `iosVerifierApp` | iOS application shell — a SwiftUI `ComposeView` hosting the shared `ContainerViewController`. |
+
+Inside `verifierApp` (`commonMain`), code is organised in three layers under `eu.europa.ec.euidi.verifier`:
+
+```
+core/          platform plumbing — controllers (Platform, Transfer, DataStore),
+               providers (Resource, Uuid), extensions, expect/actual PlatformModule
+domain/        business logic — config/ (ConfigProvider), interactor/ (one per feature),
+               transformer/ (UiTransformer), DomainModule
+presentation/  UI — architecture/ (MVI base), ui/<feature>/ (Screen + ViewModel),
+               component/ (Wrap* design system, AppIcons), theme/, navigation/, PresentationModule
+```
+
+**Pattern — MVI.** Each screen is a `Screen` composable plus a `ViewModel` extending `MviViewModel<Event, State, Effect>` ([architecture/MviViewModel.kt](verifierApp/src/commonMain/kotlin/eu/europa/ec/euidi/verifier/presentation/architecture/MviViewModel.kt)): the UI sends an `Event`, the ViewModel reduces it into a single `StateFlow<State>` and emits one-shot `Effect`s (navigation, toasts). ViewModels delegate to **Interactors** in `domain/`, which use `ConfigProvider` and the external EUDI verifier core library (Android) for ISO 18013-5 transfer.
+
+**Dependency injection — Koin.** `initKoin()` ([core/di/KoinInit.kt](verifierApp/src/commonMain/kotlin/eu/europa/ec/euidi/verifier/core/di/KoinInit.kt)) loads `platformModule()` (expect/actual), `coreModule`, `domainModule` and `presentationModule`. Android initialises it from `VerifierApplication`; iOS calls `initKoin()` at startup.
 
 ## How to use the application
 
@@ -92,7 +119,9 @@ Common Gradle commands (use `gradlew.bat` on Windows):
 ./gradlew :verifierApp:check
 ```
 
-Release builds are signed with the keystore at the repository root (`sign`). Provide the credentials either via `local.properties`:
+Release builds are signed with a keystore named `sign` at the repository root. **This keystore is not committed to the repository**, so a fresh clone won't have one — create your own (or change `storeFile` in [androidVerifierApp/build.gradle.kts](androidVerifierApp/build.gradle.kts)) before assembling a release. The same password is used for both the keystore and the key.
+
+Provide the credentials either via `local.properties`:
 
 ```properties
 androidKeyAlias=<your-alias>
@@ -110,6 +139,13 @@ open iosVerifierApp/iosVerifierApp.xcodeproj
 ```
 
 Xcode will trigger the KMP framework build for the shared `verifierApp` module on first launch. As noted above, the iOS target currently renders the UI but does not yet perform proximity verification.
+
+#### App version
+
+The version is a placeholder (`yyyy.mm.v`) until you set it:
+
+- **Android** — `VERSION_NAME` in [version.properties](version.properties); `versionCode` is fixed at `1` in [androidVerifierApp/build.gradle.kts](androidVerifierApp/build.gradle.kts).
+- **iOS** — `MARKETING_VERSION` (and `CURRENT_PROJECT_VERSION`) in the Xcode project.
 
 ### Proximity flow
 
@@ -141,49 +177,54 @@ The verification flow involves both apps: the user holding the **EUDI Wallet** i
 
 ## Application configuration
 
-The EUDI Verifier App utilizes a `ConfigProvider` ([verifierApp/src/commonMain/kotlin/eu/europa/ec/euidi/verifier/domain/config/ConfigProvider.kt](verifierApp/src/commonMain/kotlin/eu/europa/ec/euidi/verifier/domain/config/ConfigProvider.kt)) to define which credential types and claims are supported, as well as which document modes (FULL, CUSTOM) are available for each credential type.
-This approach allows the app to retrieve and update document configuration dynamically.
+The EUDI Verifier App uses a `ConfigProvider` ([verifierApp/src/commonMain/kotlin/eu/europa/ec/euidi/verifier/domain/config/ConfigProvider.kt](verifierApp/src/commonMain/kotlin/eu/europa/ec/euidi/verifier/domain/config/ConfigProvider.kt)) to declare which credential types and claims are supported, and which document modes (`FULL`, `CUSTOM`) are offered for each. The configuration is defined **statically, in code** — in `ConfigProviderImpl` (wired through Koin in [DomainModule.kt](verifierApp/src/commonMain/kotlin/eu/europa/ec/euidi/verifier/domain/di/DomainModule.kt)); there is no remote or runtime update path.
 
-You can configure the supported documents and claims by:
+Configuration lives in two files — `AttestationType` (the sealed credential-type hierarchy) and `ConfigProviderImpl` (the supported-claims map and document modes). To add a credential type:
 
-- Adding a new attestation type and updating supportedDocuments with its respective list of claims:
+**1. Add the type to the sealed interface** ([AttestationType.kt](verifierApp/src/commonMain/kotlin/eu/europa/ec/euidi/verifier/domain/config/model/AttestationType.kt)):
 
-    ```kotlin
-    sealed interface AttestationType {
-        data object YourDocument : AttestationType {
-    
-            override val namespace: String
-                get() = "your_namespace"
-    
-            override val docType: String
-                get() = "your_doctype"
-        }
+```kotlin
+@CommonParcelize
+sealed interface AttestationType : CommonParcelable {
+    // … existing Pid, Mdl, EmployeeId …
+
+    data object YourDocument : AttestationType {
+        override val namespace: String get() = "your_namespace"
+        override val docType: String get() = "your_doctype"
     }
-    
-    val supportedDocuments = SupportedDocuments(
-        mapOf(
-            AttestationType.YourDocument to listOf(
-                ClaimItem("your_claim_1"),
-                ClaimItem("your_claim_2")
-            )
-        )
+}
+```
+
+**2. Add a branch to every exhaustive `when`** over the sealed type, or the project won't compile — `getDocumentModes()` in `ConfigProviderImpl`, plus `getDisplayName()` and `getAttestationTypeFromDocType()` in the `AttestationType` companion object:
+
+```kotlin
+override fun getDocumentModes(attestationType: AttestationType): List<DocumentMode> =
+    when (attestationType) {
+        // … existing branches …
+        AttestationType.YourDocument -> listOf(DocumentMode.FULL, DocumentMode.CUSTOM)
+    }
+```
+
+**3. Declare the claims** in the `supportedDocuments` map in `ConfigProviderImpl`:
+
+```kotlin
+override val supportedDocuments = SupportedDocuments(
+    mapOf(
+        // … existing entries …
+        AttestationType.YourDocument to listOf(
+            ClaimItem("your_claim_1"),
+            ClaimItem("your_claim_2"),
+        ),
     )
-    ```
+)
+```
 
-- Specifying document modes (e.g., only FULL for some docs) and update getDocumentModes():
+**4. Add display labels** to [strings.xml](verifierApp/src/commonMain/composeResources/values/strings.xml) so the UI shows readable names instead of raw keys:
 
-    ```kotlin
-    enum class DocumentMode(val displayName: String) {
-        FULL(displayName = "Full"),
-        CUSTOM(displayName = "Custom")
-    }
-    
-    fun getDocumentModes(attestationType: AttestationType): List<DocumentMode> {
-        return when (attestationType) {
-            AttestationType.YourDocument -> listOf(DocumentMode.FULL, DocumentMode.CUSTOM)
-        }
-    }
-    ```
+- the type name as `document_type_*` (used by `getDisplayName()`);
+- one entry per claim, keyed `<type>_<claim>` — the type's display name lowercased with spaces replaced by `_` (e.g. `pid_family_name`, `employee_id_country_code`). `UiTransformer.getClaimTranslation()` resolves this key and falls back to the raw claim label when it is missing.
+
+Document modes themselves (`FULL`, `CUSTOM`) are defined in [DocumentMode.kt](verifierApp/src/commonMain/kotlin/eu/europa/ec/euidi/verifier/domain/config/model/DocumentMode.kt); `getDocumentModes()` only chooses which a type offers.
 
 The EUDI Verifier App also validates documents against trusted certificate authorities. The repository ships with PEM-encoded PID issuer trust anchors for **CZ, EE, EU, LU, NL, PT, and UT** under [verifierApp/src/commonMain/composeResources/files/certs](verifierApp/src/commonMain/composeResources/files/certs).
 
@@ -198,6 +239,24 @@ The EUDI Verifier App also validates documents against trusted certificate autho
         Res.readBytes("files/certs/your_trust_anchor.pem").decodeToString()
     )
     ```
+
+## Theming and branding
+
+The UI lives entirely in the shared `verifierApp` module and is themed centrally: every screen is wrapped once in a Material 3 `MaterialTheme`, so editing the colors and fonts re-skins the whole app. Light/dark follows the system setting (no dynamic color), so your brand palette is always applied. A full rebrand is a small, well-contained change — the table below lists each surface and where to change it.
+
+| To change | Where |
+|---|---|
+| Colors (light & dark palettes) | [Color.kt](verifierApp/src/commonMain/kotlin/eu/europa/ec/euidi/verifier/presentation/theme/Color.kt) |
+| Fonts & type scale | [Type.kt](verifierApp/src/commonMain/kotlin/eu/europa/ec/euidi/verifier/presentation/theme/Type.kt) + [composeResources/font/](verifierApp/src/commonMain/composeResources/font) |
+| In-app logos & icons | [composeResources/drawable/](verifierApp/src/commonMain/composeResources/drawable) (`ic_logo_*.xml`), registered in [AppIcons.kt](verifierApp/src/commonMain/kotlin/eu/europa/ec/euidi/verifier/presentation/component/AppIcons.kt) |
+| Spacing / size tokens | [Constants.kt](verifierApp/src/commonMain/kotlin/eu/europa/ec/euidi/verifier/presentation/component/utils/Constants.kt) |
+| Android launcher icon | [mipmap-anydpi-v26/](androidVerifierApp/src/main/res/mipmap-anydpi-v26/ic_launcher.xml), [ic_launcher_foreground.xml](androidVerifierApp/src/main/res/drawable/ic_launcher_foreground.xml), [ic_launcher_background.xml](androidVerifierApp/src/main/res/values/ic_launcher_background.xml) |
+| iOS launcher icon / accent color | [AppIcon.appiconset](iosVerifierApp/iosVerifierApp/Resources/Assets.xcassets/AppIcon.appiconset/appIcon.png), [AccentColor.colorset](iosVerifierApp/iosVerifierApp/Resources/Assets.xcassets/AccentColor.colorset/Contents.json) |
+| App name / label | [androidVerifierApp/build.gradle.kts](androidVerifierApp/build.gradle.kts) (`appLabel` per flavor); iOS `PRODUCT_NAME` in the Xcode project |
+| In-app titles & text | [strings.xml](verifierApp/src/commonMain/composeResources/values/strings.xml) |
+| Application / bundle id | [androidVerifierApp/build.gradle.kts](androidVerifierApp/build.gradle.kts) (`applicationId`); iOS bundle id in Xcode **Signing & Capabilities** |
+
+Release builds are signed with the `sign` keystore at the repository root — replace it with your own (see [Build from source](#build-from-source)).
 
 ## Disclaimer
 
