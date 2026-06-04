@@ -34,9 +34,6 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v6
-
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
         with:
@@ -45,7 +42,7 @@ jobs:
           # queries: security-extended,security-and-quality
 
       - name: Build (Android target)
-        run: ./gradlew :androidVerifierApp:assembleDevDebug --no-daemon --no-configuration-cache
+        run: ./gradlew clean :androidVerifierApp:assembleDevDebug --no-daemon --no-build-cache --no-configuration-cache
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4
