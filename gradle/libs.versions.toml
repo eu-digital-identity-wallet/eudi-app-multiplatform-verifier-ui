@@ -2,7 +2,7 @@
 
 # Android Gradle Plugin, Kotlin & symbol processing
 agp = "9.2.1"
-kotlin = "2.3.20"
+kotlin = "2.4.0"
 ksp = "2.3.9"
 
 # Compose Multiplatform
@@ -17,8 +17,8 @@ navigationEvent = "1.1.0"
 material = "1.14.0"
 
 # Dependency injection — Koin
-koin = "4.2.1"
-koinComposeMultiplatform = "4.2.1"
+koin = "4.2.2"
+koinComposeMultiplatform = "4.2.2"
 
 # Serialization & date-time
 kotlinxSerializationJson = "1.11.0"
@@ -42,7 +42,7 @@ core = "0.1.0"
 kover = "0.9.8"
 
 # Testing
-mokkery = "3.3.0"
+mokkery = "3.4.1"
 turbine = "1.2.1"
 kotlinxCoroutinesTest = "1.11.0"
 
