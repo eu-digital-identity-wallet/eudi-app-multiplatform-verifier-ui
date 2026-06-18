@@ -26,6 +26,8 @@ import eu.europa.ec.eudi.verifier.core.transfer.TransferConfig
 import eu.europa.ec.eudi.verifier.core.transfer.TransferEvent
 import eu.europa.ec.eudi.verifier.core.transfer.TransferManager
 import eu.europa.ec.euidi.verifier.core.extension.flattenedClaims
+import eu.europa.ec.euidi.verifier.core.extension.intoZkSystemSpecs
+import eu.europa.ec.euidi.verifier.core.extension.verifiedZKDocuments
 import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
 import eu.europa.ec.euidi.verifier.domain.config.model.ClaimItem
 import eu.europa.ec.euidi.verifier.domain.config.model.Logger
@@ -202,9 +204,13 @@ class AndroidTransferController(
                                             .awaitAll()
                                     }
 
+                                    val zkReceivedDocuments = event.response.verifiedZKDocuments();
+
                                     tryEmit(
                                         TransferStatus.OnResponseReceived(
-                                            receivedDocs = ReceivedDocumentsDomain(documents = receivedDocuments)
+                                            receivedDocs = ReceivedDocumentsDomain(
+                                                documents = receivedDocuments + zkReceivedDocuments
+                                            )
                                         )
                                     )
 
@@ -266,7 +272,8 @@ class AndroidTransferController(
             itemsRequest = mapOf(
                 this.documentType.namespace to requestedClaims
             ),
-            readerAuthCertificate = null
+            readerAuthCertificate = null,
+            zkSystemSpecs = this.intoZkSystemSpecs(),
         )
     }
 

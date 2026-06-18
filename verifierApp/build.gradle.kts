@@ -72,6 +72,7 @@ kotlin {
             implementation(libs.koin.android)
             implementation(libs.koin.androidx.compose)
             implementation(libs.core)
+            implementation(libs.euid.zk.sdk)
             implementation(libs.ktor.client.okhttp)
         }
 
