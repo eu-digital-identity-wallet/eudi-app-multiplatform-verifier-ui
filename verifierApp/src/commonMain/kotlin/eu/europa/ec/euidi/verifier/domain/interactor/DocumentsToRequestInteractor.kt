@@ -21,6 +21,7 @@ import eu.europa.ec.euidi.verifier.domain.config.ConfigProvider
 import eu.europa.ec.euidi.verifier.domain.config.model.AttestationType
 import eu.europa.ec.euidi.verifier.domain.config.model.AttestationType.Companion.getDisplayName
 import eu.europa.ec.euidi.verifier.domain.config.model.ClaimItem
+import eu.europa.ec.euidi.verifier.domain.config.model.ClaimKind
 import eu.europa.ec.euidi.verifier.domain.config.model.DocumentMode
 import eu.europa.ec.euidi.verifier.domain.model.SupportedDocumentUi
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
@@ -142,11 +143,14 @@ class DocumentsToRequestInteractorImpl(
     override suspend fun checkDocumentMode(requestedDocs: List<RequestedDocumentUi>): List<RequestedDocumentUi> =
         withContext(dispatcher) {
             requestedDocs.map { requestedDoc ->
-                val expectedClaimsCount =
-                    configProvider.supportedDocuments.documents[requestedDoc.documentType]?.size
+                val expectedDisclosureClaimsCount =
+                    configProvider.supportedDocuments.documents[requestedDoc.documentType]
+                        ?.count { it.kind is ClaimKind.Disclosure }
                         ?: 0
 
-                if (requestedDoc.claims.size == expectedClaimsCount) {
+                val hasZkClaim = requestedDoc.claims.any { it.kind is ClaimKind.Zk }
+
+                if (!hasZkClaim && requestedDoc.claims.size == expectedDisclosureClaimsCount) {
                     requestedDoc.copy(mode = DocumentMode.FULL)
                 } else requestedDoc
             }
@@ -169,7 +173,7 @@ class DocumentsToRequestInteractorImpl(
             id = docId,
             documentType = docType,
             mode = mode,
-            claims = getDocumentClaims(docType)
+            claims = getDocumentClaims(docType).filter { it.kind is ClaimKind.Disclosure }
         )
     }
 }

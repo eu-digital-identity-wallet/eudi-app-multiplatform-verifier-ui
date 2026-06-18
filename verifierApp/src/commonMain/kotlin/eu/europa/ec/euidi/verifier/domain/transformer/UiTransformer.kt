@@ -21,6 +21,7 @@ import eu.europa.ec.euidi.verifier.core.utils.Constants
 import eu.europa.ec.euidi.verifier.domain.config.model.AttestationType
 import eu.europa.ec.euidi.verifier.domain.config.model.AttestationType.Companion.getDisplayName
 import eu.europa.ec.euidi.verifier.domain.config.model.ClaimItem
+import eu.europa.ec.euidi.verifier.domain.config.model.ClaimKind
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemDataUi
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemLeadingContentDataUi
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemMainContentDataUi
@@ -30,6 +31,7 @@ import eu.europa.ec.euidi.verifier.presentation.model.ClaimValue
 import eu.europa.ec.euidi.verifier.presentation.model.ReceivedDocumentUi
 import eudiverifier.verifierapp.generated.resources.Res
 import eudiverifier.verifierapp.generated.resources.allStringResources
+import eudiverifier.verifierapp.generated.resources.custom_request_zk_claim_suffix
 import org.jetbrains.compose.resources.StringResource
 
 object UiTransformer {
@@ -50,13 +52,23 @@ object UiTransformer {
                     )
 
                     ListItemDataUi(
-                        itemId = claimItem.label,
+                        itemId = claimItem.id,
                         mainContentData = ListItemMainContentDataUi.Text(
-                            text = translation
+                            text = when (claimItem.kind) {
+                                ClaimKind.Disclosure -> translation
+                                is ClaimKind.Zk -> {
+                                    val zkSuffix = resourceProvider.getSharedString(
+                                        Res.string.custom_request_zk_claim_suffix
+                                    )
+                                    "$translation $zkSuffix"
+                                }
+                            }
                         ),
                         trailingContentData = ListItemTrailingContentDataUi.Checkbox(
                             checkboxData = CheckboxDataUi(
-                                isChecked = true
+                                // Disclosure claims stay checked by default (unchanged behaviour);
+                                // ZK predicates are opt-in, so they start unchecked.
+                                isChecked = claimItem.kind is ClaimKind.Disclosure
                             )
                         )
                     )

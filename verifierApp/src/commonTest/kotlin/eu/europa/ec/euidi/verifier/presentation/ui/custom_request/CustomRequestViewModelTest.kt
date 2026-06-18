@@ -112,7 +112,7 @@ class CustomRequestViewModelTest : MviViewModelTest() {
             every { getDocumentClaims(AttestationType.Pid) } returns claims
             everySuspend { transformToUiItems(AttestationType.Pid, claims) } returns uiItems
             everySuspend { getScreenTitle(AttestationType.Pid) } returns "Custom PID"
-            everySuspend { transformToClaimItems(uiItems) } returns selectedClaims
+            everySuspend { transformToClaimItems(claims, uiItems) } returns selectedClaims
         }
         val viewModel = CustomRequestViewModel(interactor)
         viewModel.setEvent(Event.Init(doc = doc))

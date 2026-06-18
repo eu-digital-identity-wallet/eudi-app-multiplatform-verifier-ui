@@ -30,6 +30,7 @@ import eu.europa.ec.euidi.verifier.core.extension.intoZkSystemSpecs
 import eu.europa.ec.euidi.verifier.core.extension.verifiedZKDocuments
 import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
 import eu.europa.ec.euidi.verifier.domain.config.model.ClaimItem
+import eu.europa.ec.euidi.verifier.domain.config.model.ClaimKind
 import eu.europa.ec.euidi.verifier.domain.config.model.Logger
 import eu.europa.ec.euidi.verifier.domain.model.DocumentValidityDomain
 import eu.europa.ec.euidi.verifier.domain.model.ReceivedDocumentDomain
@@ -263,6 +264,7 @@ class AndroidTransferController(
     ): DocRequest {
         val requestedClaims: Map<String, Boolean> = this
             .claims
+            .filter { claimItem: ClaimItem -> claimItem.kind is ClaimKind.Disclosure }
             .associate { claimItem: ClaimItem ->
                 claimItem.label to retainData
             }

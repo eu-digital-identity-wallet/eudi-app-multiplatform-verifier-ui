@@ -38,7 +38,10 @@ interface CustomRequestInteractor {
 
     fun getDocumentClaims(attestationType: AttestationType): List<ClaimItem>
 
-    suspend fun transformToClaimItems(items: List<ListItemDataUi>): List<ClaimItem>
+    suspend fun transformToClaimItems(
+        sourceClaims: List<ClaimItem>,
+        items: List<ListItemDataUi>
+    ): List<ClaimItem>
 
     suspend fun transformToUiItems(
         documentType: AttestationType,
@@ -69,17 +72,24 @@ class CustomRequestInteractorImpl(
         return configProvider.supportedDocuments.documents[attestationType].orEmpty()
     }
 
-    override suspend fun transformToClaimItems(items: List<ListItemDataUi>): List<ClaimItem> =
+    override suspend fun transformToClaimItems(
+        sourceClaims: List<ClaimItem>,
+        items: List<ListItemDataUi>
+    ): List<ClaimItem> =
         withContext(dispatcher) {
-            items
+            val checkedIds = items
                 .filter { uiItem ->
                     val trailingContentData = uiItem.trailingContentData
                     trailingContentData is ListItemTrailingContentDataUi.Checkbox &&
                             trailingContentData.checkboxData.isChecked
                 }
-                .map { uiItem ->
-                    ClaimItem(label = uiItem.itemId)
-                }
+                .map { uiItem -> uiItem.itemId }
+                .toSet()
+
+            // Pair each checked row back to the source claim it was built from (matched by id), so
+            // the claim's kind and any ZK predicate value survive the round-trip — rebuilding a
+            // ClaimItem from the id string alone would silently drop both.
+            sourceClaims.filter { it.id in checkedIds }
         }
 
     override suspend fun transformToUiItems(

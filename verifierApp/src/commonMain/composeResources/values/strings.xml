@@ -92,6 +92,8 @@
     <!-- Custom Request -->
     <string name="custom_request_screen_title">Custom %1$s request</string>
     <string name="custom_request_screen_select_deselect">Select/Deselect all</string>
+    <!-- Marker appended to a zero-knowledge predicate claim row. Intentionally not localized. -->
+    <string name="custom_request_zk_claim_suffix">(ZK)</string>
 
     <!-- Show Documents -->
     <string name="show_documents_screen_title">Show Documents</string>

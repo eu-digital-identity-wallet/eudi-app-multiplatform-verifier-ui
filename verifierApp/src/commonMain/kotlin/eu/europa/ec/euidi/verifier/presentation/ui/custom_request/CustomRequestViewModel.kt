@@ -99,10 +99,12 @@ class CustomRequestViewModel(
             is CustomRequestContract.Event.OnDoneClick -> {
                 viewModelScope.launch {
                     uiState.value.requestedDoc?.let {
+                        val sourceClaims = interactor.getDocumentClaims(it.documentType)
                         val reqDoc = it.copy(
-                            documentType = it.documentType,
-                            mode = it.mode,
-                            claims = interactor.transformToClaimItems(uiState.value.items)
+                            claims = interactor.transformToClaimItems(
+                                sourceClaims = sourceClaims,
+                                items = uiState.value.items
+                            )
                         )
 
                         setState {

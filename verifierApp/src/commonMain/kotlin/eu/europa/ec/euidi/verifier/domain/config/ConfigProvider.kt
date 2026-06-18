@@ -21,6 +21,7 @@ import eu.europa.ec.euidi.verifier.core.controller.model.BuildType
 import eu.europa.ec.euidi.verifier.core.controller.model.FlavorType
 import eu.europa.ec.euidi.verifier.domain.config.model.AttestationType
 import eu.europa.ec.euidi.verifier.domain.config.model.ClaimItem
+import eu.europa.ec.euidi.verifier.domain.config.model.ClaimKind
 import eu.europa.ec.euidi.verifier.domain.config.model.DocumentMode
 import eu.europa.ec.euidi.verifier.domain.config.model.Logger
 import eu.europa.ec.euidi.verifier.domain.config.model.SupportedDocuments
@@ -80,6 +81,10 @@ class ConfigProviderImpl(private val platformController: PlatformController) : C
                 ClaimItem("family_name"),
                 ClaimItem("given_name"),
                 ClaimItem("birth_date"),
+                ClaimItem(
+                    label = "birth_date",
+                    kind = ClaimKind.Zk()
+                ),
                 ClaimItem("expiry_date"),
                 ClaimItem("issuing_country"),
                 ClaimItem("issuing_authority"),
@@ -87,6 +92,10 @@ class ConfigProviderImpl(private val platformController: PlatformController) : C
                 ClaimItem("portrait"),
                 ClaimItem("sex"),
                 ClaimItem("nationality"),
+                ClaimItem(
+                    label = "nationality",
+                    kind = ClaimKind.Zk()
+                ),
                 ClaimItem("issuing_jurisdiction"),
                 ClaimItem("resident_address"),
                 ClaimItem("resident_country"),

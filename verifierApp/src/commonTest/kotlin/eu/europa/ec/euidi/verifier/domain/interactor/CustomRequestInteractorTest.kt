@@ -141,8 +141,13 @@ class CustomRequestInteractorTest {
             val noCheckbox = listItemWithoutCheckbox(id = "no_checkbox")
 
             val input = listOf(checked, unchecked, noCheckbox)
+            val sourceClaims = listOf(
+                ClaimItem("checked"),
+                ClaimItem("unchecked"),
+                ClaimItem("no_checkbox")
+            )
 
-            val result = interactor.transformToClaimItems(input)
+            val result = interactor.transformToClaimItems(sourceClaims, input)
 
             assertEquals(listOf("checked"), result.map { it.label })
         }
@@ -154,7 +159,10 @@ class CustomRequestInteractorTest {
 
             val unchecked = listItemWithCheckbox(id = "unchecked", isChecked = false)
 
-            val result = interactor.transformToClaimItems(listOf(unchecked))
+            val result = interactor.transformToClaimItems(
+                sourceClaims = listOf(ClaimItem("unchecked")),
+                items = listOf(unchecked)
+            )
 
             assertTrue(result.isEmpty())
         }
@@ -166,7 +174,10 @@ class CustomRequestInteractorTest {
 
             val noCheckbox = listItemWithoutCheckbox(id = "no_checkbox")
 
-            val result = interactor.transformToClaimItems(listOf(noCheckbox))
+            val result = interactor.transformToClaimItems(
+                sourceClaims = listOf(ClaimItem("no_checkbox")),
+                items = listOf(noCheckbox)
+            )
 
             assertTrue(result.isEmpty())
         }

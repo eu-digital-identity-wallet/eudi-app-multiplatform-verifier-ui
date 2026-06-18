@@ -25,6 +25,8 @@ import com.kss.euid.zk.sdk.verifyIdentity
 import com.kss.euid.zk.sdk.zkContractV1
 import eu.europa.ec.eudi.verifier.core.response.DeviceResponse
 import eu.europa.ec.euidi.verifier.domain.config.model.ClaimItem
+import eu.europa.ec.euidi.verifier.domain.config.model.ClaimKind
+import eu.europa.ec.euidi.verifier.domain.config.model.ZkPredicateValue
 import eu.europa.ec.euidi.verifier.domain.model.DocumentValidityDomain
 import eu.europa.ec.euidi.verifier.domain.model.ReceivedDocumentDomain
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
@@ -33,27 +35,45 @@ import org.multipaz.mdoc.zkp.ZkDocument
 import org.multipaz.mdoc.zkp.ZkSystemSpec
 import kotlin.time.ExperimentalTime
 
-const val DEFAULT_MIN_AGE = 18L
-
-/** EU/EEA accepted-country set as ISO-3166 numeric codes (CSV), via the SDK's alpha-2 map. */
-val DEFAULT_ACCEPTED_COUNTRIES: String = listOf(
-    "AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR", "HU", "IE", "IT",
-    "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE", "IS", "LI", "NO",
-).mapNotNull { isoAlpha2ToNumeric(it) }.joinToString(",")
-
 /**
- * Attaches the STWO ZK spec when this is a PID request asking only for the predicate attributes
- * (`birth_date` and/or `nationality`). The wallet's `getMatchingSystemSpec` only matches when the
- * requested claims are a subset of those, so any other claim mix gracefully falls back to plaintext.
- * Predicate parameters are demo defaults (over-18 / EU-EEA set) until a request UI is added.
+ * Attaches the STWO ZK spec when this PID request carries one or more zero-knowledge predicate
+ * claims ([ClaimKind.Zk]) **with an explicit parameter**. The predicate parameters — age threshold
+ * and accepted nationality set — are read off each selected predicate's [ZkPredicateValue]. There
+ * are no defaults: a predicate selected without a usable value is not requested, and if no predicate
+ * carries a value, no spec is produced and the request proceeds entirely over plaintext.
+ *
+ * Only ZK claims are considered here; disclosure claims are requested in plaintext separately.
  */
 internal fun RequestedDocumentUi.intoZkSystemSpecs(): List<ZkSystemSpec> {
     val contract = zkContractV1()
     if (this.documentType.docType != contract.doctypePid) return emptyList()
 
-    val requested = this.claims.map { it.label }.toSet()
-    val wantsAge = contract.elementBirthDate in requested
-    val wantsNat = contract.elementNationality in requested
+    // Pair each selected ZK predicate with its (attribute label, operator-supplied value).
+    val zkPredicates = this.claims.mapNotNull { claim ->
+        (claim.kind as? ClaimKind.Zk)?.let { claim.label to it.value }
+    }
+    if (zkPredicates.isEmpty()) return emptyList()
+
+    var minAge: Long? = null
+    var acceptedCountries: String? = null
+
+    zkPredicates.forEach { (label, value) ->
+        when (label) {
+            contract.elementBirthDate ->
+                (value as? ZkPredicateValue.AgeOver)?.let { minAge = it.years.toLong() }
+
+            contract.elementNationality ->
+                (value as? ZkPredicateValue.NationalityIn)
+                    ?.countries
+                    ?.mapNotNull { isoAlpha2ToNumeric(it) }
+                    ?.takeIf { it.isNotEmpty() }
+                    ?.let { acceptedCountries = it.joinToString(",") }
+        }
+    }
+
+    val wantsAge = minAge != null
+    val wantsNat = acceptedCountries != null
+    // No parameter resolved to a usable value → the predicate is not valid, so request no ZK.
     if (!wantsAge && !wantsNat) return emptyList()
 
     val mode = when {
@@ -64,8 +84,8 @@ internal fun RequestedDocumentUi.intoZkSystemSpecs(): List<ZkSystemSpec> {
 
     val spec = ZkSystemSpec(id = contract.specIdPid, system = contract.systemName).apply {
         addParam(contract.paramPredicateMode, predicateModeToken(mode))
-        if (wantsAge) addParam(contract.paramMinAge, DEFAULT_MIN_AGE)
-        if (wantsNat) addParam(contract.paramAcceptedCountries, DEFAULT_ACCEPTED_COUNTRIES)
+        minAge?.let { addParam(contract.paramMinAge, it) }
+        acceptedCountries?.let { addParam(contract.paramAcceptedCountries, it) }
         addParam(contract.paramVersion, 1L)
         addParam(contract.paramNumAttributes, 2L)
     }
@@ -114,11 +134,10 @@ internal fun DeviceResponse.verifiedZKDocuments(): List<ReceivedDocumentDomain> 
                 else -> PredicateMode.NAT
             },
             ageThresholdYears = if (agePresent) minAge else null,
-            acceptedNumericCountries = if (natPresent) {
-                DEFAULT_ACCEPTED_COUNTRIES.split(",").mapNotNull { it.toUIntOrNull() }
-            } else {
-                null
-            },
+            // The accepted nationality set is not carried in the response and there is no default.
+            // It must be correlated from the original request (by zkSystemSpecId) before a
+            // nationality predicate can be reconstructed; until then a NAT/AND proof cannot verify.
+            acceptedNumericCountries = null,
             natMode = NatMode.ANY,
         )
 
