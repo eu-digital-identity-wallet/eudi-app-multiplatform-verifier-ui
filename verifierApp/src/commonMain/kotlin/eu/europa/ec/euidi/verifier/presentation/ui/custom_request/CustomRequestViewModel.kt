@@ -27,6 +27,7 @@ import eu.europa.ec.euidi.verifier.presentation.architecture.UiState
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemDataUi
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemTrailingContentDataUi
 import eu.europa.ec.euidi.verifier.presentation.component.extension.hasAnyCheckedCheckbox
+import eu.europa.ec.euidi.verifier.presentation.component.wrap.CheckboxDataUi
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocsHolder
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
 import kotlinx.coroutines.launch
@@ -146,12 +147,34 @@ class CustomRequestViewModel(
                         .find { it.id == event.identifier }
                 }
 
-                // The nationality ZK predicate isn't a simple toggle: tapping it opens the country
-                // picker, pre-filled with the current selection.
-                if (clickedClaim != null &&
-                    clickedClaim.kind is ClaimKind.Zk &&
-                    clickedClaim.label == "nationality"
-                ) {
+                val isNationalityZk = clickedClaim != null &&
+                        clickedClaim.kind is ClaimKind.Zk &&
+                        clickedClaim.label == "nationality"
+
+                if (isNationalityZk && uiState.value.selectedCountries.isNotEmpty()) {
+                    // Already configured → tapping deselects it: clear the cached countries, uncheck
+                    // the row and drop its subtitle. The picker is not opened.
+                    val updatedItems = uiState.value.items.map { item ->
+                        if (item.itemId == event.identifier) {
+                            item.copy(
+                                supportingText = null,
+                                trailingContentData = ListItemTrailingContentDataUi.Checkbox(
+                                    checkboxData = CheckboxDataUi(isChecked = false)
+                                )
+                            )
+                        } else {
+                            item
+                        }
+                    }
+                    setState {
+                        copy(
+                            selectedCountries = emptyList(),
+                            items = updatedItems,
+                            primaryButtonEnabled = updatedItems.hasAnyCheckedCheckbox(),
+                        )
+                    }
+                } else if (isNationalityZk) {
+                    // Not yet configured → tapping opens the country picker.
                     setEffect {
                         CustomRequestContract.Effect.Navigation.OpenCountrySelection(
                             preSelectedCodes = uiState.value.selectedCountries
@@ -177,8 +200,29 @@ class CustomRequestViewModel(
             }
 
             is CustomRequestContract.Event.OnCountriesSelected -> {
+                val subtitle = interactor.selectedCountriesSubtitle(event.countryCodes.size)
+                val nationalityRowId = nationalityZkClaimId()
+                // A non-empty selection (always >= 2, enforced by the picker) means the nationality
+                // predicate is now configured, so reflect it as a checked row.
+                val hasCountries = event.countryCodes.isNotEmpty()
+                val updatedItems = uiState.value.items.map { item ->
+                    if (item.itemId == nationalityRowId) {
+                        item.copy(
+                            supportingText = subtitle,
+                            trailingContentData = ListItemTrailingContentDataUi.Checkbox(
+                                checkboxData = CheckboxDataUi(isChecked = hasCountries)
+                            )
+                        )
+                    } else {
+                        item
+                    }
+                }
                 setState {
-                    copy(selectedCountries = event.countryCodes)
+                    copy(
+                        selectedCountries = event.countryCodes,
+                        items = updatedItems,
+                        primaryButtonEnabled = updatedItems.hasAnyCheckedCheckbox(),
+                    )
                 }
             }
 
@@ -206,4 +250,12 @@ class CustomRequestViewModel(
             }
         }
     }
+
+    /** The list-item id of the nationality ZK predicate row, if the current document has one. */
+    private fun nationalityZkClaimId(): String? =
+        uiState.value.requestedDoc?.let { doc ->
+            interactor.getDocumentClaims(doc.documentType)
+                .firstOrNull { it.kind is ClaimKind.Zk && it.label == "nationality" }
+                ?.id
+        }
 }

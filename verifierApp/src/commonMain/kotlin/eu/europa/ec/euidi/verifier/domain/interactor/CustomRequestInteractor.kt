@@ -27,6 +27,7 @@ import eu.europa.ec.euidi.verifier.presentation.component.ListItemTrailingConten
 import eu.europa.ec.euidi.verifier.presentation.component.extension.hasAnyCheckedCheckbox
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.CheckboxDataUi
 import eudiverifier.verifierapp.generated.resources.Res
+import eudiverifier.verifierapp.generated.resources.custom_request_nationality_countries_selected
 import eudiverifier.verifierapp.generated.resources.custom_request_screen_title
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -52,6 +53,12 @@ interface CustomRequestInteractor {
         items: List<ListItemDataUi>,
         identifier: String,
     ): HandleItemSelectionPartialState
+
+    /**
+     * The subtitle shown under the nationality predicate row, reflecting how many countries are
+     * currently selected. Returns null for an empty selection so no subtitle is shown.
+     */
+    fun selectedCountriesSubtitle(count: Int): String?
 }
 
 class CustomRequestInteractorImpl(
@@ -128,6 +135,18 @@ class CustomRequestInteractorImpl(
             hasSelectedItems = hasSelectedItems,
         )
     }
+
+    override fun selectedCountriesSubtitle(count: Int): String? =
+        // The picker enforces a minimum of two countries, so the count is either zero (no subtitle)
+        // or two-or-more.
+        if (count <= 0) {
+            null
+        } else {
+            resourceProvider.getSharedString(
+                Res.string.custom_request_nationality_countries_selected,
+                count
+            )
+        }
 }
 
 sealed class HandleItemSelectionPartialState {
