@@ -22,6 +22,7 @@ import androidx.navigation.compose.rememberNavController
 import eu.europa.ec.euidi.verifier.presentation.ui.country_selection.countrySelectionScreen
 import eu.europa.ec.euidi.verifier.presentation.ui.custom_request.customRequestScreen
 import eu.europa.ec.euidi.verifier.presentation.ui.doc_to_request.docToRequestScreen
+import eu.europa.ec.euidi.verifier.presentation.ui.zk_request.zkRequestScreen
 import eu.europa.ec.euidi.verifier.presentation.ui.home.homeScreen
 import eu.europa.ec.euidi.verifier.presentation.ui.menu.menuScreen
 import eu.europa.ec.euidi.verifier.presentation.ui.qr_scan.qrScanScreen
@@ -41,6 +42,7 @@ fun VerifierNavHost() {
         menuScreen(navController)
         docToRequestScreen(navController)
         customRequestScreen(navController)
+        zkRequestScreen(navController)
         countrySelectionScreen(navController)
         transferStatusScreen(navController)
         showDocumentsScreen(navController)

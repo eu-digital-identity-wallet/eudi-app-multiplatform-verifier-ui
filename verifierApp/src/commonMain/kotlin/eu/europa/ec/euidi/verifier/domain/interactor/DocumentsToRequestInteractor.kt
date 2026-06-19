@@ -111,6 +111,24 @@ class DocumentsToRequestInteractorImpl(
                 return@withContext DocSelectionResult.NavigateToCustomRequest(updated, customDoc)
             }
 
+            if (mode == DocumentMode.ZK) {
+                val updated =
+                    if (currentDocs.any { it.id == docId }) {
+                        currentDocs.filterNot { it.id == docId }
+                    } else {
+                        currentDocs
+                    }
+
+                val zkDoc = RequestedDocumentUi(
+                    id = docId,
+                    documentType = docType,
+                    mode = mode,
+                    claims = emptyList()
+                )
+
+                return@withContext DocSelectionResult.NavigateToZkRequest(updated, zkDoc)
+            }
+
             // Case 3: Full mode → handle Full Mode selection
             val updatedDocs = handleFullDocumentSelection(
                 currentDocs = currentDocs,
@@ -183,5 +201,10 @@ sealed class DocSelectionResult {
     data class NavigateToCustomRequest(
         val docs: List<RequestedDocumentUi>,
         val customDoc: RequestedDocumentUi
+    ) : DocSelectionResult()
+
+    data class NavigateToZkRequest(
+        val docs: List<RequestedDocumentUi>,
+        val zkDoc: RequestedDocumentUi
     ) : DocSelectionResult()
 }

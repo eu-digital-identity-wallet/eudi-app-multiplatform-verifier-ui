@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 European Commission
+ * Copyright (c) 2026 European Commission
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the European
  * Commission - subsequent versions of the EUPL (the "Licence"); You may not use this work
@@ -14,10 +14,17 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier.domain.config.model
+package eu.europa.ec.euidi.verifier.presentation.ui.zk_request
 
-enum class DocumentMode(val displayName: String) {
-    FULL(displayName = "Full"),
-    CUSTOM(displayName = "Custom"),
-    ZK(displayName = "ZK")
+import androidx.navigation.NavController
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.compose.composable
+import eu.europa.ec.euidi.verifier.presentation.navigation.NavItem
+
+fun NavGraphBuilder.zkRequestScreen(navController: NavController) {
+    composable<NavItem.ZkRequest> {
+        ZkRequestScreen(
+            navController = navController
+        )
+    }
 }

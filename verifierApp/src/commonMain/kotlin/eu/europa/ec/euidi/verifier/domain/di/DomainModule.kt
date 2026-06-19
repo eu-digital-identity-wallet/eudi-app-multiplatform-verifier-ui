@@ -41,6 +41,8 @@ import eu.europa.ec.euidi.verifier.domain.interactor.ShowDocumentsInteractor
 import eu.europa.ec.euidi.verifier.domain.interactor.ShowDocumentsInteractorImpl
 import eu.europa.ec.euidi.verifier.domain.interactor.TransferStatusInteractor
 import eu.europa.ec.euidi.verifier.domain.interactor.TransferStatusInteractorImpl
+import eu.europa.ec.euidi.verifier.domain.interactor.ZkRequestInteractor
+import eu.europa.ec.euidi.verifier.domain.interactor.ZkRequestInteractorImpl
 import eu.europa.ec.euidi.verifier.domain.repository.CountryRepository
 import eu.europa.ec.euidi.verifier.domain.repository.CountryRepositoryImpl
 import org.koin.dsl.module
@@ -77,6 +79,13 @@ val domainModule = module {
         CustomRequestInteractorImpl(
             resourceProvider = get<ResourceProvider>(),
             configProvider = get<ConfigProvider>()
+        )
+    }
+
+    factory<ZkRequestInteractor> {
+        ZkRequestInteractorImpl(
+            configProvider = get<ConfigProvider>(),
+            resourceProvider = get<ResourceProvider>()
         )
     }
 

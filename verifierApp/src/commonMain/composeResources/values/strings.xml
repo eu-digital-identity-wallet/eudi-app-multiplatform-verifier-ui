@@ -94,7 +94,10 @@
     <string name="custom_request_screen_select_deselect">Select/Deselect all</string>
     <!-- Marker appended to a zero-knowledge predicate claim row. Intentionally not localized. -->
     <string name="custom_request_zk_claim_suffix">(ZK)</string>
-    <string name="custom_request_nationality_countries_selected">%1$d countries selected</string>
+
+    <!-- ZK Request -->
+    <string name="zk_request_screen_title">Zero-knowledge request</string>
+    <string name="zk_request_nationality_countries_selected">%1$d countries selected</string>
 
     <!-- Show Documents -->
     <string name="show_documents_screen_title">Show Documents</string>

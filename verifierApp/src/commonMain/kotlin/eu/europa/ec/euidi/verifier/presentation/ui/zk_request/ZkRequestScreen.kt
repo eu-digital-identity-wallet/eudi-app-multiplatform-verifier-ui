@@ -14,12 +14,10 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier.presentation.ui.custom_request
+package eu.europa.ec.euidi.verifier.presentation.ui.zk_request
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -39,19 +37,20 @@ import eu.europa.ec.euidi.verifier.presentation.component.content.ToolbarConfig
 import eu.europa.ec.euidi.verifier.presentation.component.utils.OneTimeLaunchedEffect
 import eu.europa.ec.euidi.verifier.presentation.component.utils.SPACING_MEDIUM
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.ButtonType
-import eu.europa.ec.euidi.verifier.presentation.component.wrap.CheckboxDataUi
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.StickyBottomConfig
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.StickyBottomType
-import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapCheckbox
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapListItems
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapStickyBottomContent
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.rememberButtonConfig
+import eu.europa.ec.euidi.verifier.presentation.model.CountrySelectionHolder
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
+import eu.europa.ec.euidi.verifier.presentation.navigation.NavItem
 import eu.europa.ec.euidi.verifier.presentation.navigation.getFromPreviousBackStack
+import eu.europa.ec.euidi.verifier.presentation.navigation.getFromRelevantBackStack
+import eu.europa.ec.euidi.verifier.presentation.navigation.saveToCurrentBackStack
 import eu.europa.ec.euidi.verifier.presentation.navigation.saveToPreviousBackStack
 import eu.europa.ec.euidi.verifier.presentation.utils.Constants
 import eudiverifier.verifierapp.generated.resources.Res
-import eudiverifier.verifierapp.generated.resources.custom_request_screen_select_deselect
 import eudiverifier.verifierapp.generated.resources.generic_cancel
 import eudiverifier.verifierapp.generated.resources.generic_done
 import kotlinx.coroutines.flow.Flow
@@ -59,9 +58,9 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun CustomRequestScreen(
+fun ZkRequestScreen(
     navController: NavController,
-    viewModel: CustomRequestViewModel = koinViewModel()
+    viewModel: ZkRequestViewModel = koinViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -69,7 +68,7 @@ fun CustomRequestScreen(
         type = ButtonType.PRIMARY,
         enabled = state.primaryButtonEnabled,
         onClick = {
-            viewModel.setEvent(CustomRequestContract.Event.OnDoneClick)
+            viewModel.setEvent(ZkRequestContract.Event.OnDoneClick)
         },
         content = {
             Text(stringResource(Res.string.generic_done))
@@ -78,7 +77,7 @@ fun CustomRequestScreen(
     val stickySecondaryButtonConfig = rememberButtonConfig(
         type = ButtonType.SECONDARY,
         onClick = {
-            viewModel.setEvent(CustomRequestContract.Event.OnCancelClick)
+            viewModel.setEvent(ZkRequestContract.Event.OnCancelClick)
         },
         content = {
             Text(stringResource(Res.string.generic_cancel))
@@ -91,7 +90,7 @@ fun CustomRequestScreen(
             title = state.screenTitle
         ),
         onBack = {
-            viewModel.setEvent(CustomRequestContract.Event.OnCancelClick)
+            viewModel.setEvent(ZkRequestContract.Event.OnCancelClick)
         },
         stickyBottom = { paddingValues ->
             WrapStickyBottomContent(
@@ -121,68 +120,68 @@ fun CustomRequestScreen(
 
     OneTimeLaunchedEffect {
         viewModel.setEvent(
-            CustomRequestContract.Event.Init(
+            ZkRequestContract.Event.Init(
                 doc = navController.getFromPreviousBackStack<RequestedDocumentUi>(
                     key = Constants.REQUESTED_DOCUMENTS
                 )
             )
         )
     }
+
+    // Runs again whenever this screen re-enters composition, e.g. after returning from the country
+    // picker, so the chosen countries flow back in. Returns null (no-op) on the first composition.
+    LaunchedEffect(Unit) {
+        navController.getFromRelevantBackStack<CountrySelectionHolder>(
+            key = Constants.COUNTRY_SELECTION_RESULT,
+            remove = true
+        )?.let { result ->
+            viewModel.setEvent(ZkRequestContract.Event.OnCountriesSelected(result.countryCodes))
+        }
+    }
 }
 
 private fun handleNavigationEffect(
-    effect: CustomRequestContract.Effect,
+    effect: ZkRequestContract.Effect,
     navController: NavController,
 ) {
     when (effect) {
-        is CustomRequestContract.Effect.Navigation.GoBack -> {
+        is ZkRequestContract.Effect.Navigation.GoBack -> {
             navController.saveToPreviousBackStack(
                 key = Constants.REQUESTED_DOCUMENTS,
                 value = effect.requestedDocuments
             )
             navController.popBackStack()
         }
+
+        is ZkRequestContract.Effect.Navigation.OpenCountrySelection -> {
+            navController.saveToCurrentBackStack(
+                key = Constants.COUNTRY_SELECTION_PRESELECTED,
+                value = CountrySelectionHolder(countryCodes = effect.preSelectedCodes)
+            )
+            navController.navigate(route = NavItem.CountrySelection)
+        }
     }
 }
 
 @Composable
 private fun Content(
-    state: CustomRequestContract.State,
-    effectFlow: Flow<CustomRequestContract.Effect>,
-    onEventSend: (CustomRequestContract.Event) -> Unit,
-    onNavigationRequested: (CustomRequestContract.Effect.Navigation) -> Unit,
+    state: ZkRequestContract.State,
+    effectFlow: Flow<ZkRequestContract.Effect>,
+    onEventSend: (ZkRequestContract.Event) -> Unit,
+    onNavigationRequested: (ZkRequestContract.Effect.Navigation) -> Unit,
     paddingValues: PaddingValues
 ) {
     Column(
         modifier = Modifier
             .padding(paddingValues)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    vertical = SPACING_MEDIUM.dp
-                ),
-            horizontalArrangement = Arrangement.End
-        ) {
-            Text(text = stringResource(Res.string.custom_request_screen_select_deselect))
-            WrapCheckbox(
-                checkboxData = CheckboxDataUi(
-                    isChecked = state.areAllItemsChecked,
-                    onCheckedChange = { isChecked ->
-                        onEventSend(CustomRequestContract.Event.OnSelectAllClick(isChecked))
-                    }
-                ),
-                modifier = Modifier.padding(horizontal = SPACING_MEDIUM.dp)
-            )
-        }
         WrapListItems(
             modifier = Modifier
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState()),
             items = state.items,
             onItemClick = {
-                onEventSend(CustomRequestContract.Event.OnItemClicked(it.itemId))
+                onEventSend(ZkRequestContract.Event.OnItemClicked(it.itemId))
             },
             clickableAreas = listOf(ClickableArea.TRAILING_CONTENT),
             mainContentVerticalPadding = SPACING_MEDIUM.dp
@@ -192,7 +191,7 @@ private fun Content(
     LaunchedEffect(Unit) {
         effectFlow.collect { effect ->
             when (effect) {
-                is CustomRequestContract.Effect.Navigation -> onNavigationRequested(effect)
+                is ZkRequestContract.Effect.Navigation -> onNavigationRequested(effect)
             }
         }
     }

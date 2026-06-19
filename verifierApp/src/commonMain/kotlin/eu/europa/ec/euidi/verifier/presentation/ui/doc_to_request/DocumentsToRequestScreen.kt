@@ -151,6 +151,15 @@ private fun handleNavigationEffect(
                 navController.navigate(route = NavItem.CustomRequest)
             }
         }
+
+        is DocToRequestContract.Effect.Navigation.NavigateToZkRequestScreen -> {
+            navController.saveToCurrentBackStack<RequestedDocumentUi>(
+                key = Constants.REQUESTED_DOCUMENTS,
+                value = navigationEffect.requestedDocuments
+            ).let {
+                navController.navigate(route = NavItem.ZkRequest)
+            }
+        }
     }
 }
 

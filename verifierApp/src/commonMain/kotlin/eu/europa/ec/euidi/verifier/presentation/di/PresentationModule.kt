@@ -25,6 +25,7 @@ import eu.europa.ec.euidi.verifier.presentation.ui.qr_scan.QrScanViewModel
 import eu.europa.ec.euidi.verifier.presentation.ui.settings.SettingsViewModel
 import eu.europa.ec.euidi.verifier.presentation.ui.show_document.ShowDocumentsViewModel
 import eu.europa.ec.euidi.verifier.presentation.ui.transfer_status.TransferStatusViewModel
+import eu.europa.ec.euidi.verifier.presentation.ui.zk_request.ZkRequestViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
@@ -39,6 +40,7 @@ val presentationModule = module {
     viewModelOf(::QrScanViewModel)
     viewModelOf(::SettingsViewModel)
     viewModelOf(::ShowDocumentsViewModel)
+    viewModelOf(::ZkRequestViewModel)
 
     viewModel { params ->
         TransferStatusViewModel(

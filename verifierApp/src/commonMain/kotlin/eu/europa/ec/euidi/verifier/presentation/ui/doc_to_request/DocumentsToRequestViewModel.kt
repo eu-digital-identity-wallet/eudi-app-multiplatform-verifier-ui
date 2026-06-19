@@ -61,6 +61,10 @@ sealed interface DocToRequestContract {
             data class NavigateToCustomRequestScreen(
                 val requestedDocuments: RequestedDocumentUi
             ) : Navigation
+
+            data class NavigateToZkRequestScreen(
+                val requestedDocuments: RequestedDocumentUi
+            ) : Navigation
         }
     }
 }
@@ -117,6 +121,15 @@ class DocumentsToRequestViewModel(
                             setEffect {
                                 DocToRequestContract.Effect.Navigation.NavigateToCustomRequestScreen(
                                     result.customDoc
+                                )
+                            }
+                        }
+
+                        is DocSelectionResult.NavigateToZkRequest -> {
+                            setState { copy(requestedDocuments = result.docs) }
+                            setEffect {
+                                DocToRequestContract.Effect.Navigation.NavigateToZkRequestScreen(
+                                    result.zkDoc
                                 )
                             }
                         }

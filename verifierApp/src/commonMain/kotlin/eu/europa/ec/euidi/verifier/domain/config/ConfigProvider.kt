@@ -58,7 +58,7 @@ class ConfigProviderImpl(private val platformController: PlatformController) : C
 
     override fun getDocumentModes(attestationType: AttestationType): List<DocumentMode> {
         return when (attestationType) {
-            AttestationType.Pid -> listOf(DocumentMode.FULL, DocumentMode.CUSTOM)
+            AttestationType.Pid -> listOf(DocumentMode.FULL, DocumentMode.CUSTOM, DocumentMode.ZK)
             AttestationType.Mdl -> listOf(DocumentMode.FULL, DocumentMode.CUSTOM)
             AttestationType.EmployeeId -> listOf(DocumentMode.FULL, DocumentMode.CUSTOM)
         }

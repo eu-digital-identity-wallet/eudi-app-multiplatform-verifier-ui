@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 European Commission
+ * Copyright (c) 2026 European Commission
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the European
  * Commission - subsequent versions of the EUPL (the "Licence"); You may not use this work
@@ -19,7 +19,6 @@ package eu.europa.ec.euidi.verifier.domain.interactor
 import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
 import eu.europa.ec.euidi.verifier.domain.config.ConfigProvider
 import eu.europa.ec.euidi.verifier.domain.config.model.AttestationType
-import eu.europa.ec.euidi.verifier.domain.config.model.AttestationType.Companion.getDisplayName
 import eu.europa.ec.euidi.verifier.domain.config.model.ClaimItem
 import eu.europa.ec.euidi.verifier.domain.config.model.ClaimKind
 import eu.europa.ec.euidi.verifier.domain.transformer.UiTransformer
@@ -28,86 +27,77 @@ import eu.europa.ec.euidi.verifier.presentation.component.ListItemTrailingConten
 import eu.europa.ec.euidi.verifier.presentation.component.extension.hasAnyCheckedCheckbox
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.CheckboxDataUi
 import eudiverifier.verifierapp.generated.resources.Res
-import eudiverifier.verifierapp.generated.resources.custom_request_screen_title
+import eudiverifier.verifierapp.generated.resources.zk_request_nationality_countries_selected
+import eudiverifier.verifierapp.generated.resources.zk_request_screen_title
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-interface CustomRequestInteractor {
+interface ZkRequestInteractor {
 
     suspend fun getScreenTitle(attestationType: AttestationType): String
 
-    fun getDocumentClaims(attestationType: AttestationType): List<ClaimItem>
-
-    suspend fun transformToClaimItems(
-        sourceClaims: List<ClaimItem>,
-        items: List<ListItemDataUi>
-    ): List<ClaimItem>
+    fun getZkClaims(attestationType: AttestationType): List<ClaimItem>
 
     suspend fun transformToUiItems(
         documentType: AttestationType,
         claims: List<ClaimItem>
     ): List<ListItemDataUi>
 
+    suspend fun transformToClaimItems(
+        sourceClaims: List<ClaimItem>,
+        items: List<ListItemDataUi>
+    ): List<ClaimItem>
+
     fun handleItemSelection(
         items: List<ListItemDataUi>,
         identifier: String,
     ): HandleItemSelectionPartialState
+
+    fun selectedCountriesSubtitle(count: Int): String?
 }
 
-class CustomRequestInteractorImpl(
+class ZkRequestInteractorImpl(
     private val configProvider: ConfigProvider,
     private val resourceProvider: ResourceProvider,
     private val dispatcher: CoroutineDispatcher = Dispatchers.Default
-) : CustomRequestInteractor {
-    override suspend fun getScreenTitle(attestationType: AttestationType): String {
-        return withContext(dispatcher) {
-            resourceProvider.getSharedString(
-                Res.string.custom_request_screen_title,
-                attestationType.getDisplayName(resourceProvider)
-            )
-        }
-    }
+) : ZkRequestInteractor {
 
-    override fun getDocumentClaims(attestationType: AttestationType): List<ClaimItem> {
-        // The custom screen requests plaintext disclosure only; zero-knowledge predicates are
-        // offered separately through the dedicated ZK mode/screen.
-        return configProvider.supportedDocuments.documents[attestationType]
+    override suspend fun getScreenTitle(attestationType: AttestationType): String =
+        withContext(dispatcher) {
+            resourceProvider.getSharedString(Res.string.zk_request_screen_title)
+        }
+
+    override fun getZkClaims(attestationType: AttestationType): List<ClaimItem> =
+        configProvider.supportedDocuments.documents[attestationType]
             .orEmpty()
-            .filter { it.kind is ClaimKind.Disclosure }
+            .filter { it.kind is ClaimKind.Zk }
+
+    override suspend fun transformToUiItems(
+        documentType: AttestationType,
+        claims: List<ClaimItem>
+    ): List<ListItemDataUi> = withContext(dispatcher) {
+        UiTransformer.transformToUiItems(
+            fields = claims,
+            attestationType = documentType,
+            resourceProvider = resourceProvider
+        )
     }
 
     override suspend fun transformToClaimItems(
         sourceClaims: List<ClaimItem>,
         items: List<ListItemDataUi>
-    ): List<ClaimItem> =
-        withContext(dispatcher) {
-            val checkedIds = items
-                .filter { uiItem ->
-                    val trailingContentData = uiItem.trailingContentData
-                    trailingContentData is ListItemTrailingContentDataUi.Checkbox &&
-                            trailingContentData.checkboxData.isChecked
-                }
-                .map { uiItem -> uiItem.itemId }
-                .toSet()
+    ): List<ClaimItem> = withContext(dispatcher) {
+        val checkedIds = items
+            .filter { uiItem ->
+                val trailing = uiItem.trailingContentData
+                trailing is ListItemTrailingContentDataUi.Checkbox && trailing.checkboxData.isChecked
+            }
+            .map { it.itemId }
+            .toSet()
 
-            // Pair each checked row back to the source claim it was built from (matched by id), so
-            // the claim's kind and any ZK predicate value survive the round-trip — rebuilding a
-            // ClaimItem from the id string alone would silently drop both.
-            sourceClaims.filter { it.id in checkedIds }
-        }
-
-    override suspend fun transformToUiItems(
-        documentType: AttestationType,
-        claims: List<ClaimItem>
-    ): List<ListItemDataUi> =
-        withContext(dispatcher) {
-            UiTransformer.transformToUiItems(
-                fields = claims,
-                attestationType = documentType,
-                resourceProvider = resourceProvider
-            )
-        }
+        sourceClaims.filter { it.id in checkedIds }
+    }
 
     override fun handleItemSelection(
         items: List<ListItemDataUi>,
@@ -126,18 +116,21 @@ class CustomRequestInteractorImpl(
             } else item
         }
 
-        val hasSelectedItems = updatedItems.hasAnyCheckedCheckbox()
-
         return HandleItemSelectionPartialState.Updated(
             items = updatedItems,
-            hasSelectedItems = hasSelectedItems,
+            hasSelectedItems = updatedItems.hasAnyCheckedCheckbox(),
         )
     }
-}
 
-sealed class HandleItemSelectionPartialState {
-    data class Updated(
-        val items: List<ListItemDataUi>,
-        val hasSelectedItems: Boolean,
-    ) : HandleItemSelectionPartialState()
+    override fun selectedCountriesSubtitle(count: Int): String? =
+        // The picker enforces a minimum of two countries, so the count is either zero (no subtitle)
+        // or two-or-more.
+        if (count <= 0) {
+            null
+        } else {
+            resourceProvider.getSharedString(
+                Res.string.zk_request_nationality_countries_selected,
+                count
+            )
+        }
 }
