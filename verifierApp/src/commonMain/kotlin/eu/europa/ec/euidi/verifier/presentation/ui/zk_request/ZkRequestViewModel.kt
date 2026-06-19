@@ -17,7 +17,9 @@
 package eu.europa.ec.euidi.verifier.presentation.ui.zk_request
 
 import androidx.lifecycle.viewModelScope
+import eu.europa.ec.euidi.verifier.domain.config.model.ClaimItem
 import eu.europa.ec.euidi.verifier.domain.config.model.ClaimKind
+import eu.europa.ec.euidi.verifier.domain.config.model.ZkPredicateValue
 import eu.europa.ec.euidi.verifier.domain.interactor.HandleItemSelectionPartialState
 import eu.europa.ec.euidi.verifier.domain.interactor.ZkRequestInteractor
 import eu.europa.ec.euidi.verifier.presentation.architecture.MviViewModel
@@ -37,11 +39,24 @@ sealed interface ZkRequestContract {
         val screenTitle: String = "",
         val requestedDoc: RequestedDocumentUi? = null,
         val items: List<ListItemDataUi> = emptyList(),
+        val claims: List<ClaimItem> = emptyList(),
         val primaryButtonEnabled: Boolean = false,
-        val selectedCountries: List<String> = emptyList(),
-        val selectedAgeThreshold: Int? = null,
         val ageDialogVisible: Boolean = false,
-    ) : UiState
+    ) : UiState {
+
+        /** The age threshold currently set on the date-of-birth predicate, or null. */
+        val ageThreshold: Int?
+            get() = zkValue("birth_date")?.let { it as? ZkPredicateValue.AgeOver }?.years
+
+        /** The accepted countries currently set on the nationality predicate, or empty. */
+        val acceptedCountries: List<String>
+            get() = zkValue("nationality")?.let { it as? ZkPredicateValue.NationalityIn }
+                ?.countries
+                .orEmpty()
+
+        private fun zkValue(label: String): ZkPredicateValue? =
+            (claims.firstOrNull { it.label == label }?.kind as? ClaimKind.Zk)?.value
+    }
 
     sealed interface Event : UiEvent {
         data class Init(val doc: RequestedDocumentUi? = null) : Event
@@ -82,6 +97,7 @@ class ZkRequestViewModel(
                             copy(
                                 screenTitle = screenTitle,
                                 requestedDoc = doc,
+                                claims = claims,
                                 items = uiItems,
                                 primaryButtonEnabled = uiItems.hasAnyCheckedCheckbox(),
                             )
@@ -93,10 +109,9 @@ class ZkRequestViewModel(
             is ZkRequestContract.Event.OnDoneClick -> {
                 viewModelScope.launch {
                     uiState.value.requestedDoc?.let { doc ->
-                        val sourceClaims = interactor.getZkClaims(doc.documentType)
                         val reqDoc = doc.copy(
                             claims = interactor.transformToClaimItems(
-                                sourceClaims = sourceClaims,
+                                sourceClaims = uiState.value.claims,
                                 items = uiState.value.items
                             )
                         )
@@ -120,65 +135,34 @@ class ZkRequestViewModel(
             }
 
             is ZkRequestContract.Event.OnItemClicked -> {
-                val clickedClaim = uiState.value.requestedDoc?.let { doc ->
-                    interactor.getZkClaims(doc.documentType).find { it.id == event.identifier }
-                }
-
-                val label = clickedClaim?.label
+                val label = uiState.value.claims.find { it.id == event.identifier }?.label
 
                 when {
-                    label == "nationality" && uiState.value.selectedCountries.isNotEmpty() -> {
-                        val updatedItems = setRow(
-                            uiState.value.items, event.identifier, checked = false, subtitle = null
+                    label == "nationality" && uiState.value.acceptedCountries.isNotEmpty() ->
+                        configurePredicate(event.identifier, label, value = null, subtitle = null)
+
+                    label == "nationality" -> setEffect {
+                        ZkRequestContract.Effect.Navigation.OpenCountrySelection(
+                            preSelectedCodes = uiState.value.acceptedCountries
                         )
-                        setState {
-                            copy(
-                                selectedCountries = emptyList(),
-                                items = updatedItems,
-                                primaryButtonEnabled = updatedItems.hasAnyCheckedCheckbox(),
-                            )
-                        }
                     }
 
-                    label == "nationality" -> {
-                        setEffect {
-                            ZkRequestContract.Effect.Navigation.OpenCountrySelection(
-                                preSelectedCodes = uiState.value.selectedCountries
-                            )
-                        }
-                    }
+                    label == "birth_date" && uiState.value.ageThreshold != null ->
+                        configurePredicate(event.identifier, label, value = null, subtitle = null)
 
-                    label == "birth_date" && uiState.value.selectedAgeThreshold != null -> {
-                        val updatedItems = setRow(
-                            uiState.value.items, event.identifier, checked = false, subtitle = null
-                        )
-                        setState {
-                            copy(
-                                selectedAgeThreshold = null,
-                                items = updatedItems,
-                                primaryButtonEnabled = updatedItems.hasAnyCheckedCheckbox(),
-                            )
-                        }
-                    }
-
-                    label == "birth_date" -> {
-                        setState { copy(ageDialogVisible = true) }
-                    }
+                    label == "birth_date" -> setState { copy(ageDialogVisible = true) }
 
                     else -> {
                         val result = interactor.handleItemSelection(
                             items = uiState.value.items,
                             identifier = event.identifier,
                         )
-
                         when (result) {
-                            is HandleItemSelectionPartialState.Updated -> {
-                                setState {
-                                    copy(
-                                        items = result.items,
-                                        primaryButtonEnabled = result.hasSelectedItems,
-                                    )
-                                }
+                            is HandleItemSelectionPartialState.Updated -> setState {
+                                copy(
+                                    items = result.items,
+                                    primaryButtonEnabled = result.hasSelectedItems,
+                                )
                             }
                         }
                     }
@@ -186,35 +170,25 @@ class ZkRequestViewModel(
             }
 
             is ZkRequestContract.Event.OnCountriesSelected -> {
-                val subtitle = interactor.selectedCountriesSubtitle(event.countryCodes.size)
-                val hasCountries = event.countryCodes.isNotEmpty()
-                val updatedItems = setRow(
-                    uiState.value.items, claimId("nationality"), checked = hasCountries, subtitle = subtitle
+                val value = event.countryCodes
+                    .takeIf { it.isNotEmpty() }
+                    ?.let { ZkPredicateValue.NationalityIn(it) }
+                configurePredicate(
+                    rowId = claimId("nationality"),
+                    label = "nationality",
+                    value = value,
+                    subtitle = interactor.selectedCountriesSubtitle(event.countryCodes.size),
                 )
-                setState {
-                    copy(
-                        selectedCountries = event.countryCodes,
-                        items = updatedItems,
-                        primaryButtonEnabled = updatedItems.hasAnyCheckedCheckbox(),
-                    )
-                }
             }
 
             is ZkRequestContract.Event.OnAgeThresholdConfirmed -> {
-                val updatedItems = setRow(
-                    uiState.value.items,
-                    claimId("birth_date"),
-                    checked = true,
+                configurePredicate(
+                    rowId = claimId("birth_date"),
+                    label = "birth_date",
+                    value = ZkPredicateValue.AgeOver(event.threshold),
                     subtitle = interactor.ageOverSubtitle(event.threshold),
                 )
-                setState {
-                    copy(
-                        selectedAgeThreshold = event.threshold,
-                        ageDialogVisible = false,
-                        items = updatedItems,
-                        primaryButtonEnabled = updatedItems.hasAnyCheckedCheckbox(),
-                    )
-                }
+                setState { copy(ageDialogVisible = false) }
             }
 
             is ZkRequestContract.Event.OnAgeDialogDismissed -> {
@@ -223,28 +197,43 @@ class ZkRequestViewModel(
         }
     }
 
-    private fun setRow(
-        items: List<ListItemDataUi>,
+    private fun configurePredicate(
         rowId: String?,
-        checked: Boolean,
+        label: String,
+        value: ZkPredicateValue?,
         subtitle: String?,
-    ): List<ListItemDataUi> = items.map { item ->
-        if (item.itemId == rowId) {
-            item.copy(
-                supportingText = subtitle,
-                trailingContentData = ListItemTrailingContentDataUi.Checkbox(
-                    checkboxData = CheckboxDataUi(isChecked = checked)
+    ) {
+        val configured = value != null
+        val updatedClaims = uiState.value.claims.map { claim ->
+            if (claim.kind is ClaimKind.Zk && claim.label == label) {
+                claim.copy(kind = ClaimKind.Zk(value))
+            } else {
+                claim
+            }
+        }
+        val updatedItems = uiState.value.items.map { item ->
+            if (item.itemId == rowId) {
+                item.copy(
+                    supportingText = if (configured) subtitle else null,
+                    trailingContentData = ListItemTrailingContentDataUi.Checkbox(
+                        checkboxData = CheckboxDataUi(isChecked = configured)
+                    )
                 )
+            } else {
+                item
+            }
+        }
+        setState {
+            copy(
+                claims = updatedClaims,
+                items = updatedItems,
+                primaryButtonEnabled = updatedItems.hasAnyCheckedCheckbox(),
             )
-        } else {
-            item
         }
     }
 
     private fun claimId(elementLabel: String): String? =
-        uiState.value.requestedDoc?.let { doc ->
-            interactor.getZkClaims(doc.documentType)
-                .firstOrNull { it.kind is ClaimKind.Zk && it.label == elementLabel }
-                ?.id
-        }
+        uiState.value.claims
+            .firstOrNull { it.kind is ClaimKind.Zk && it.label == elementLabel }
+            ?.id
 }

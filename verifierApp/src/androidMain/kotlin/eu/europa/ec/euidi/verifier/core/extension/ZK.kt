@@ -105,7 +105,7 @@ internal fun RequestedDocumentUi.intoZkSystemSpecs(): List<ZkSystemSpec> {
 internal fun DeviceResponse.verifiedZKDocuments(): List<ReceivedDocumentDomain> {
     val contract = zkContractV1()
     return deviceResponse.zkDocuments.mapNotNull { zkDoc ->
-        val data = zkDoc.zkDocumentData
+        val data = zkDoc.documentData
         val resultClaims = data.issuerSigned[contract.pidNamespace] ?: return@mapNotNull null
 
         val natPresent = resultClaims.containsKey(contract.resultNatInSet)

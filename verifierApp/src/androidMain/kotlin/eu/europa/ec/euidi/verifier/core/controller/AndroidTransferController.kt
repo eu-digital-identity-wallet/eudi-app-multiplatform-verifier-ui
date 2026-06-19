@@ -262,12 +262,21 @@ class AndroidTransferController(
     private fun RequestedDocumentUi.transformToDocRequest(
         retainData: Boolean
     ): DocRequest {
-        val requestedClaims: Map<String, Boolean> = this
+        val disclosureClaims: Map<String, Boolean> = this
             .claims
             .filter { claimItem: ClaimItem -> claimItem.kind is ClaimKind.Disclosure }
             .associate { claimItem: ClaimItem ->
                 claimItem.label to retainData
             }
+
+        val zkClaims: Map<String, Boolean> = this
+            .claims
+            .filter { claimItem: ClaimItem -> claimItem.kind is ClaimKind.Zk }
+            .associate { claimItem: ClaimItem ->
+                claimItem.label to false
+            }
+
+        val requestedClaims = disclosureClaims + zkClaims
 
         return DocRequest(
             docType = this.documentType.docType,

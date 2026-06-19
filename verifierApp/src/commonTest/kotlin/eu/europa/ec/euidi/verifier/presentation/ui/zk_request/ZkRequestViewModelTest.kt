@@ -26,6 +26,7 @@ import eu.europa.ec.euidi.verifier.domain.config.model.AttestationType
 import eu.europa.ec.euidi.verifier.domain.config.model.ClaimItem
 import eu.europa.ec.euidi.verifier.domain.config.model.ClaimKind
 import eu.europa.ec.euidi.verifier.domain.config.model.DocumentMode
+import eu.europa.ec.euidi.verifier.domain.config.model.ZkPredicateValue
 import eu.europa.ec.euidi.verifier.domain.interactor.ZkRequestInteractor
 import eu.europa.ec.euidi.verifier.presentation.MviViewModelTest
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemDataUi
@@ -121,7 +122,11 @@ class ZkRequestViewModelTest : MviViewModelTest() {
             val natRow = state.items.first { it.itemId == nationalityClaim.id }
             assertTrue(isChecked(natRow))
             assertEquals("2 countries selected", natRow.supportingText)
-            assertEquals(listOf("GR", "FR"), state.selectedCountries)
+            assertEquals(listOf("GR", "FR"), state.acceptedCountries)
+            assertEquals(
+                ClaimKind.Zk(ZkPredicateValue.NationalityIn(listOf("GR", "FR"))),
+                state.claims.first { it.label == "nationality" }.kind
+            )
             assertTrue(state.primaryButtonEnabled)
         }
 
@@ -138,15 +143,24 @@ class ZkRequestViewModelTest : MviViewModelTest() {
             val natRow = state.items.first { it.itemId == nationalityClaim.id }
             assertFalse(isChecked(natRow))
             assertEquals(null, natRow.supportingText)
-            assertTrue(state.selectedCountries.isEmpty())
+            assertTrue(state.acceptedCountries.isEmpty())
+            assertEquals(
+                ClaimKind.Zk(null),
+                state.claims.first { it.label == "nationality" }.kind
+            )
             assertFalse(state.primaryButtonEnabled)
         }
 
     @Test
     fun `OnDoneClick goes back with a ZK-mode document carrying the selected predicates`() =
         runTest(testDispatcher) {
+            val boundNationalityClaim = nationalityClaim.copy(
+                kind = ClaimKind.Zk(ZkPredicateValue.NationalityIn(listOf("GR", "FR")))
+            )
             val interactor = interactor().apply {
-                everySuspend { transformToClaimItems(any(), any()) } returns listOf(nationalityClaim)
+                everySuspend {
+                    transformToClaimItems(any(), any())
+                } returns listOf(boundNationalityClaim)
             }
             val viewModel = ZkRequestViewModel(interactor)
             viewModel.setEvent(Event.Init(doc = doc))
@@ -157,7 +171,7 @@ class ZkRequestViewModelTest : MviViewModelTest() {
                 val effect = awaitItem() as Effect.Navigation.GoBack
                 val returned = effect.requestedDocuments.items.single()
                 assertEquals(DocumentMode.ZK, returned.mode)
-                assertEquals(listOf(nationalityClaim), returned.claims)
+                assertEquals(listOf(boundNationalityClaim), returned.claims)
                 cancelAndIgnoreRemainingEvents()
             }
         }
@@ -199,7 +213,11 @@ class ZkRequestViewModelTest : MviViewModelTest() {
             val ageRow = state.items.first { it.itemId == ageClaim.id }
             assertTrue(isChecked(ageRow))
             assertEquals("Verify age over 18", ageRow.supportingText)
-            assertEquals(18, state.selectedAgeThreshold)
+            assertEquals(18, state.ageThreshold)
+            assertEquals(
+                ClaimKind.Zk(ZkPredicateValue.AgeOver(18)),
+                state.claims.first { it.label == "birth_date" }.kind
+            )
             assertFalse(state.ageDialogVisible)
             assertTrue(state.primaryButtonEnabled)
         }
@@ -217,7 +235,7 @@ class ZkRequestViewModelTest : MviViewModelTest() {
             val ageRow = state.items.first { it.itemId == ageClaim.id }
             assertFalse(isChecked(ageRow))
             assertEquals(null, ageRow.supportingText)
-            assertEquals(null, state.selectedAgeThreshold)
+            assertEquals(null, state.ageThreshold)
             assertFalse(state.ageDialogVisible)
             assertFalse(state.primaryButtonEnabled)
         }
@@ -233,7 +251,7 @@ class ZkRequestViewModelTest : MviViewModelTest() {
 
             val state = viewModel.uiState.value
             assertFalse(state.ageDialogVisible)
-            assertEquals(null, state.selectedAgeThreshold)
+            assertEquals(null, state.ageThreshold)
             assertFalse(isChecked(state.items.first { it.itemId == ageClaim.id }))
         }
 }

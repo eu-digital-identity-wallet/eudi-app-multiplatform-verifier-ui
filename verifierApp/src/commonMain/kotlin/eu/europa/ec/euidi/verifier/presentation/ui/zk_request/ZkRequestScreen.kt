@@ -156,7 +156,7 @@ fun ZkRequestScreen(
 
     if (state.ageDialogVisible) {
         AgeThresholdDialog(
-            currentThreshold = state.selectedAgeThreshold,
+            currentThreshold = state.ageThreshold,
             onConfirm = { viewModel.setEvent(ZkRequestContract.Event.OnAgeThresholdConfirmed(it)) },
             onDismiss = { viewModel.setEvent(ZkRequestContract.Event.OnAgeDialogDismissed) },
         )
