@@ -77,6 +77,7 @@ class ZkRequestViewModelTest : MviViewModelTest() {
         everySuspend { transformToUiItems(AttestationType.Pid, zkClaims) } returns uiItems
         everySuspend { getScreenTitle(AttestationType.Pid) } returns "Zero-knowledge request"
         every { selectedCountriesSubtitle(any()) } returns "2 countries selected"
+        every { ageOverSubtitle(any()) } returns "Verify age over 18"
     }
 
     @Test
@@ -172,4 +173,67 @@ class ZkRequestViewModelTest : MviViewModelTest() {
             cancelAndIgnoreRemainingEvents()
         }
     }
+
+    @Test
+    fun `Tapping the date of birth row when unconfigured opens the age dialog`() =
+        runTest(testDispatcher) {
+            val viewModel = ZkRequestViewModel(interactor())
+            viewModel.setEvent(Event.Init(doc = doc))
+
+            viewModel.setEvent(Event.OnItemClicked(ageClaim.id))
+
+            assertTrue(viewModel.uiState.value.ageDialogVisible)
+            // The row is not toggled by the tap itself.
+            assertFalse(isChecked(viewModel.uiState.value.items.first { it.itemId == ageClaim.id }))
+        }
+
+    @Test
+    fun `Confirming an age threshold checks the row, adds the subtitle and enables Done`() =
+        runTest(testDispatcher) {
+            val viewModel = ZkRequestViewModel(interactor())
+            viewModel.setEvent(Event.Init(doc = doc))
+
+            viewModel.setEvent(Event.OnAgeThresholdConfirmed(18))
+
+            val state = viewModel.uiState.value
+            val ageRow = state.items.first { it.itemId == ageClaim.id }
+            assertTrue(isChecked(ageRow))
+            assertEquals("Verify age over 18", ageRow.supportingText)
+            assertEquals(18, state.selectedAgeThreshold)
+            assertFalse(state.ageDialogVisible)
+            assertTrue(state.primaryButtonEnabled)
+        }
+
+    @Test
+    fun `Tapping the date of birth row when configured clears it without opening the dialog`() =
+        runTest(testDispatcher) {
+            val viewModel = ZkRequestViewModel(interactor())
+            viewModel.setEvent(Event.Init(doc = doc))
+            viewModel.setEvent(Event.OnAgeThresholdConfirmed(18))
+
+            viewModel.setEvent(Event.OnItemClicked(ageClaim.id))
+
+            val state = viewModel.uiState.value
+            val ageRow = state.items.first { it.itemId == ageClaim.id }
+            assertFalse(isChecked(ageRow))
+            assertEquals(null, ageRow.supportingText)
+            assertEquals(null, state.selectedAgeThreshold)
+            assertFalse(state.ageDialogVisible)
+            assertFalse(state.primaryButtonEnabled)
+        }
+
+    @Test
+    fun `Dismissing the age dialog hides it without configuring the row`() =
+        runTest(testDispatcher) {
+            val viewModel = ZkRequestViewModel(interactor())
+            viewModel.setEvent(Event.Init(doc = doc))
+            viewModel.setEvent(Event.OnItemClicked(ageClaim.id))
+
+            viewModel.setEvent(Event.OnAgeDialogDismissed)
+
+            val state = viewModel.uiState.value
+            assertFalse(state.ageDialogVisible)
+            assertEquals(null, state.selectedAgeThreshold)
+            assertFalse(isChecked(state.items.first { it.itemId == ageClaim.id }))
+        }
 }

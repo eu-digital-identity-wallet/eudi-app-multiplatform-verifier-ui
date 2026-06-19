@@ -98,6 +98,8 @@
     <!-- ZK Request -->
     <string name="zk_request_screen_title">Zero-knowledge request</string>
     <string name="zk_request_nationality_countries_selected">%1$d countries selected</string>
+    <string name="zk_request_age_over_subtitle">Verify age over %1$d</string>
+    <string name="zk_request_age_dialog_title">Verify age over</string>
 
     <!-- Show Documents -->
     <string name="show_documents_screen_title">Show Documents</string>

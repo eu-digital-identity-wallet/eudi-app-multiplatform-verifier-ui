@@ -27,6 +27,7 @@ import eu.europa.ec.euidi.verifier.presentation.component.ListItemTrailingConten
 import eu.europa.ec.euidi.verifier.presentation.component.extension.hasAnyCheckedCheckbox
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.CheckboxDataUi
 import eudiverifier.verifierapp.generated.resources.Res
+import eudiverifier.verifierapp.generated.resources.zk_request_age_over_subtitle
 import eudiverifier.verifierapp.generated.resources.zk_request_nationality_countries_selected
 import eudiverifier.verifierapp.generated.resources.zk_request_screen_title
 import kotlinx.coroutines.CoroutineDispatcher
@@ -55,6 +56,8 @@ interface ZkRequestInteractor {
     ): HandleItemSelectionPartialState
 
     fun selectedCountriesSubtitle(count: Int): String?
+
+    fun ageOverSubtitle(threshold: Int): String
 }
 
 class ZkRequestInteractorImpl(
@@ -133,4 +136,7 @@ class ZkRequestInteractorImpl(
                 count
             )
         }
+
+    override fun ageOverSubtitle(threshold: Int): String =
+        resourceProvider.getSharedString(Res.string.zk_request_age_over_subtitle, threshold)
 }

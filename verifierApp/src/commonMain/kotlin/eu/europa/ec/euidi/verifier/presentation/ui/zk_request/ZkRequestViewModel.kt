@@ -38,9 +38,9 @@ sealed interface ZkRequestContract {
         val requestedDoc: RequestedDocumentUi? = null,
         val items: List<ListItemDataUi> = emptyList(),
         val primaryButtonEnabled: Boolean = false,
-        // Countries chosen for the nationality predicate via the picker, held for pre-checking the
-        // picker on reopen. Not yet bound into the ZK claim value (later step).
         val selectedCountries: List<String> = emptyList(),
+        val selectedAgeThreshold: Int? = null,
+        val ageDialogVisible: Boolean = false,
     ) : UiState
 
     sealed interface Event : UiEvent {
@@ -49,6 +49,8 @@ sealed interface ZkRequestContract {
         data object OnDoneClick : Event
         data object OnCancelClick : Event
         data class OnCountriesSelected(val countryCodes: List<String>) : Event
+        data class OnAgeThresholdConfirmed(val threshold: Int) : Event
+        data object OnAgeDialogDismissed : Event
     }
 
     sealed interface Effect : UiEffect {
@@ -122,51 +124,61 @@ class ZkRequestViewModel(
                     interactor.getZkClaims(doc.documentType).find { it.id == event.identifier }
                 }
 
-                val isNationality = clickedClaim != null &&
-                        clickedClaim.label == "nationality"
+                val label = clickedClaim?.label
 
-                if (isNationality && uiState.value.selectedCountries.isNotEmpty()) {
-                    // Already configured → tapping deselects it: clear the cached countries, uncheck
-                    // the row and drop its subtitle. The picker is not opened.
-                    val updatedItems = uiState.value.items.map { item ->
-                        if (item.itemId == event.identifier) {
-                            item.copy(
-                                supportingText = null,
-                                trailingContentData = ListItemTrailingContentDataUi.Checkbox(
-                                    checkboxData = CheckboxDataUi(isChecked = false)
-                                )
+                when {
+                    label == "nationality" && uiState.value.selectedCountries.isNotEmpty() -> {
+                        val updatedItems = setRow(
+                            uiState.value.items, event.identifier, checked = false, subtitle = null
+                        )
+                        setState {
+                            copy(
+                                selectedCountries = emptyList(),
+                                items = updatedItems,
+                                primaryButtonEnabled = updatedItems.hasAnyCheckedCheckbox(),
                             )
-                        } else {
-                            item
                         }
                     }
-                    setState {
-                        copy(
-                            selectedCountries = emptyList(),
-                            items = updatedItems,
-                            primaryButtonEnabled = updatedItems.hasAnyCheckedCheckbox(),
-                        )
-                    }
-                } else if (isNationality) {
-                    // Not yet configured → tapping opens the country picker.
-                    setEffect {
-                        ZkRequestContract.Effect.Navigation.OpenCountrySelection(
-                            preSelectedCodes = uiState.value.selectedCountries
-                        )
-                    }
-                } else {
-                    val result = interactor.handleItemSelection(
-                        items = uiState.value.items,
-                        identifier = event.identifier,
-                    )
 
-                    when (result) {
-                        is HandleItemSelectionPartialState.Updated -> {
-                            setState {
-                                copy(
-                                    items = result.items,
-                                    primaryButtonEnabled = result.hasSelectedItems,
-                                )
+                    label == "nationality" -> {
+                        setEffect {
+                            ZkRequestContract.Effect.Navigation.OpenCountrySelection(
+                                preSelectedCodes = uiState.value.selectedCountries
+                            )
+                        }
+                    }
+
+                    label == "birth_date" && uiState.value.selectedAgeThreshold != null -> {
+                        val updatedItems = setRow(
+                            uiState.value.items, event.identifier, checked = false, subtitle = null
+                        )
+                        setState {
+                            copy(
+                                selectedAgeThreshold = null,
+                                items = updatedItems,
+                                primaryButtonEnabled = updatedItems.hasAnyCheckedCheckbox(),
+                            )
+                        }
+                    }
+
+                    label == "birth_date" -> {
+                        setState { copy(ageDialogVisible = true) }
+                    }
+
+                    else -> {
+                        val result = interactor.handleItemSelection(
+                            items = uiState.value.items,
+                            identifier = event.identifier,
+                        )
+
+                        when (result) {
+                            is HandleItemSelectionPartialState.Updated -> {
+                                setState {
+                                    copy(
+                                        items = result.items,
+                                        primaryButtonEnabled = result.hasSelectedItems,
+                                    )
+                                }
                             }
                         }
                     }
@@ -175,22 +187,10 @@ class ZkRequestViewModel(
 
             is ZkRequestContract.Event.OnCountriesSelected -> {
                 val subtitle = interactor.selectedCountriesSubtitle(event.countryCodes.size)
-                val nationalityRowId = nationalityClaimId()
-                // A non-empty selection (always >= 2, enforced by the picker) means the nationality
-                // predicate is configured, so reflect it as a checked row.
                 val hasCountries = event.countryCodes.isNotEmpty()
-                val updatedItems = uiState.value.items.map { item ->
-                    if (item.itemId == nationalityRowId) {
-                        item.copy(
-                            supportingText = subtitle,
-                            trailingContentData = ListItemTrailingContentDataUi.Checkbox(
-                                checkboxData = CheckboxDataUi(isChecked = hasCountries)
-                            )
-                        )
-                    } else {
-                        item
-                    }
-                }
+                val updatedItems = setRow(
+                    uiState.value.items, claimId("nationality"), checked = hasCountries, subtitle = subtitle
+                )
                 setState {
                     copy(
                         selectedCountries = event.countryCodes,
@@ -199,14 +199,52 @@ class ZkRequestViewModel(
                     )
                 }
             }
+
+            is ZkRequestContract.Event.OnAgeThresholdConfirmed -> {
+                val updatedItems = setRow(
+                    uiState.value.items,
+                    claimId("birth_date"),
+                    checked = true,
+                    subtitle = interactor.ageOverSubtitle(event.threshold),
+                )
+                setState {
+                    copy(
+                        selectedAgeThreshold = event.threshold,
+                        ageDialogVisible = false,
+                        items = updatedItems,
+                        primaryButtonEnabled = updatedItems.hasAnyCheckedCheckbox(),
+                    )
+                }
+            }
+
+            is ZkRequestContract.Event.OnAgeDialogDismissed -> {
+                setState { copy(ageDialogVisible = false) }
+            }
         }
     }
 
-    /** The list-item id of the nationality predicate row, if present. */
-    private fun nationalityClaimId(): String? =
+    private fun setRow(
+        items: List<ListItemDataUi>,
+        rowId: String?,
+        checked: Boolean,
+        subtitle: String?,
+    ): List<ListItemDataUi> = items.map { item ->
+        if (item.itemId == rowId) {
+            item.copy(
+                supportingText = subtitle,
+                trailingContentData = ListItemTrailingContentDataUi.Checkbox(
+                    checkboxData = CheckboxDataUi(isChecked = checked)
+                )
+            )
+        } else {
+            item
+        }
+    }
+
+    private fun claimId(elementLabel: String): String? =
         uiState.value.requestedDoc?.let { doc ->
             interactor.getZkClaims(doc.documentType)
-                .firstOrNull { it.kind is ClaimKind.Zk && it.label == "nationality" }
+                .firstOrNull { it.kind is ClaimKind.Zk && it.label == elementLabel }
                 ?.id
         }
 }

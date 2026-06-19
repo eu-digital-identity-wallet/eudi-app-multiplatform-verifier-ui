@@ -16,16 +16,24 @@
 
 package eu.europa.ec.euidi.verifier.presentation.ui.zk_request
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -36,10 +44,13 @@ import eu.europa.ec.euidi.verifier.presentation.component.content.ScreenNavigate
 import eu.europa.ec.euidi.verifier.presentation.component.content.ToolbarConfig
 import eu.europa.ec.euidi.verifier.presentation.component.utils.OneTimeLaunchedEffect
 import eu.europa.ec.euidi.verifier.presentation.component.utils.SPACING_MEDIUM
+import eu.europa.ec.euidi.verifier.presentation.component.utils.SPACING_SMALL
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.ButtonType
+import eu.europa.ec.euidi.verifier.presentation.component.wrap.RadioButtonDataUi
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.StickyBottomConfig
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.StickyBottomType
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapListItems
+import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapRadioButton
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapStickyBottomContent
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.rememberButtonConfig
 import eu.europa.ec.euidi.verifier.presentation.model.CountrySelectionHolder
@@ -53,9 +64,13 @@ import eu.europa.ec.euidi.verifier.presentation.utils.Constants
 import eudiverifier.verifierapp.generated.resources.Res
 import eudiverifier.verifierapp.generated.resources.generic_cancel
 import eudiverifier.verifierapp.generated.resources.generic_done
+import eudiverifier.verifierapp.generated.resources.generic_ok
+import eudiverifier.verifierapp.generated.resources.zk_request_age_dialog_title
 import kotlinx.coroutines.flow.Flow
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+
+private val AGE_THRESHOLD_OPTIONS = listOf(15, 16, 18, 21)
 
 @Composable
 fun ZkRequestScreen(
@@ -138,6 +153,66 @@ fun ZkRequestScreen(
             viewModel.setEvent(ZkRequestContract.Event.OnCountriesSelected(result.countryCodes))
         }
     }
+
+    if (state.ageDialogVisible) {
+        AgeThresholdDialog(
+            currentThreshold = state.selectedAgeThreshold,
+            onConfirm = { viewModel.setEvent(ZkRequestContract.Event.OnAgeThresholdConfirmed(it)) },
+            onDismiss = { viewModel.setEvent(ZkRequestContract.Event.OnAgeDialogDismissed) },
+        )
+    }
+}
+
+@Composable
+private fun AgeThresholdDialog(
+    currentThreshold: Int?,
+    onConfirm: (Int) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    var chosen by remember { mutableStateOf(currentThreshold) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(text = stringResource(Res.string.zk_request_age_dialog_title)) },
+        text = {
+            Column {
+                AGE_THRESHOLD_OPTIONS.forEach { age ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { chosen = age }
+                            .padding(vertical = SPACING_SMALL.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        WrapRadioButton(
+                            radioButtonData = RadioButtonDataUi(
+                                isSelected = chosen == age,
+                                onCheckedChange = { chosen = age }
+                            )
+                        )
+                        Text(
+                            text = age.toString(),
+                            modifier = Modifier.padding(start = SPACING_SMALL.dp)
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            // At least one threshold must be picked before confirming.
+            TextButton(
+                enabled = chosen != null,
+                onClick = { chosen?.let(onConfirm) }
+            ) {
+                Text(text = stringResource(Res.string.generic_ok))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = stringResource(Res.string.generic_cancel))
+            }
+        }
+    )
 }
 
 private fun handleNavigationEffect(
