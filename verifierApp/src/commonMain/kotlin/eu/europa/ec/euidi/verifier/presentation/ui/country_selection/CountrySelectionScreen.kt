@@ -16,7 +16,9 @@
 
 package eu.europa.ec.euidi.verifier.presentation.ui.country_selection
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -39,6 +41,7 @@ import eu.europa.ec.euidi.verifier.presentation.component.utils.SPACING_MEDIUM
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.ButtonType
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.StickyBottomConfig
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.StickyBottomType
+import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapChip
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapListItems
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapStickyBottomContent
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.rememberButtonConfig
@@ -155,6 +158,26 @@ private fun Content(
         modifier = Modifier
             .padding(paddingValues)
     ) {
+        if (state.countrySets.isNotEmpty()) {
+            FlowRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = SPACING_MEDIUM.dp),
+                horizontalArrangement = Arrangement.spacedBy(SPACING_MEDIUM.dp)
+            ) {
+                state.countrySets.forEach { countrySet ->
+                    WrapChip(
+                        label = { Text(text = countrySet.label) },
+                        selected = countrySet.id == state.selectedSetId,
+                        onClick = {
+                            onEventSend(
+                                CountrySelectionContract.Event.OnCountrySetClicked(countrySet.id)
+                            )
+                        }
+                    )
+                }
+            }
+        }
         WrapListItems(
             modifier = Modifier
                 .fillMaxWidth()

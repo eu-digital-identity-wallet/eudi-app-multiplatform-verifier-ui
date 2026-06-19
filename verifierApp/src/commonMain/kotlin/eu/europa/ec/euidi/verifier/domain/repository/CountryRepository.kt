@@ -21,15 +21,51 @@ package eu.europa.ec.euidi.verifier.domain.repository
  * names are resolved separately from string resources (`country_<code>`), so this list stays a pure,
  * localization-independent catalogue. Ordered alphabetically by English code.
  */
+/**
+ * A named, pre-defined group of countries (e.g. Schengen, EU) offered as a one-tap convenience for
+ * selecting a common set. [id] is stable and used by the UI to identify the active set; the
+ * human-readable label is resolved separately from string resources (`country_set_<id>`).
+ */
+data class CountrySet(
+    val id: String,
+    val countryCodes: List<String>,
+)
+
 interface CountryRepository {
     fun getAllCountryCodes(): List<String>
+
+    /** The pre-defined country sets, in display order. */
+    fun getCountrySets(): List<CountrySet>
 }
 
 class CountryRepositoryImpl : CountryRepository {
 
     override fun getAllCountryCodes(): List<String> = ALL_ISO_3166_1_ALPHA2
 
+    override fun getCountrySets(): List<CountrySet> = COUNTRY_SETS
+
     private companion object {
+
+        const val SET_SCHENGEN = "schengen"
+        const val SET_EU = "eu"
+
+        // Schengen Area (29 members). Note: Cyprus is in the EU but is NOT a Schengen member.
+        val SCHENGEN: List<String> = listOf(
+            "AT", "BE", "BG", "HR", "CZ", "DK", "EE", "FI", "FR", "DE", "GR", "HU", "IS", "IT", "LV",
+            "LI", "LT", "LU", "MT", "NL", "NO", "PL", "PT", "RO", "SK", "SI", "ES", "SE", "CH",
+        )
+
+        // European Union (27 members).
+        val EU: List<String> = listOf(
+            "AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR", "HU", "IE", "IT",
+            "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE",
+        )
+
+        val COUNTRY_SETS: List<CountrySet> = listOf(
+            CountrySet(id = SET_SCHENGEN, countryCodes = SCHENGEN),
+            CountrySet(id = SET_EU, countryCodes = EU),
+        )
+
         // ISO 3166-1 alpha-2 codes, ordered by English country code.
         val ALL_ISO_3166_1_ALPHA2: List<String> = listOf(
             "AF", "AL", "DZ", "AS", "AD", "AO", "AI", "AQ",

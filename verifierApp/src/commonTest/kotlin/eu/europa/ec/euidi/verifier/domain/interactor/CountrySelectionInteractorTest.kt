@@ -22,6 +22,7 @@ import dev.mokkery.matcher.any
 import dev.mokkery.mock
 import eu.europa.ec.euidi.verifier.core.provider.ResourceProvider
 import eu.europa.ec.euidi.verifier.domain.repository.CountryRepository
+import eu.europa.ec.euidi.verifier.domain.repository.CountrySet
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemDataUi
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemMainContentDataUi
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemTrailingContentDataUi
@@ -37,6 +38,11 @@ import kotlin.test.assertTrue
 
 class CountrySelectionInteractorTest {
 
+    private val testSets = listOf(
+        CountrySet(id = "schengen", countryCodes = listOf("GR", "FR")),
+        CountrySet(id = "eu", countryCodes = listOf("GR", "FR", "IT")),
+    )
+
     private fun TestScope.createInteractor(
         codes: List<String> = listOf("GR", "FR", "IT"),
     ): CountrySelectionInteractor {
@@ -44,6 +50,7 @@ class CountrySelectionInteractorTest {
 
         val repository = mock<CountryRepository> {
             every { getAllCountryCodes() } returns codes
+            every { getCountrySets() } returns testSets
         }
         val resourceProvider = mock<ResourceProvider> {
             every { getSharedString(any()) } returns "Country"
@@ -65,7 +72,7 @@ class CountrySelectionInteractorTest {
 
             assertEquals(listOf("GR", "FR", "IT"), items.map { it.itemId })
 
-            // Row label ends with the ISO-2 code in parentheses, e.g. "Country (DE)".
+            // Row label ends with the ISO-2 code in parentheses, e.g. "Country (GR)".
             items.forEach { item ->
                 val text = (item.mainContentData as ListItemMainContentDataUi.Text).text
                 assertTrue(text.endsWith("(${item.itemId})"), "Unexpected label: $text")
@@ -96,6 +103,37 @@ class CountrySelectionInteractorTest {
         assertTrue(result.items.first { it.itemId == "FR" }.isChecked())
         assertTrue(result.hasSelectedItems)
     }
+
+    @Test
+    fun `getCountrySets exposes the repository sets`() = runTest(StandardTestDispatcher()) {
+        val interactor = createInteractor()
+
+        assertEquals(listOf("schengen", "eu"), interactor.getCountrySets().map { it.id })
+    }
+
+    @Test
+    fun `applyCountrySet checks exactly the members of the set`() =
+        runTest(StandardTestDispatcher()) {
+            val interactor = createInteractor()
+            val items = interactor.getCountryListItems(preSelectedCodes = emptyList())
+
+            val applied = interactor.applyCountrySet(items, setId = "schengen")
+
+            assertTrue(applied.first { it.itemId == "GR" }.isChecked())
+            assertTrue(applied.first { it.itemId == "FR" }.isChecked())
+            assertFalse(applied.first { it.itemId == "IT" }.isChecked())
+        }
+
+    @Test
+    fun `matchingCountrySetId returns the set whose members match, else null`() =
+        runTest(StandardTestDispatcher()) {
+            val interactor = createInteractor()
+
+            // Order-independent match.
+            assertEquals("schengen", interactor.matchingCountrySetId(listOf("FR", "GR")))
+            assertEquals("eu", interactor.matchingCountrySetId(listOf("GR", "FR", "IT")))
+            assertEquals(null, interactor.matchingCountrySetId(listOf("GR")))
+        }
 
     private fun ListItemDataUi.isChecked(): Boolean {
         val trailing = trailingContentData

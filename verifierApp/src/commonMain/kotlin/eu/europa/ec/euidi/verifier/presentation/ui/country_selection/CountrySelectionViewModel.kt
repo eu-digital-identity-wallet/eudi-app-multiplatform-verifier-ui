@@ -26,6 +26,7 @@ import eu.europa.ec.euidi.verifier.presentation.architecture.UiEvent
 import eu.europa.ec.euidi.verifier.presentation.architecture.UiState
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemDataUi
 import eu.europa.ec.euidi.verifier.presentation.model.CountrySelectionHolder
+import eu.europa.ec.euidi.verifier.presentation.model.CountrySetUi
 import eudiverifier.verifierapp.generated.resources.Res
 import eudiverifier.verifierapp.generated.resources.country_selection_screen_title
 import kotlinx.coroutines.launch
@@ -37,12 +38,15 @@ sealed interface CountrySelectionContract {
     data class State(
         val screenTitle: String = "",
         val items: List<ListItemDataUi> = emptyList(),
+        val countrySets: List<CountrySetUi> = emptyList(),
+        val selectedSetId: String? = null,
         val primaryButtonEnabled: Boolean = false,
     ) : UiState
 
     sealed interface Event : UiEvent {
         data class Init(val preSelectedCodes: List<String> = emptyList()) : Event
         data class OnItemClicked(val identifier: String) : Event
+        data class OnCountrySetClicked(val setId: String) : Event
         data object OnDoneClick : Event
         data object OnCancelClick : Event
     }
@@ -67,12 +71,16 @@ class CountrySelectionViewModel(
             is CountrySelectionContract.Event.Init -> {
                 viewModelScope.launch {
                     val items = interactor.getCountryListItems(event.preSelectedCodes)
+                    val screenTitle = resourceProvider.getSharedString(
+                        Res.string.country_selection_screen_title
+                    )
+                    val sets = interactor.getCountrySets()
                     setState {
                         copy(
-                            screenTitle = resourceProvider.getSharedString(
-                                Res.string.country_selection_screen_title
-                            ),
+                            screenTitle = screenTitle,
                             items = items,
+                            countrySets = sets,
+                            selectedSetId = activeSetId(items),
                             primaryButtonEnabled = canSubmit(items),
                         )
                     }
@@ -90,10 +98,25 @@ class CountrySelectionViewModel(
                         setState {
                             copy(
                                 items = result.items,
+                                selectedSetId = activeSetId(result.items),
                                 primaryButtonEnabled = canSubmit(result.items),
                             )
                         }
                     }
+                }
+            }
+
+            is CountrySelectionContract.Event.OnCountrySetClicked -> {
+                val updatedItems = interactor.applyCountrySet(
+                    items = uiState.value.items,
+                    setId = event.setId,
+                )
+                setState {
+                    copy(
+                        items = updatedItems,
+                        selectedSetId = activeSetId(updatedItems),
+                        primaryButtonEnabled = canSubmit(updatedItems),
+                    )
                 }
             }
 
@@ -115,4 +138,8 @@ class CountrySelectionViewModel(
     /** ZK requires at least [MIN_SELECTED_COUNTRIES] accepted countries before Done is allowed. */
     private fun canSubmit(items: List<ListItemDataUi>): Boolean =
         interactor.selectedCountryCodes(items).size >= MIN_SELECTED_COUNTRIES
+
+    /** The chip that matches the current selection exactly, or null. */
+    private fun activeSetId(items: List<ListItemDataUi>): String? =
+        interactor.matchingCountrySetId(interactor.selectedCountryCodes(items))
 }

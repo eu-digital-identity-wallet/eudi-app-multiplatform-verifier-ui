@@ -23,6 +23,7 @@ import eu.europa.ec.euidi.verifier.presentation.component.ListItemMainContentDat
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemTrailingContentDataUi
 import eu.europa.ec.euidi.verifier.presentation.component.extension.hasAnyCheckedCheckbox
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.CheckboxDataUi
+import eu.europa.ec.euidi.verifier.presentation.model.CountrySetUi
 import eudiverifier.verifierapp.generated.resources.Res
 import eudiverifier.verifierapp.generated.resources.allStringResources
 import kotlinx.coroutines.CoroutineDispatcher
@@ -44,6 +45,18 @@ interface CountrySelectionInteractor {
 
     /** The ISO-2 codes of the currently checked rows. */
     fun selectedCountryCodes(items: List<ListItemDataUi>): List<String>
+
+    /** The selectable country-set chips, in display order. */
+    fun getCountrySets(): List<CountrySetUi>
+
+    /** Re-checks [items] so that exactly the countries of the set [setId] are selected. */
+    fun applyCountrySet(items: List<ListItemDataUi>, setId: String): List<ListItemDataUi>
+
+    /**
+     * The id of the country set whose members exactly match [selectedCodes], or null when the
+     * selection doesn't correspond to any predefined set.
+     */
+    fun matchingCountrySetId(selectedCodes: List<String>): String?
 }
 
 class CountrySelectionInteractorImpl(
@@ -102,6 +115,42 @@ class CountrySelectionInteractorImpl(
             }
             .map { it.itemId }
 
+    override fun getCountrySets(): List<CountrySetUi> =
+        countryRepository.getCountrySets().map { set ->
+            CountrySetUi(id = set.id, label = countrySetLabel(set.id))
+        }
+
+    override fun applyCountrySet(
+        items: List<ListItemDataUi>,
+        setId: String
+    ): List<ListItemDataUi> {
+        val codes = countryRepository.getCountrySets()
+            .firstOrNull { it.id == setId }
+            ?.countryCodes
+            ?.toSet()
+            .orEmpty()
+
+        return items.map { item ->
+            val trailing = item.trailingContentData
+            if (trailing is ListItemTrailingContentDataUi.Checkbox) {
+                item.copy(
+                    trailingContentData = trailing.copy(
+                        checkboxData = CheckboxDataUi(isChecked = item.itemId in codes)
+                    )
+                )
+            } else {
+                item
+            }
+        }
+    }
+
+    override fun matchingCountrySetId(selectedCodes: List<String>): String? {
+        val selected = selectedCodes.toSet()
+        return countryRepository.getCountrySets()
+            .firstOrNull { it.countryCodes.toSet() == selected }
+            ?.id
+    }
+
     /**
      * Resolves a localized country name from `country_<code>`, falling back to the code itself when
      * no resource exists for it.
@@ -109,5 +158,14 @@ class CountrySelectionInteractorImpl(
     private fun countryName(code: String): String {
         val resource = Res.allStringResources["country_${code.lowercase()}"]
         return resource?.let { resourceProvider.getSharedString(it) } ?: code
+    }
+
+    /**
+     * Resolves a localized country-set label from `country_set_<id>`, falling back to the id when
+     * no resource exists for it.
+     */
+    private fun countrySetLabel(id: String): String {
+        val resource = Res.allStringResources["country_set_$id"]
+        return resource?.let { resourceProvider.getSharedString(it) } ?: id
     }
 }

@@ -31,15 +31,22 @@ import eu.europa.ec.euidi.verifier.presentation.component.ListItemMainContentDat
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemTrailingContentDataUi
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.CheckboxDataUi
 import eu.europa.ec.euidi.verifier.presentation.model.CountrySelectionHolder
+import eu.europa.ec.euidi.verifier.presentation.model.CountrySetUi
 import eu.europa.ec.euidi.verifier.presentation.ui.country_selection.CountrySelectionContract.Effect
 import eu.europa.ec.euidi.verifier.presentation.ui.country_selection.CountrySelectionContract.Event
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class CountrySelectionViewModelTest : MviViewModelTest() {
+
+    private val sets = listOf(
+        CountrySetUi(id = "schengen", label = "Schengen"),
+        CountrySetUi(id = "eu", label = "EU"),
+    )
 
     private fun checkboxItem(id: String, checked: Boolean) = ListItemDataUi(
         itemId = id,
@@ -52,9 +59,12 @@ class CountrySelectionViewModelTest : MviViewModelTest() {
     private fun interactor(
         items: List<ListItemDataUi>,
         selected: List<String>,
+        matchingSetId: String? = null,
     ): CountrySelectionInteractor = mock {
         everySuspend { getCountryListItems(any()) } returns items
         every { selectedCountryCodes(any()) } returns selected
+        every { getCountrySets() } returns sets
+        every { matchingCountrySetId(any()) } returns matchingSetId
     }
 
     private fun resourceProvider(): ResourceProvider = mock {
@@ -62,10 +72,10 @@ class CountrySelectionViewModelTest : MviViewModelTest() {
     }
 
     @Test
-    fun `Init pre-checks the supplied countries and enables Done when at least two are selected`() =
+    fun `Init exposes the chips, pre-checks the supplied countries and enables Done`() =
         runTest(testDispatcher) {
             val items = listOf(
-                checkboxItem("DE", true),
+                checkboxItem("GR", true),
                 checkboxItem("FR", true),
                 checkboxItem("IT", false),
             )
@@ -79,7 +89,23 @@ class CountrySelectionViewModelTest : MviViewModelTest() {
             val state = viewModel.uiState.value
             assertEquals("Select countries", state.screenTitle)
             assertEquals(items, state.items)
+            assertEquals(sets, state.countrySets)
+            assertNull(state.selectedSetId)
             assertTrue(state.primaryButtonEnabled)
+        }
+
+    @Test
+    fun `Init marks the chip active when the pre-selection matches a set`() =
+        runTest(testDispatcher) {
+            val items = listOf(checkboxItem("GR", true), checkboxItem("FR", true))
+            val viewModel = CountrySelectionViewModel(
+                interactor = interactor(items, selected = listOf("GR", "FR"), matchingSetId = "eu"),
+                resourceProvider = resourceProvider(),
+            )
+
+            viewModel.setEvent(Event.Init(preSelectedCodes = listOf("GR", "FR")))
+
+            assertEquals("eu", viewModel.uiState.value.selectedSetId)
         }
 
     @Test
@@ -97,7 +123,32 @@ class CountrySelectionViewModelTest : MviViewModelTest() {
         }
 
     @Test
-    fun `OnItemClicked applies the interactor result and recomputes the two-selection rule`() =
+    fun `OnCountrySetClicked applies the set, marks the chip active and enables Done`() =
+        runTest(testDispatcher) {
+            val initialItems = listOf(checkboxItem("GR", false), checkboxItem("FR", false))
+            val schengenItems = listOf(checkboxItem("GR", true), checkboxItem("FR", true))
+            val interactor = mock<CountrySelectionInteractor> {
+                everySuspend { getCountryListItems(any()) } returns initialItems
+                every { getCountrySets() } returns sets
+                every { selectedCountryCodes(initialItems) } returns emptyList()
+                every { matchingCountrySetId(emptyList()) } returns null
+                every { applyCountrySet(initialItems, "schengen") } returns schengenItems
+                every { selectedCountryCodes(schengenItems) } returns listOf("GR", "FR")
+                every { matchingCountrySetId(listOf("GR", "FR")) } returns "schengen"
+            }
+            val viewModel = CountrySelectionViewModel(interactor, resourceProvider())
+            viewModel.setEvent(Event.Init(preSelectedCodes = emptyList()))
+
+            viewModel.setEvent(Event.OnCountrySetClicked("schengen"))
+
+            val state = viewModel.uiState.value
+            assertEquals(schengenItems, state.items)
+            assertEquals("schengen", state.selectedSetId)
+            assertTrue(state.primaryButtonEnabled)
+        }
+
+    @Test
+    fun `OnItemClicked re-derives the active chip and the two-selection rule`() =
         runTest(testDispatcher) {
             val initialItems = listOf(
                 checkboxItem("GR", true),
@@ -111,10 +162,13 @@ class CountrySelectionViewModelTest : MviViewModelTest() {
             )
             val interactor = mock<CountrySelectionInteractor> {
                 everySuspend { getCountryListItems(any()) } returns initialItems
+                every { getCountrySets() } returns sets
                 every { selectedCountryCodes(initialItems) } returns listOf("GR", "FR")
+                every { matchingCountrySetId(listOf("GR", "FR")) } returns "schengen"
                 every { handleItemSelection(initialItems, "IT") } returns
                         HandleItemSelectionPartialState.Updated(toggledItems, hasSelectedItems = true)
                 every { selectedCountryCodes(toggledItems) } returns listOf("GR", "FR", "IT")
+                every { matchingCountrySetId(listOf("GR", "FR", "IT")) } returns null
             }
             val viewModel = CountrySelectionViewModel(interactor, resourceProvider())
             viewModel.setEvent(Event.Init(preSelectedCodes = listOf("GR", "FR")))
@@ -123,6 +177,8 @@ class CountrySelectionViewModelTest : MviViewModelTest() {
 
             val state = viewModel.uiState.value
             assertEquals(toggledItems, state.items)
+            // Selection no longer matches a predefined set → chip cleared.
+            assertNull(state.selectedSetId)
             assertTrue(state.primaryButtonEnabled)
         }
 

@@ -216,6 +216,9 @@
 
     <!-- Country Selection -->
     <string name="country_selection_screen_title">Select countries</string>
+    <!-- Country-set chip labels, keyed country_set_<id>. -->
+    <string name="country_set_schengen">Schengen</string>
+    <string name="country_set_eu">EU</string>
 
     <!-- Country names (ISO 3166-1), keyed country_<alpha-2>. -->
     <string name="country_af">Afghanistan</string>
