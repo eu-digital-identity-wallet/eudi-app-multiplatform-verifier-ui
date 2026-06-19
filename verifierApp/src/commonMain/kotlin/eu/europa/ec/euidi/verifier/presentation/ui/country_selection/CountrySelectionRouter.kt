@@ -14,13 +14,17 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier.presentation.utils
+package eu.europa.ec.euidi.verifier.presentation.ui.country_selection
 
-object Constants {
-    const val REQUESTED_DOCUMENTS = "requestedDocuments"
-    const val RECEIVED_DOCUMENTS = "receivedDocuments"
-    const val SAVED_STATE_REQUESTED_DOCUMENT = "savedStateRequestedDocument"
-    const val SAVED_STATE_REQUESTED_DOCUMENTS = "savedStateRequestedDocuments"
-    const val COUNTRY_SELECTION_PRESELECTED = "countrySelectionPreselected"
-    const val COUNTRY_SELECTION_RESULT = "countrySelectionResult"
+import androidx.navigation.NavController
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.compose.composable
+import eu.europa.ec.euidi.verifier.presentation.navigation.NavItem
+
+fun NavGraphBuilder.countrySelectionScreen(navController: NavController) {
+    composable<NavItem.CountrySelection> {
+        CountrySelectionScreen(
+            navController = navController
+        )
+    }
 }

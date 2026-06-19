@@ -17,6 +17,7 @@
 package eu.europa.ec.euidi.verifier.presentation.ui.custom_request
 
 import androidx.lifecycle.viewModelScope
+import eu.europa.ec.euidi.verifier.domain.config.model.ClaimKind
 import eu.europa.ec.euidi.verifier.domain.interactor.CustomRequestInteractor
 import eu.europa.ec.euidi.verifier.domain.interactor.HandleItemSelectionPartialState
 import eu.europa.ec.euidi.verifier.presentation.architecture.MviViewModel
@@ -36,6 +37,9 @@ sealed interface CustomRequestContract {
         val requestedDoc: RequestedDocumentUi? = null,
         val items: List<ListItemDataUi> = emptyList(),
         val primaryButtonEnabled: Boolean = false,
+        // Countries chosen for the nationality ZK predicate via the country picker. Held here for
+        // pre-checking the picker on reopen. Not yet bound into the ZK claim value (later step).
+        val selectedCountries: List<String> = emptyList(),
     ) : UiState {
         val areAllItemsChecked: Boolean
             get() = items.all { item ->
@@ -53,11 +57,13 @@ sealed interface CustomRequestContract {
         data object OnDoneClick : Event
         data object OnCancelClick : Event
         data class OnSelectAllClick(val isChecked: Boolean) : Event
+        data class OnCountriesSelected(val countryCodes: List<String>) : Event
     }
 
     sealed interface Effect : UiEffect {
         sealed interface Navigation : Effect {
             data class GoBack(val requestedDocuments: RequestedDocsHolder) : Navigation
+            data class OpenCountrySelection(val preSelectedCodes: List<String>) : Navigation
         }
     }
 }
@@ -135,20 +141,44 @@ class CustomRequestViewModel(
             }
 
             is CustomRequestContract.Event.OnItemClicked -> {
-                val result = interactor.handleItemSelection(
-                    items = uiState.value.items,
-                    identifier = event.identifier,
-                )
+                val clickedClaim = uiState.value.requestedDoc?.let { doc ->
+                    interactor.getDocumentClaims(doc.documentType)
+                        .find { it.id == event.identifier }
+                }
 
-                when (result) {
-                    is HandleItemSelectionPartialState.Updated -> {
-                        setState {
-                            copy(
-                                items = result.items,
-                                primaryButtonEnabled = result.hasSelectedItems,
-                            )
+                // The nationality ZK predicate isn't a simple toggle: tapping it opens the country
+                // picker, pre-filled with the current selection.
+                if (clickedClaim != null &&
+                    clickedClaim.kind is ClaimKind.Zk &&
+                    clickedClaim.label == "nationality"
+                ) {
+                    setEffect {
+                        CustomRequestContract.Effect.Navigation.OpenCountrySelection(
+                            preSelectedCodes = uiState.value.selectedCountries
+                        )
+                    }
+                } else {
+                    val result = interactor.handleItemSelection(
+                        items = uiState.value.items,
+                        identifier = event.identifier,
+                    )
+
+                    when (result) {
+                        is HandleItemSelectionPartialState.Updated -> {
+                            setState {
+                                copy(
+                                    items = result.items,
+                                    primaryButtonEnabled = result.hasSelectedItems,
+                                )
+                            }
                         }
                     }
+                }
+            }
+
+            is CustomRequestContract.Event.OnCountriesSelected -> {
+                setState {
+                    copy(selectedCountries = event.countryCodes)
                 }
             }
 

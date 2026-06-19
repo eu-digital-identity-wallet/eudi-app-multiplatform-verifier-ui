@@ -19,6 +19,7 @@ package eu.europa.ec.euidi.verifier.presentation.navigation
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import eu.europa.ec.euidi.verifier.presentation.ui.country_selection.countrySelectionScreen
 import eu.europa.ec.euidi.verifier.presentation.ui.custom_request.customRequestScreen
 import eu.europa.ec.euidi.verifier.presentation.ui.doc_to_request.docToRequestScreen
 import eu.europa.ec.euidi.verifier.presentation.ui.home.homeScreen
@@ -40,6 +41,7 @@ fun VerifierNavHost() {
         menuScreen(navController)
         docToRequestScreen(navController)
         customRequestScreen(navController)
+        countrySelectionScreen(navController)
         transferStatusScreen(navController)
         showDocumentsScreen(navController)
         settingsScreen(navController)

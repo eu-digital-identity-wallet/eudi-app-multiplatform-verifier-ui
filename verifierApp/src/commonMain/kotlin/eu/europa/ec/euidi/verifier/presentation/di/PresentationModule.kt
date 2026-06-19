@@ -16,6 +16,7 @@
 
 package eu.europa.ec.euidi.verifier.presentation.di
 
+import eu.europa.ec.euidi.verifier.presentation.ui.country_selection.CountrySelectionViewModel
 import eu.europa.ec.euidi.verifier.presentation.ui.custom_request.CustomRequestViewModel
 import eu.europa.ec.euidi.verifier.presentation.ui.doc_to_request.DocumentsToRequestViewModel
 import eu.europa.ec.euidi.verifier.presentation.ui.home.HomeViewModel
@@ -30,6 +31,7 @@ import org.koin.dsl.module
 
 val presentationModule = module {
 
+    viewModelOf(::CountrySelectionViewModel)
     viewModelOf(::CustomRequestViewModel)
     viewModelOf(::DocumentsToRequestViewModel)
     viewModelOf(::HomeViewModel)

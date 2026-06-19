@@ -14,13 +14,16 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.euidi.verifier.presentation.utils
+package eu.europa.ec.euidi.verifier.presentation.model
 
-object Constants {
-    const val REQUESTED_DOCUMENTS = "requestedDocuments"
-    const val RECEIVED_DOCUMENTS = "receivedDocuments"
-    const val SAVED_STATE_REQUESTED_DOCUMENT = "savedStateRequestedDocument"
-    const val SAVED_STATE_REQUESTED_DOCUMENTS = "savedStateRequestedDocuments"
-    const val COUNTRY_SELECTION_PRESELECTED = "countrySelectionPreselected"
-    const val COUNTRY_SELECTION_RESULT = "countrySelectionResult"
-}
+import eu.europa.ec.euidi.verifier.presentation.utils.CommonParcelable
+import eu.europa.ec.euidi.verifier.presentation.utils.CommonParcelize
+
+/**
+ * Carries selected country ISO 3166-1 alpha-2 codes across the back stack, both as the picker's
+ * pre-selection input and as its result, the way [RequestedDocsHolder] carries documents.
+ */
+@CommonParcelize
+data class CountrySelectionHolder(
+    val countryCodes: List<String>
+) : CommonParcelable
