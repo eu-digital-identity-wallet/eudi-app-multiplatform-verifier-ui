@@ -28,8 +28,8 @@ plugins {
     alias(libs.plugins.mokkery)
 }
 
-val sdkVersion: String by project
-val minSDKVersion: String by project
+val sdkVersion = project.property("sdkVersion") as String
+val minSDKVersion = project.property("minSDKVersion") as String
 
 kotlin {
     val basePackage = "eu.europa.ec.euidi.verifier"
