@@ -21,9 +21,9 @@ plugins {
     alias(libs.plugins.androidApplication)
 }
 
-val sdkVersion: String by project
-val targetSdkVersion: String by project
-val minSDKVersion: String by project
+val sdkVersion = project.property("sdkVersion") as String
+val targetSdkVersion = project.property("targetSdkVersion") as String
+val minSDKVersion = project.property("minSDKVersion") as String
 
 configure<ApplicationExtension> {
 
