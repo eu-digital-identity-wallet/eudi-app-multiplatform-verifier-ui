@@ -1,9 +1,9 @@
 [versions]
 
 # Android Gradle Plugin, Kotlin & symbol processing
-agp = "9.2.1"
-kotlin = "2.4.0"
-ksp = "2.3.9"
+agp = "9.3.0"
+kotlin = "2.4.10"
+ksp = "2.3.10"
 
 # Compose Multiplatform
 composeMultiplatform = "1.11.1"
@@ -11,7 +11,7 @@ composeMaterial3 = "1.10.0-alpha05"
 
 # AndroidX / Jetpack (Activity, Lifecycle, Navigation, Material)
 androidx-activity = "1.13.0"
-androidx-lifecycle = "2.10.0"
+androidx-lifecycle = "2.11.0"
 navigationCompose = "2.9.2"
 navigationEvent = "1.1.0"
 material = "1.14.0"
@@ -39,7 +39,7 @@ mokoPermissions = "0.20.1"
 core = "0.1.0"
 
 # Code coverage — Kover
-kover = "0.9.8"
+kover = "0.9.9"
 
 # Testing
 mokkery = "3.4.2"
