@@ -1,7 +1,7 @@
 [versions]
 
 # Android Gradle Plugin, Kotlin & symbol processing
-agp = "9.3.0"
+agp = "9.3.1"
 kotlin = "2.4.10"
 ksp = "2.3.10"
 
@@ -26,10 +26,10 @@ kotlinxDatetime = "0.8.0"
 
 # Persistence — DataStore & Okio
 dataStore = "1.2.1"
-okio = "3.17.0"
+okio = "3.18.1"
 
 # Networking — Ktor
-ktor = "3.5.1"
+ktor = "3.5.2"
 
 # QR scanning & runtime permissions
 qrKit = "3.1.3"
