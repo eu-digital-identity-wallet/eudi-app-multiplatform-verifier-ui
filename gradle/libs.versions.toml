@@ -1,12 +1,12 @@
 [versions]
 
 # Android Gradle Plugin, Kotlin & symbol processing
-agp = "9.3.0"
+agp = "9.4.0"
 kotlin = "2.4.10"
 ksp = "2.3.10"
 
 # Compose Multiplatform
-composeMultiplatform = "1.11.1"
+composeMultiplatform = "1.12.0"
 composeMaterial3 = "1.10.0-alpha05"
 
 # AndroidX / Jetpack (Activity, Lifecycle, Navigation, Material)
@@ -26,10 +26,10 @@ kotlinxDatetime = "0.8.0"
 
 # Persistence — DataStore & Okio
 dataStore = "1.2.1"
-okio = "3.17.0"
+okio = "3.18.2"
 
 # Networking — Ktor
-ktor = "3.5.1"
+ktor = "3.5.2"
 
 # QR scanning & runtime permissions
 qrKit = "3.1.3"
