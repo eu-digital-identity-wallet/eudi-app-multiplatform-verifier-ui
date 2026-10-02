@@ -23,8 +23,6 @@ import eu.europa.ec.euidi.verifier.domain.model.SupportedDocumentUi
 import eu.europa.ec.euidi.verifier.presentation.model.ReceivedDocumentUi
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
 import eu.europa.ec.euidi.verifier.presentation.ui.show_document.model.DocumentValidityUi
-import eu.europa.ec.euidi.verifier.testutil.TestData.ageClaim
-import eu.europa.ec.euidi.verifier.testutil.TestData.familyNameClaim
 
 /**
  * Reusable, immutable test fixtures shared across the common tests.

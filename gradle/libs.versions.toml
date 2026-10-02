@@ -39,7 +39,7 @@ mokoPermissions = "0.20.1"
 core = "0.1.0"
 
 # Code coverage — Kover
-kover = "0.9.9"
+kover = "0.9.11"
 
 # Testing
 mokkery = "3.5.0"
