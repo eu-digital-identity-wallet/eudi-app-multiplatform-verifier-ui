@@ -109,6 +109,7 @@ kotlin {
 
 dependencies {
     implementation(project(":verifierApp"))
+    implementation(libs.material)
 }
 
 @Suppress("UNCHECKED_CAST")
