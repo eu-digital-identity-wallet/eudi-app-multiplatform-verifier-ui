@@ -67,10 +67,8 @@ kotlin {
     sourceSets {
 
         androidMain.dependencies {
-            implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.koin.android)
-            implementation(libs.koin.androidx.compose)
             implementation(libs.core)
             implementation(libs.ktor.client.okhttp)
         }
@@ -88,11 +86,9 @@ kotlin {
             implementation(libs.compose.resources)
             implementation(libs.compose.uiToolingPreview)
 
-            implementation(libs.androidx.lifecycle.viewmodel.compose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(libs.navigation.compose)
             implementation(libs.navigationevent.compose)
-            implementation(libs.backhandler.cmp)
 
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.datetime)
@@ -116,7 +112,6 @@ kotlin {
 
         commonTest.dependencies {
             implementation(libs.kotlin.test)
-            implementation(libs.koin.test)
             implementation(libs.kotlinx.coroutines.test)
             implementation(libs.turbine)
         }

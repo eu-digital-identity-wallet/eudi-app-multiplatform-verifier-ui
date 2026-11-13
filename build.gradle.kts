@@ -25,6 +25,5 @@ plugins {
     alias(libs.plugins.kotlinParcelize) apply false
     alias(libs.plugins.kover) apply false
     alias(libs.plugins.kotlinMultiplatformLibrary) apply false
-    alias(libs.plugins.kotlinAndroid) apply false
     alias(libs.plugins.mokkery) apply false
 }
