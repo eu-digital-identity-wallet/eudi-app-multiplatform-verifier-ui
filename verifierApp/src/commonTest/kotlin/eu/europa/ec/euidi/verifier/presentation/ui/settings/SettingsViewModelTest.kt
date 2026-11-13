@@ -104,7 +104,7 @@ class SettingsViewModelTest : MviViewModelTest() {
         }
 
     @Test
-    fun `PushScreen navigation effect exposes its route, popUpTo and inclusive flag`() {
+    fun `PushScreen navigation effect exposes its route and its popUpTo target and inclusive flag`() {
         // PushScreen is part of the navigation contract consumed by SettingsScreen's exhaustive
         // when, even though the ViewModel itself only emits Pop / PopTo.
         val effect = Effect.Navigation.PushScreen(

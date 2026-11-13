@@ -54,7 +54,7 @@ class MenuViewModelTest : MviViewModelTest() {
     }
 
     @Test
-    fun `Init loads title, menu items and app version`() = runTest(testDispatcher) {
+    fun `Init loads the title and menu items and the app version`() = runTest(testDispatcher) {
         val viewModel = MenuViewModel(menuInteractor())
 
         viewModel.setEvent(Event.Init)
