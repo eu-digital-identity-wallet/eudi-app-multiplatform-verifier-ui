@@ -17,6 +17,7 @@
 package eu.europa.ec.euidi.verifier.core.controller
 
 import kotlinx.coroutines.test.runTest
+import okio.FileSystem
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
@@ -27,14 +28,17 @@ import kotlin.uuid.Uuid
 @OptIn(ExperimentalUuidApi::class)
 class DataStoreControllerTest {
 
-    // A real Preferences DataStore backed by a unique temp file per controller, so tests are isolated.
+    // A real Preferences DataStore backed by a unique file per controller, so tests are isolated.
+    // The path is absolute, in the system temporary directory: DataStore's OkioStorage, which it
+    // uses on iOS, refuses a relative path.
     private fun controller(): DataStoreController {
-        val path = "build/test-datastore/${Uuid.random()}.preferences_pb"
-        return DataStoreControllerImpl(DataStoreControllerImpl.createDataStore { path })
+        val path = FileSystem.SYSTEM_TEMPORARY_DIRECTORY /
+            "test-datastore" / "${Uuid.random()}.preferences_pb"
+        return DataStoreControllerImpl(DataStoreControllerImpl.createDataStore { path.toString() })
     }
 
     @Test
-    fun `boolean is stored and read back, falling back to the default when absent`() = runTest {
+    fun `boolean is stored and read back and falls back to the default when absent`() = runTest {
         val controller = controller()
 
         controller.putBoolean(PrefKey.RETAIN_DATA, true)
@@ -45,7 +49,7 @@ class DataStoreControllerTest {
     }
 
     @Test
-    fun `int is stored and read back, with a default fallback`() = runTest {
+    fun `int is stored and read back with a default fallback`() = runTest {
         val controller = controller()
 
         controller.putInt(PrefKey.RETAIN_DATA, 42)

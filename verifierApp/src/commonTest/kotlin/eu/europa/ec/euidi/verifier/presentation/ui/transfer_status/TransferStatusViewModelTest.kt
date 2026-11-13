@@ -183,7 +183,7 @@ class TransferStatusViewModelTest : MviViewModelTest() {
     //region proximity / connection status
 
     @Test
-    fun `StartProximity prepares the connection, starts engagement and maps non-terminal statuses`() =
+    fun `StartProximity prepares the connection and starts engagement and maps non-terminal statuses`() =
         runTest(testDispatcher) {
             val interactor = transferInteractor(
                 statusFlow = flowOf(

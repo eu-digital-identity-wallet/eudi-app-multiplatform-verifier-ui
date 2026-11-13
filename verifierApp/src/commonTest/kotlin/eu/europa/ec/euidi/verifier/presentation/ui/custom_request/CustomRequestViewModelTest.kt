@@ -69,7 +69,7 @@ class CustomRequestViewModelTest : MviViewModelTest() {
     }
 
     @Test
-    fun `Init with a doc loads title, items and enables the primary button`() =
+    fun `Init with a doc loads the title and items and enables the primary button`() =
         runTest(testDispatcher) {
             val viewModel = CustomRequestViewModel(customRequestInteractor())
 

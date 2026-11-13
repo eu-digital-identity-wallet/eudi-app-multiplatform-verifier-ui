@@ -48,7 +48,7 @@ class Base64ExtensionsTest {
     }
 
     @Test
-    fun `encode with the standard (non url-safe) alphabet is decodable`() {
+    fun `encode with the standard non url-safe alphabet is decodable`() {
         // 0xFB, 0xFF encodes to characters that differ between the standard and url-safe alphabets.
         val bytes = byteArrayOf(0xFB.toByte(), 0xFF.toByte())
 
