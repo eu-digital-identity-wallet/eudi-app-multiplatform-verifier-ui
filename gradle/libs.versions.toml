@@ -3,7 +3,6 @@
 # Android Gradle Plugin, Kotlin & symbol processing
 agp = "9.5.1"
 kotlin = "2.4.21"
-ksp = "2.3.10"
 
 # Compose Multiplatform
 composeMultiplatform = "1.12.2"
@@ -120,7 +119,6 @@ composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMul
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 
 # Kotlin compiler plugins
-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 kotlinParcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
 serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 

@@ -21,7 +21,6 @@ plugins {
     alias(libs.plugins.kotlinMultiplatformLibrary)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
-    alias(libs.plugins.ksp)
     alias(libs.plugins.kotlinParcelize)
     alias(libs.plugins.serialization)
     alias(libs.plugins.kover)
@@ -81,7 +80,6 @@ kotlin {
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
             implementation(libs.compose.material3)
-            implementation(libs.material)
             implementation(libs.compose.ui)
             implementation(libs.compose.resources)
             implementation(libs.compose.uiToolingPreview)
@@ -115,10 +113,6 @@ kotlin {
             implementation(libs.kotlinx.coroutines.test)
             implementation(libs.turbine)
         }
-    }
-
-    sourceSets.named("commonMain").configure {
-        kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
     }
 
     compilerOptions {
@@ -180,14 +174,5 @@ kover {
                 }
             }
         }
-    }
-}
-
-afterEvaluate {
-    tasks.matching { it.name.startsWith("kspKotlin") }.configureEach {
-        dependsOn(tasks.named("kspCommonMainKotlinMetadata"))
-    }
-    tasks.matching { it.name.startsWith("compile") }.configureEach {
-        dependsOn(tasks.named("kspCommonMainKotlinMetadata"))
     }
 }
