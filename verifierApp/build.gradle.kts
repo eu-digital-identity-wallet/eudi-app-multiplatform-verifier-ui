@@ -60,6 +60,7 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "VerifierApp"
             isStatic = true
+            binaryOption("bundleId", "eu.europa.ec.euidi.verifier.shared")
         }
     }
 
