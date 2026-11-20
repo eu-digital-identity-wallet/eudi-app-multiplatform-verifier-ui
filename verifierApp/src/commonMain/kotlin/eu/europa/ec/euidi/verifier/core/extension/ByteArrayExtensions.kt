@@ -20,11 +20,11 @@ import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
 @OptIn(ExperimentalEncodingApi::class)
-fun ByteArray.toBase64(): ByteArray {
+internal fun ByteArray.toBase64(): ByteArray {
     return Base64.encodeToByteArray(this)
 }
 
 @OptIn(ExperimentalEncodingApi::class)
-fun ByteArray.fromBase64(): ByteArray {
+internal fun ByteArray.fromBase64(): ByteArray {
     return Base64.decode(this)
 }

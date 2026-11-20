@@ -16,5 +16,5 @@
 
 package eu.europa.ec.euidi.verifier.presentation.architecture
 
-interface UiEvent {
+internal interface UiEvent {
 }

@@ -38,13 +38,13 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.StringResource
 
-interface SettingsInteractor {
+internal interface SettingsInteractor {
     suspend fun togglePrefBoolean(key: PrefKey)
     suspend fun getScreenTitle(): String
     suspend fun getSettingsItemsUi(): List<SettingsItemUi>
 }
 
-class SettingsInteractorImpl(
+internal class SettingsInteractorImpl(
     private val uuidProvider: UuidProvider,
     private val resourceProvider: ResourceProvider,
     private val dataStoreController: DataStoreController,

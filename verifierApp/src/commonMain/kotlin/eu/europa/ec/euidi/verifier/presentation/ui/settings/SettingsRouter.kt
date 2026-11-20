@@ -24,7 +24,7 @@ import eu.europa.ec.euidi.verifier.presentation.navigation.noAnimation
 import eu.europa.ec.euidi.verifier.presentation.navigation.slideInFromEnd
 import eu.europa.ec.euidi.verifier.presentation.navigation.slideOutToEnd
 
-fun NavGraphBuilder.settingsScreen(navController: NavController) {
+internal fun NavGraphBuilder.settingsScreen(navController: NavController) {
     composable<NavItem.Settings>(
         enterTransition = slideInFromEnd(),
         exitTransition = noAnimation(),

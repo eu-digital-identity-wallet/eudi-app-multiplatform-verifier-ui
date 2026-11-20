@@ -19,4 +19,4 @@ package eu.europa.ec.euidi.verifier.presentation.component.preview
 import androidx.compose.ui.tooling.preview.Preview
 
 @Preview
-annotation class ThemeModePreviews
+internal annotation class ThemeModePreviews

@@ -19,7 +19,7 @@ package eu.europa.ec.euidi.verifier.core.controller
 import eu.europa.ec.euidi.verifier.core.controller.model.BuildType
 import eu.europa.ec.euidi.verifier.core.controller.model.FlavorType
 
-interface PlatformController {
+internal interface PlatformController {
 
     val buildType: BuildType
 

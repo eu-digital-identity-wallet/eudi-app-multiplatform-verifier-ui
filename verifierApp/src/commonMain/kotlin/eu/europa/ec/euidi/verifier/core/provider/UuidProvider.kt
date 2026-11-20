@@ -19,11 +19,11 @@ package eu.europa.ec.euidi.verifier.core.provider
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-interface UuidProvider {
+internal interface UuidProvider {
     fun provideUuid(): String
 }
 
-class UuidProviderImpl() : UuidProvider {
+internal class UuidProviderImpl() : UuidProvider {
     @OptIn(ExperimentalUuidApi::class)
     override fun provideUuid(): String {
         return Uuid.random().toString()

@@ -19,7 +19,7 @@ package eu.europa.ec.euidi.verifier.presentation.utils
 import android.widget.Toast
 import eu.europa.ec.euidi.verifier.core.provider.RuntimeProvider
 
-actual open class ToastManager actual constructor() {
+internal actual open class ToastManager actual constructor() {
     actual fun showToast(message: String) {
         val context = RuntimeProvider.appContext
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()

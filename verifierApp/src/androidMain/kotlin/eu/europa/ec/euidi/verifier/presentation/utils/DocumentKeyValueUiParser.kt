@@ -30,7 +30,7 @@ import eudiverifier.verifierapp.generated.resources.show_documents_screen_item_g
 import eudiverifier.verifierapp.generated.resources.show_documents_screen_item_gender_not_applicable
 import eudiverifier.verifierapp.generated.resources.show_documents_screen_item_gender_not_known
 
-fun parseKeyValueUi(
+internal fun parseKeyValueUi(
     item: Any,
     groupIdentifier: String,
     keyIdentifier: String = "",

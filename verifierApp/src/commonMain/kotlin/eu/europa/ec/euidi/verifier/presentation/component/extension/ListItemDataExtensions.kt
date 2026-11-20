@@ -19,7 +19,7 @@ package eu.europa.ec.euidi.verifier.presentation.component.extension
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemDataUi
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemTrailingContentDataUi
 
-fun List<ListItemDataUi>.hasAnyCheckedCheckbox(): Boolean = any { item ->
+internal fun List<ListItemDataUi>.hasAnyCheckedCheckbox(): Boolean = any { item ->
     item.trailingContentData is ListItemTrailingContentDataUi.Checkbox &&
             item.trailingContentData.checkboxData.isChecked
 }

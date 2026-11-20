@@ -43,7 +43,7 @@ import eu.europa.ec.euidi.verifier.presentation.component.extension.throttledCli
 import eu.europa.ec.euidi.verifier.presentation.component.utils.SIZE_LARGE
 
 @Composable
-fun WrapTextField(
+internal fun WrapTextField(
     hasNoRipple: Boolean = true,
     modifier: Modifier,
     value: String,

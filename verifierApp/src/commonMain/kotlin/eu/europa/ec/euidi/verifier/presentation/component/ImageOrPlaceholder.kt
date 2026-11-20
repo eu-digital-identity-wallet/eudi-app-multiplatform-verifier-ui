@@ -27,7 +27,7 @@ import eudiverifier.verifierapp.generated.resources.content_description_image_or
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun ImageOrPlaceholder(
+internal fun ImageOrPlaceholder(
     modifier: Modifier = Modifier,
     base64Image: String,
     contentScale: ContentScale? = null,

@@ -30,7 +30,7 @@ import eu.europa.ec.euidi.verifier.presentation.ui.qr_scan.QrScanViewModelContra
 import eu.europa.ec.euidi.verifier.presentation.ui.qr_scan.QrScanViewModelContract.State
 import kotlinx.coroutines.launch
 
-sealed interface QrScanViewModelContract {
+internal sealed interface QrScanViewModelContract {
     data class State(
         val isLoading: Boolean,
         val error: ContentErrorConfig? = null,
@@ -63,7 +63,7 @@ sealed interface QrScanViewModelContract {
     }
 }
 
-class QrScanViewModel(
+internal class QrScanViewModel(
     private val interactor: QrScanInteractor,
 ) : MviViewModel<Event, State, Effect>() {
 

@@ -39,7 +39,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-sealed interface TransferStatusViewModelContract {
+internal sealed interface TransferStatusViewModelContract {
     data class State(
         val isLoading: Boolean = false,
         val requestedDocTypes: String? = null,
@@ -75,7 +75,7 @@ sealed interface TransferStatusViewModelContract {
     }
 }
 
-class TransferStatusViewModel(
+internal class TransferStatusViewModel(
     private val transferStatusInteractor: TransferStatusInteractor,
     private val resourceProvider: ResourceProvider,
     private val qrCode: String

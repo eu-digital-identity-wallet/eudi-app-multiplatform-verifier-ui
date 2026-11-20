@@ -76,7 +76,7 @@ internal fun ContentError(config: ContentErrorConfig, paddingValues: PaddingValu
     }
 }
 
-data class ContentErrorConfig(
+internal data class ContentErrorConfig(
     val errorTitle: String? = null,
     val errorSubTitle: String? = null,
     val onCancel: () -> Unit,

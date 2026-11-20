@@ -28,7 +28,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 
 @Composable
-fun OneTimeLaunchedEffect(
+internal fun OneTimeLaunchedEffect(
     block: () -> Unit
 ) {
     var initialEffects by rememberSaveable { mutableStateOf(false) }
@@ -41,7 +41,7 @@ fun OneTimeLaunchedEffect(
 }
 
 @Composable
-fun LifecycleEffect(
+internal fun LifecycleEffect(
     lifecycleOwner: LifecycleOwner, lifecycleEvent: Lifecycle.Event, block: () -> Unit
 ) {
     DisposableEffect(lifecycleOwner) {

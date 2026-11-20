@@ -33,7 +33,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-interface HomeInteractor {
+internal interface HomeInteractor {
     fun getScreenTitle(): String
     fun getDefaultMainButtonData(): ListItemDataUi
     suspend fun formatMainButtonData(
@@ -44,7 +44,7 @@ interface HomeInteractor {
     fun closeApp()
 }
 
-class HomeInteractorImpl(
+internal class HomeInteractorImpl(
     private val platformController: PlatformController,
     private val uuidProvider: UuidProvider,
     private val resourceProvider: ResourceProvider,

@@ -21,7 +21,7 @@ import eu.europa.ec.euidi.verifier.domain.model.ReceivedDocumentsDomain
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
 import kotlinx.coroutines.flow.Flow
 
-interface TransferController {
+internal interface TransferController {
 
     fun initializeVerifier(certificates: List<String>, logger: Logger)
 
@@ -42,7 +42,7 @@ interface TransferController {
     fun stopConnection()
 }
 
-sealed class TransferStatus() {
+internal sealed class TransferStatus() {
     data class Error(val message: String) : TransferStatus()
     data object Connected : TransferStatus()
     data object Connecting : TransferStatus()

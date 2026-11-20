@@ -57,7 +57,7 @@ import qrscanner.CameraLens
 import qrscanner.QrScanner
 
 @Composable
-fun QrScanScreen(
+internal fun QrScanScreen(
     navController: NavController,
     viewModel: QrScanViewModel = koinViewModel()
 ) {

@@ -31,7 +31,7 @@ import eu.europa.ec.euidi.verifier.presentation.component.utils.SPACING_SMALL
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapImage
 
 @Immutable
-data class AppIconAndTextDataUi(
+internal data class AppIconAndTextDataUi(
     val appIcon: IconDataUi = AppIcons.LogoPlain,
     val appText: IconDataUi = AppIcons.LogoText,
 )
@@ -39,7 +39,7 @@ data class AppIconAndTextDataUi(
 private val DefaultAppIconAndTextData = AppIconAndTextDataUi()
 
 @Composable
-fun AppIconAndText(
+internal fun AppIconAndText(
     modifier: Modifier = Modifier,
     appIconAndTextData: AppIconAndTextDataUi = DefaultAppIconAndTextData,
 ) {

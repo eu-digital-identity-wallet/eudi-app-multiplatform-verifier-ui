@@ -76,7 +76,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun SettingsScreen(
+internal fun SettingsScreen(
     navController: NavController,
     viewModel: SettingsViewModel = koinViewModel()
 ) {

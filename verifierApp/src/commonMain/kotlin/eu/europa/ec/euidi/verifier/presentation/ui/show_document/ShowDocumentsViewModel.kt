@@ -27,7 +27,7 @@ import eu.europa.ec.euidi.verifier.presentation.navigation.NavItem
 import eu.europa.ec.euidi.verifier.presentation.ui.show_document.model.DocumentUi
 import kotlinx.coroutines.launch
 
-sealed interface ShowDocumentViewModelContract {
+internal sealed interface ShowDocumentViewModelContract {
     data class State(
         val isLoading: Boolean = false,
         val items: List<DocumentUi> = emptyList(),
@@ -53,7 +53,7 @@ sealed interface ShowDocumentViewModelContract {
     }
 }
 
-class ShowDocumentsViewModel(
+internal class ShowDocumentsViewModel(
     private val interactor: ShowDocumentsInteractor
 ) : MviViewModel<ShowDocumentViewModelContract.Event, ShowDocumentViewModelContract.State, ShowDocumentViewModelContract.Effect>() {
 

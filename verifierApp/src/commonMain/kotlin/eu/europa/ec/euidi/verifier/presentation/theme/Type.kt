@@ -48,7 +48,7 @@ private fun appFontFamily() = FontFamily(
 )
 
 @Composable
-fun appTypography(): Typography {
+internal fun appTypography(): Typography {
     val appFontFamily = appFontFamily()
 
     return remember {

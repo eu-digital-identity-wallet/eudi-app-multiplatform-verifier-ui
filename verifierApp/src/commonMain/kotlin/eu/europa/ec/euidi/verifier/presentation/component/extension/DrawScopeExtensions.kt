@@ -27,7 +27,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.Dp
 import eu.europa.ec.euidi.verifier.presentation.component.utils.SIZE_LARGE
 
-fun DrawScope.qrBorderCanvas(
+internal fun DrawScope.qrBorderCanvas(
     borderColor: Color = Color.White,
     curve: Dp,
     strokeWidth: Dp,

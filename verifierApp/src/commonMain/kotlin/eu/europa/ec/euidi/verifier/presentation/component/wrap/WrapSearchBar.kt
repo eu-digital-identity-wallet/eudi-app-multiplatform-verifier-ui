@@ -34,7 +34,7 @@ import eu.europa.ec.euidi.verifier.presentation.component.preview.PreviewTheme
 import eu.europa.ec.euidi.verifier.presentation.component.preview.ThemeModePreviews
 
 @Composable
-fun WrapSearchBar(
+internal fun WrapSearchBar(
     modifier: Modifier = Modifier,
     text: String,
     placeholder: String,

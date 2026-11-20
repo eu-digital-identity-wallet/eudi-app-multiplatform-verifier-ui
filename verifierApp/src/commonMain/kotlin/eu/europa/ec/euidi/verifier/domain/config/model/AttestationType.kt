@@ -25,7 +25,7 @@ import eudiverifier.verifierapp.generated.resources.document_type_mdl
 import eudiverifier.verifierapp.generated.resources.document_type_pid
 
 @CommonParcelize
-sealed interface AttestationType : CommonParcelable {
+internal sealed interface AttestationType : CommonParcelable {
     val namespace: String
     val docType: String
 

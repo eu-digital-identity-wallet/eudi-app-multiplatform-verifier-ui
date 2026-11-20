@@ -37,7 +37,7 @@ import eu.europa.ec.euidi.verifier.presentation.component.utils.SIZE_MEDIUM
 import eu.europa.ec.euidi.verifier.presentation.component.utils.SIZE_SMALL
 
 @Composable
-fun WrapChip(
+internal fun WrapChip(
     label: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     selected: Boolean = false,

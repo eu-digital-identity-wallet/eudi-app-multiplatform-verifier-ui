@@ -30,7 +30,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 
-interface DocumentsToRequestInteractor {
+internal interface DocumentsToRequestInteractor {
 
     suspend fun getSupportedDocuments(): List<SupportedDocumentUi>
 
@@ -51,7 +51,7 @@ interface DocumentsToRequestInteractor {
     suspend fun checkDocumentMode(requestedDocs: List<RequestedDocumentUi>): List<RequestedDocumentUi>
 }
 
-class DocumentsToRequestInteractorImpl(
+internal class DocumentsToRequestInteractorImpl(
     private val configProvider: ConfigProvider,
     private val resourceProvider: ResourceProvider,
     private val dispatcher: CoroutineDispatcher = Dispatchers.Default
@@ -174,7 +174,7 @@ class DocumentsToRequestInteractorImpl(
     }
 }
 
-sealed class DocSelectionResult {
+internal sealed class DocSelectionResult {
     data class Updated(val docs: List<RequestedDocumentUi>) : DocSelectionResult()
     data class NavigateToCustomRequest(
         val docs: List<RequestedDocumentUi>,

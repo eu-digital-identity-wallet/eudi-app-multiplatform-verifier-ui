@@ -28,13 +28,13 @@ import eu.europa.ec.euidi.verifier.presentation.component.preview.PreviewTheme
 import eu.europa.ec.euidi.verifier.presentation.component.preview.ThemeModePreviews
 import eu.europa.ec.euidi.verifier.presentation.component.utils.SPACING_EXTRA_SMALL
 
-data class SwitchDataUi(
+internal data class SwitchDataUi(
     val isChecked: Boolean,
     val enabled: Boolean = true,
 )
 
 @Composable
-fun WrapSwitch(
+internal fun WrapSwitch(
     switchData: SwitchDataUi,
     onCheckedChange: ((Boolean) -> Unit)?,
     modifier: Modifier = Modifier,

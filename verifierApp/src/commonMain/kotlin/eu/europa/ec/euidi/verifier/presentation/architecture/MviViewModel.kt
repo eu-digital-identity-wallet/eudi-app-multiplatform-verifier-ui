@@ -27,7 +27,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
-abstract class MviViewModel<Event : UiEvent, State : UiState, Effect : UiEffect> : ViewModel() {
+internal abstract class MviViewModel<Event : UiEvent, State : UiState, Effect : UiEffect> : ViewModel() {
     private val initialState: State by lazy { createInitialState() }
 
     abstract fun createInitialState(): State

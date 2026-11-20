@@ -16,7 +16,7 @@
 
 package eu.europa.ec.euidi.verifier.presentation.ui.menu.model
 
-enum class MenuTypeUi {
+internal enum class MenuTypeUi {
     HOME,
     SETTINGS,
 }

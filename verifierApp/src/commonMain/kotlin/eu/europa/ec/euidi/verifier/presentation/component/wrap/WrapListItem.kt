@@ -42,7 +42,7 @@ import eu.europa.ec.euidi.verifier.presentation.component.preview.ThemeModePrevi
 import eu.europa.ec.euidi.verifier.presentation.component.utils.SPACING_MEDIUM
 
 @Composable
-fun WrapListItem(
+internal fun WrapListItem(
     modifier: Modifier = Modifier,
     item: ListItemDataUi,
     onItemClick: ((item: ListItemDataUi) -> Unit)?,

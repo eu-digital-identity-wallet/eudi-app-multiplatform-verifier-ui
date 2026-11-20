@@ -26,7 +26,7 @@ import eu.europa.ec.euidi.verifier.core.controller.model.FlavorType
 import eu.europa.ec.euidi.verifier.core.provider.RuntimeProvider
 import java.lang.ref.WeakReference
 
-class AndroidPlatformController(
+internal class AndroidPlatformController(
     private val context: Context
 ) : PlatformController {
     private var activityRef: WeakReference<Activity>? = null

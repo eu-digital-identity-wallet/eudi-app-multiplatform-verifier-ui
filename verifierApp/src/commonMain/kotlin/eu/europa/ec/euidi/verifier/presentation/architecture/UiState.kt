@@ -16,5 +16,5 @@
 
 package eu.europa.ec.euidi.verifier.presentation.architecture
 
-interface UiState {
+internal interface UiState {
 }

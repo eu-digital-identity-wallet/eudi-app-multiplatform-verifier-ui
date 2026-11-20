@@ -31,7 +31,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun WrapImage(
+internal fun WrapImage(
     iconData: IconDataUi,
     modifier: Modifier = Modifier,
     colorFilter: ColorFilter? = null,
@@ -49,7 +49,7 @@ fun WrapImage(
 }
 
 @Composable
-fun WrapImage(
+internal fun WrapImage(
     modifier: Modifier = Modifier,
     painter: BitmapPainter,
     contentDescription: String,
@@ -66,7 +66,7 @@ fun WrapImage(
 }
 
 @Composable
-fun WrapImage(
+internal fun WrapImage(
     modifier: Modifier = Modifier,
     bitmap: ImageBitmap?,
     contentDescription: String,
@@ -85,7 +85,7 @@ fun WrapImage(
 }
 
 @Composable
-fun WrapImage(
+internal fun WrapImage(
     modifier: Modifier = Modifier,
     painter: Painter,
     contentDescription: String,

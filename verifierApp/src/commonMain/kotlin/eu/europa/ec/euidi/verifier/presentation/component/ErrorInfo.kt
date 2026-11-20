@@ -37,7 +37,7 @@ import eu.europa.ec.euidi.verifier.presentation.component.utils.screenWidthInDp
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapIcon
 
 @Composable
-fun ErrorInfo(
+internal fun ErrorInfo(
     informativeText: String,
     modifier: Modifier = Modifier,
     iconSize: Dp = screenWidthInDp(true) / 6,

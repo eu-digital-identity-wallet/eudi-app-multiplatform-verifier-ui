@@ -87,7 +87,7 @@ import kotlinx.coroutines.flow.Flow
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun TransferStatusScreen(
+internal fun TransferStatusScreen(
     navController: NavController,
     viewModel: TransferStatusViewModel
 ) {

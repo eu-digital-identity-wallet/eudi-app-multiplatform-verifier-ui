@@ -65,7 +65,7 @@ import eu.europa.ec.euidi.verifier.presentation.component.utils.stickyBottomPadd
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapIcon
 import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapIconButton
 
-data class ToolbarActionUi(
+internal data class ToolbarActionUi(
     val icon: IconDataUi,
     val order: Int = 100,
     val enabled: Boolean = true,
@@ -75,22 +75,22 @@ data class ToolbarActionUi(
     val onClick: () -> Unit,
 )
 
-data class ToolbarConfig(
+internal data class ToolbarConfig(
     val title: String = "",
     val actions: List<ToolbarActionUi> = listOf()
 )
 
-enum class ScreenNavigateAction {
+internal enum class ScreenNavigateAction {
     BACKABLE, CANCELABLE, NONE
 }
 
-enum class ImePaddingConfig {
+internal enum class ImePaddingConfig {
     NO_PADDING, WITH_BOTTOM_BAR, ONLY_CONTENT
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun ContentScreen(
+internal fun ContentScreen(
     modifier: Modifier = Modifier.fillMaxSize(),
     isLoading: Boolean = false,
     toolBarConfig: ToolbarConfig? = null,

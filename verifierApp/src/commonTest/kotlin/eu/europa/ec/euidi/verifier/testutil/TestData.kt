@@ -35,7 +35,7 @@ import eu.europa.ec.euidi.verifier.presentation.ui.show_document.model.DocumentV
  * NOT shared here because they record interactions for verification — share mock *factories*
  * (see [eu.europa.ec.euidi.verifier.testutil.sequentialUuidProvider]) instead.
  */
-object TestData {
+internal object TestData {
 
     // region Claims
     val familyNameClaim = ClaimItem(label = "family_name")

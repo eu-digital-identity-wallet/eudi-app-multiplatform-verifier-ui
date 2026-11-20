@@ -63,7 +63,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun ShowDocumentsScreen(
+internal fun ShowDocumentsScreen(
     navController: NavController,
     viewModel: ShowDocumentsViewModel = koinViewModel()
 ) {

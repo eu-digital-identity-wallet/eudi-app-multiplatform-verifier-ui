@@ -55,7 +55,7 @@ import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class)
-class AndroidTransferController(
+internal class AndroidTransferController(
     private val context: Context,
     private val resourceProvider: ResourceProvider
 ) : TransferController {

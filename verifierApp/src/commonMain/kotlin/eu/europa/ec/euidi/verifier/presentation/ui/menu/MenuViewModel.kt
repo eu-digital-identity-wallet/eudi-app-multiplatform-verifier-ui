@@ -31,7 +31,7 @@ import eu.europa.ec.euidi.verifier.presentation.ui.menu.model.MenuTypeUi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
-sealed interface MenuViewModelContract {
+internal sealed interface MenuViewModelContract {
     data class State(
         val isLoading: Boolean,
         val screenTitle: String = "",
@@ -65,7 +65,7 @@ sealed interface MenuViewModelContract {
     }
 }
 
-class MenuViewModel(
+internal class MenuViewModel(
     private val interactor: MenuInteractor,
 ) : MviViewModel<Event, State, Effect>() {
 

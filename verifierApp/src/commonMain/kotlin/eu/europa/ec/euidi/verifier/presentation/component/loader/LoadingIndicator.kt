@@ -28,7 +28,7 @@ import eu.europa.ec.euidi.verifier.presentation.component.extension.clickableNoR
 import eu.europa.ec.euidi.verifier.presentation.component.utils.Z_LOADING
 
 @Composable
-fun LoadingIndicator() {
+internal fun LoadingIndicator() {
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier

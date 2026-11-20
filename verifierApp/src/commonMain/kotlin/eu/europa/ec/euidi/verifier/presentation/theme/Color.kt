@@ -197,7 +197,7 @@ internal val darkColors = darkColorScheme(
     surfaceContainerLowest = Color(eudiw_theme_dark_surfaceContainerLowest),
 )
 
-val ColorScheme.divider: Color
+internal val ColorScheme.divider: Color
     @Composable get() = if (isSystemInDarkTheme()) {
         Color(eudiw_theme_dark_divider)
     } else {

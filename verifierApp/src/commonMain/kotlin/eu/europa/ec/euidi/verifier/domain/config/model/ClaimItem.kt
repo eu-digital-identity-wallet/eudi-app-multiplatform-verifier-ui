@@ -20,6 +20,6 @@ import eu.europa.ec.euidi.verifier.presentation.utils.CommonParcelable
 import eu.europa.ec.euidi.verifier.presentation.utils.CommonParcelize
 
 @CommonParcelize
-data class ClaimItem(
+internal data class ClaimItem(
     val label: String
 ) : CommonParcelable

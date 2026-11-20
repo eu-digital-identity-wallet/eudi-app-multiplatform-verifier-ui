@@ -16,10 +16,10 @@
 
 package eu.europa.ec.euidi.verifier.presentation.utils
 
-expect interface CommonParcelable
+internal expect interface CommonParcelable
 
 @OptIn(ExperimentalMultiplatform::class)
 @OptionalExpectation
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.BINARY)
-expect annotation class CommonParcelize()
+internal expect annotation class CommonParcelize()

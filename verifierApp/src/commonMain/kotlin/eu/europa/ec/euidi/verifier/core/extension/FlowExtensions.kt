@@ -23,7 +23,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
 
-fun <T> Flow<T>.safeAsync(
+internal fun <T> Flow<T>.safeAsync(
     dispatcher: CoroutineDispatcher = Dispatchers.IO,
     with: (Throwable) -> (T)
 ): Flow<T> {

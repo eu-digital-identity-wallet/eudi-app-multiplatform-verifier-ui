@@ -16,6 +16,6 @@
 
 package eu.europa.ec.euidi.verifier.domain.config.model
 
-data class SupportedDocuments(
+internal data class SupportedDocuments(
     val documents: Map<AttestationType, List<ClaimItem>>
 )

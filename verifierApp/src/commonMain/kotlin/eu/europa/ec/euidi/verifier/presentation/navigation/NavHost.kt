@@ -29,7 +29,7 @@ import eu.europa.ec.euidi.verifier.presentation.ui.show_document.showDocumentsSc
 import eu.europa.ec.euidi.verifier.presentation.ui.transfer_status.transferStatusScreen
 
 @Composable
-fun VerifierNavHost() {
+internal fun VerifierNavHost() {
     val navController = rememberNavController()
 
     NavHost(

@@ -16,6 +16,6 @@
 
 package eu.europa.ec.euidi.verifier.presentation.utils
 
-expect open class ToastManager() {
+internal expect open class ToastManager() {
     fun showToast(message: String)
 }

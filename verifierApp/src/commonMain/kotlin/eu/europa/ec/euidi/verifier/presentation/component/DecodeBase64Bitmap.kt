@@ -45,7 +45,7 @@ import kotlin.io.encoding.ExperimentalEncodingApi
  */
 @OptIn(ExperimentalEncodingApi::class)
 @Composable
-fun rememberBase64DecodedBitmap(base64Image: String): ImageBitmap? {
+internal fun rememberBase64DecodedBitmap(base64Image: String): ImageBitmap? {
     // produceState will launch a coroutine on the Composition’s scope
     val imageBitmap by produceState<ImageBitmap?>(initialValue = null, base64Image) {
         // run everything in a Default dispatcher to avoid UI jank

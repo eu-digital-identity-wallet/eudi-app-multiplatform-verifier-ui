@@ -30,10 +30,10 @@ object RuntimeProvider {
     lateinit var versionName: String
         private set
 
-    lateinit var buildType: BuildType
+    internal lateinit var buildType: BuildType
         private set
 
-    lateinit var flavor: FlavorType
+    internal lateinit var flavor: FlavorType
         private set
 
     private var initialized = false

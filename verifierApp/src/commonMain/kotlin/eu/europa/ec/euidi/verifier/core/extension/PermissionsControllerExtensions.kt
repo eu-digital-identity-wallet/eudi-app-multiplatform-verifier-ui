@@ -19,9 +19,9 @@ package eu.europa.ec.euidi.verifier.core.extension
 import dev.icerock.moko.permissions.Permission
 import dev.icerock.moko.permissions.PermissionsController
 
-suspend fun PermissionsController.arePermissionsGranted(vararg perms: Permission): Boolean =
+internal suspend fun PermissionsController.arePermissionsGranted(vararg perms: Permission): Boolean =
     perms.all { isPermissionGranted(it) }
 
-suspend fun PermissionsController.provideAll(vararg perms: Permission) = runCatching {
+internal suspend fun PermissionsController.provideAll(vararg perms: Permission) = runCatching {
     perms.forEach { providePermission(it) }
 }

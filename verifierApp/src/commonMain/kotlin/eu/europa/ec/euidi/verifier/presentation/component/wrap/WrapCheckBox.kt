@@ -31,14 +31,14 @@ import androidx.compose.ui.unit.Dp
 import eu.europa.ec.euidi.verifier.presentation.component.preview.PreviewTheme
 import eu.europa.ec.euidi.verifier.presentation.component.preview.ThemeModePreviews
 
-data class CheckboxDataUi(
+internal data class CheckboxDataUi(
     val isChecked: Boolean,
     val enabled: Boolean = true,
     val onCheckedChange: ((Boolean) -> Unit)? = null,
 )
 
 @Composable
-fun WrapCheckbox(
+internal fun WrapCheckbox(
     checkboxData: CheckboxDataUi,
     modifier: Modifier = Modifier,
 ) {

@@ -38,7 +38,7 @@ import eudiverifier.verifierapp.generated.resources.document_type_pid
  * A [UuidProvider] mock that returns deterministic, incrementing ids: "uuid-0", "uuid-1", ...
  * Each invocation of this factory starts a fresh counter.
  */
-fun sequentialUuidProvider(): UuidProvider {
+internal fun sequentialUuidProvider(): UuidProvider {
     var counter = 0
     return mock {
         every { provideUuid() } calls { "uuid-${counter++}" }
@@ -50,7 +50,7 @@ fun sequentialUuidProvider(): UuidProvider {
  * ("PID", "MDL", "Employee ID"). Tests that need additional strings can stub them on the returned
  * mock, e.g. `documentTypeResourceProvider().apply { every { getSharedString(...) } returns ... }`.
  */
-fun documentTypeResourceProvider(): ResourceProvider {
+internal fun documentTypeResourceProvider(): ResourceProvider {
     val resourceProvider = mock<ResourceProvider>()
     every { resourceProvider.getSharedString(Res.string.document_type_pid) } returns "PID"
     every { resourceProvider.getSharedString(Res.string.document_type_mdl) } returns "MDL"

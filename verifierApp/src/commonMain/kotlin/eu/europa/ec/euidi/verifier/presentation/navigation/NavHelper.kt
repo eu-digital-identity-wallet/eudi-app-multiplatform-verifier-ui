@@ -25,21 +25,21 @@ import androidx.compose.animation.core.tween
 import androidx.navigation.NavController
 import eu.europa.ec.euidi.verifier.presentation.utils.CommonParcelable
 
-inline fun <reified T : CommonParcelable> NavController.saveToCurrentBackStack(
+internal inline fun <reified T : CommonParcelable> NavController.saveToCurrentBackStack(
     key: String,
     value: T
 ) {
     currentBackStackEntry?.savedStateHandle?.set(key, value)
 }
 
-inline fun <reified T : CommonParcelable> NavController.saveToPreviousBackStack(
+internal inline fun <reified T : CommonParcelable> NavController.saveToPreviousBackStack(
     key: String,
     value: T
 ) {
     previousBackStackEntry?.savedStateHandle?.set(key, value)
 }
 
-inline fun <reified T : CommonParcelable> NavController.getFromPreviousBackStack(
+internal inline fun <reified T : CommonParcelable> NavController.getFromPreviousBackStack(
     key: String,
     remove: Boolean = false
 ): T? {
@@ -50,7 +50,7 @@ inline fun <reified T : CommonParcelable> NavController.getFromPreviousBackStack
     }
 }
 
-inline fun <reified T : CommonParcelable> NavController.getFromCurrentBackStack(
+internal inline fun <reified T : CommonParcelable> NavController.getFromCurrentBackStack(
     key: String,
     remove: Boolean = false
 ): T? {
@@ -61,7 +61,7 @@ inline fun <reified T : CommonParcelable> NavController.getFromCurrentBackStack(
     }
 }
 
-inline fun <reified T : CommonParcelable> NavController.getFromRelevantBackStack(
+internal inline fun <reified T : CommonParcelable> NavController.getFromRelevantBackStack(
     key: String,
     remove: Boolean = true
 ): T? {
@@ -74,7 +74,7 @@ inline fun <reified T : CommonParcelable> NavController.getFromRelevantBackStack
 /**
  * Saves data to a specified destination's saved state handle.
  */
-inline fun <reified T : CommonParcelable> NavController.popToAndSave(
+internal inline fun <reified T : CommonParcelable> NavController.popToAndSave(
     destination: NavItem,
     key: String,
     value: T,
@@ -87,7 +87,7 @@ inline fun <reified T : CommonParcelable> NavController.popToAndSave(
     )
 }
 
-inline fun <reified NavBackStackEntry : CommonParcelable> NavController.getDataFromRoute(
+internal inline fun <reified NavBackStackEntry : CommonParcelable> NavController.getDataFromRoute(
     route: NavItem,
     key: String,
 ): NavBackStackEntry? {
@@ -104,7 +104,7 @@ inline fun <reified NavBackStackEntry : CommonParcelable> NavController.getDataF
  *
  * @return A lambda function representing the enter transition.
  */
-fun slideInFromEnd(): AnimatedContentTransitionScope<*>.() -> EnterTransition? = {
+internal fun slideInFromEnd(): AnimatedContentTransitionScope<*>.() -> EnterTransition? = {
     slideIntoContainer(
         animationSpec = tween(durationMillis = 300, easing = EaseOut),
         towards = AnimatedContentTransitionScope.SlideDirection.Start
@@ -120,7 +120,7 @@ fun slideInFromEnd(): AnimatedContentTransitionScope<*>.() -> EnterTransition? =
  * @return A lambda function that, when invoked within an [AnimatedContentTransitionScope],
  * returns an [ExitTransition] or null.
  */
-fun slideOutToEnd(): AnimatedContentTransitionScope<*>.() -> ExitTransition? = {
+internal fun slideOutToEnd(): AnimatedContentTransitionScope<*>.() -> ExitTransition? = {
     slideOutOfContainer(
         animationSpec = tween(durationMillis = 200, easing = LinearEasing),
         towards = AnimatedContentTransitionScope.SlideDirection.End
@@ -136,6 +136,6 @@ fun slideOutToEnd(): AnimatedContentTransitionScope<*>.() -> ExitTransition? = {
  * @param R The type of transition (e.g., [EnterTransition], [ExitTransition]).
  * @return A lambda function that always returns `null`, indicating no animation.
  */
-fun <R> noAnimation(): AnimatedContentTransitionScope<*>.() -> R? = {
+internal fun <R> noAnimation(): AnimatedContentTransitionScope<*>.() -> R? = {
     null
 }

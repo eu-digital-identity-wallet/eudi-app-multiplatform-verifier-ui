@@ -27,7 +27,7 @@ import eu.europa.ec.euidi.verifier.domain.config.model.SupportedDocuments
 import eudiverifier.verifierapp.generated.resources.Res
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 
-interface ConfigProvider {
+internal interface ConfigProvider {
 
     val buildType: BuildType
 
@@ -44,7 +44,7 @@ interface ConfigProvider {
     suspend fun getCertificates(): List<String>
 }
 
-class ConfigProviderImpl(private val platformController: PlatformController) : ConfigProvider {
+internal class ConfigProviderImpl(private val platformController: PlatformController) : ConfigProvider {
 
     override val buildType: BuildType
         get() = platformController.buildType
