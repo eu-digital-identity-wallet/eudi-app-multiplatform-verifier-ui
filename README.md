@@ -50,7 +50,7 @@ The codebase is one shared module plus two thin platform shells:
 | Module | Role |
 |---|---|
 | `verifierApp` | Kotlin Multiplatform module holding **all** business logic and the Compose Multiplatform UI (Android + iOS). |
-| `androidVerifierApp` | Android application shell — `ContainerActivity`, manifest, launcher icons, product flavors and signing. |
+| `androidVerifierApp` | Android application shell — `VerifierApplication`, the manifest that launches the shared `ContainerActivity`, launcher icons, product flavors and signing. |
 | `iosVerifierApp` | iOS application shell — a SwiftUI `ComposeView` hosting the shared `ContainerViewController`. |
 
 ## How to use the application

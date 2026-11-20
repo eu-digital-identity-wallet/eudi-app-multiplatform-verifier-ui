@@ -33,4 +33,5 @@ internal fun initKoin(appDeclaration: KoinAppDeclaration = {}) = startKoin {
     )
 }
 
-internal fun initKoin() = initKoin {} // called by iOS
+/** Starts Koin with no platform configuration, for the iOS entry point (`ContainerViewController`). */
+internal fun initKoin() = initKoin {}
