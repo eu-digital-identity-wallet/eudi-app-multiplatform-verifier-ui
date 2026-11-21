@@ -31,13 +31,13 @@ import eu.europa.ec.euidi.verifier.presentation.theme.appTypography
 import eu.europa.ec.euidi.verifier.presentation.theme.darkColors
 import eu.europa.ec.euidi.verifier.presentation.theme.lightColors
 
-enum class PreviewOrientation {
+internal enum class PreviewOrientation {
     VERTICAL,
     HORIZONTAL,
 }
 
 @Composable
-fun PreviewTheme(
+internal fun PreviewTheme(
     orientation: PreviewOrientation = PreviewOrientation.VERTICAL,
     content: @Composable () -> Unit
 ) {

@@ -18,7 +18,7 @@ package eu.europa.ec.euidi.verifier.core.extension
 
 import kotlin.io.encoding.Base64
 
-fun ByteArray.encodeToBase64String(urlSafe: Boolean = true, withPadding: Boolean = true): String {
+internal fun ByteArray.encodeToBase64String(urlSafe: Boolean = true, withPadding: Boolean = true): String {
     val codec = if (urlSafe)
         Base64.UrlSafe
     else
@@ -31,7 +31,7 @@ fun ByteArray.encodeToBase64String(urlSafe: Boolean = true, withPadding: Boolean
     }
 }
 
-fun String.decodeBase64ToBytesOrNull(): ByteArray? {
+internal fun String.decodeBase64ToBytesOrNull(): ByteArray? {
     // Strip optional data-URI header if present
     val raw = this.substringAfter(delimiter = ',', missingDelimiterValue = this).trim()
     if (raw.isEmpty()) return null
@@ -52,5 +52,5 @@ fun String.decodeBase64ToBytesOrNull(): ByteArray? {
     }.getOrNull()
 }
 
-fun String.decodeBase64ToUtf8OrNull(): String? =
+internal fun String.decodeBase64ToUtf8OrNull(): String? =
     decodeBase64ToBytesOrNull()?.decodeToString()

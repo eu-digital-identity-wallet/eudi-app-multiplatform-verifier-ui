@@ -55,7 +55,7 @@ import eudiverifier.verifierapp.generated.resources.ic_vertical_more
 /**
  * A Singleton object responsible for providing access to all the app's Icons.
  */
-object AppIcons {
+internal object AppIcons {
 
     val ArrowBack: IconDataUi = IconDataUi(
         resourceId = Res.drawable.ic_arrow_back,

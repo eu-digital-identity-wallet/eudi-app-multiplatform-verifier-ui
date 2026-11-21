@@ -30,7 +30,7 @@ import eu.europa.ec.euidi.verifier.presentation.component.preview.ThemeModePrevi
 import eu.europa.ec.euidi.verifier.presentation.component.utils.VSpacer
 
 @Composable
-fun ContentTitle(
+internal fun ContentTitle(
     modifier: Modifier = Modifier,
     title: String,
     subtitle: String? = null,

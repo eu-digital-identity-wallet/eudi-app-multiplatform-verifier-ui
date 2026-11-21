@@ -16,7 +16,7 @@
 
 package eu.europa.ec.euidi.verifier.presentation.utils
 
-object Constants {
+internal object Constants {
     const val REQUESTED_DOCUMENTS = "requestedDocuments"
     const val RECEIVED_DOCUMENTS = "receivedDocuments"
     const val SAVED_STATE_REQUESTED_DOCUMENT = "savedStateRequestedDocument"

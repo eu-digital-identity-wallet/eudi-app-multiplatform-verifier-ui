@@ -32,7 +32,7 @@ import eudiverifier.verifierapp.generated.resources.Res
 import eudiverifier.verifierapp.generated.resources.allStringResources
 import org.jetbrains.compose.resources.StringResource
 
-object UiTransformer {
+internal object UiTransformer {
 
     fun transformToUiItems(
         fields: List<ClaimItem>,

@@ -32,7 +32,7 @@ import eu.europa.ec.euidi.verifier.presentation.component.preview.PreviewTheme
 import eu.europa.ec.euidi.verifier.presentation.component.preview.ThemeModePreviews
 
 @Composable
-fun WrapExpandableCard(
+internal fun WrapExpandableCard(
     modifier: Modifier = Modifier,
     isExpanded: Boolean,
     onExpandedChange: (() -> Unit)? = null,

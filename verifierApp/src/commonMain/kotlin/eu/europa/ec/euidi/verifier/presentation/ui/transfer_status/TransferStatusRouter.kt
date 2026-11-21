@@ -23,7 +23,7 @@ import eu.europa.ec.euidi.verifier.presentation.navigation.NavItem
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-fun NavGraphBuilder.transferStatusScreen(navController: NavController) {
+internal fun NavGraphBuilder.transferStatusScreen(navController: NavController) {
     composable<NavItem.TransferStatus> {
         TransferStatusScreen(
             navController,

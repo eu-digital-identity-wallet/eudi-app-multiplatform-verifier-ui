@@ -21,7 +21,7 @@ import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
-class IosTransferController : TransferController {
+internal class IosTransferController : TransferController {
 
     override fun initializeVerifier(certificates: List<String>, logger: Logger) {}
 

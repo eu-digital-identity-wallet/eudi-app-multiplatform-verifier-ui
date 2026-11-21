@@ -47,7 +47,7 @@ import eu.europa.ec.euidi.verifier.presentation.component.utils.SPACING_LARGE
  * Centralizes common values like shape, padding, and
  * exposes theme-aware factories for colors and borders.
  */
-object ButtonConfigDefaults {
+internal object ButtonConfigDefaults {
     /** Rounded corner shape for all buttons. */
     val shape: Shape = RoundedCornerShape(SIZE_100.dp)
 
@@ -144,7 +144,7 @@ object ButtonConfigDefaults {
 /**
  * Button style variants.
  */
-enum class ButtonType {
+internal enum class ButtonType {
     PRIMARY,
     SECONDARY,
 }
@@ -164,7 +164,7 @@ enum class ButtonType {
  * @property content        Composable slot for button content
  */
 @Immutable
-data class ButtonConfig(
+internal data class ButtonConfig(
     val type: ButtonType,
     val enabled: Boolean = true,
     val isWarning: Boolean = false,
@@ -191,7 +191,7 @@ data class ButtonConfig(
  * @return A remembered [ButtonConfig] instance.
  */
 @Composable
-fun rememberButtonConfig(
+internal fun rememberButtonConfig(
     type: ButtonType,
     enabled: Boolean = true,
     isWarning: Boolean = false,
@@ -229,7 +229,7 @@ fun rememberButtonConfig(
 }
 
 @Composable
-fun WrapButton(
+internal fun WrapButton(
     modifier: Modifier = Modifier,
     buttonConfig: ButtonConfig,
 ) {

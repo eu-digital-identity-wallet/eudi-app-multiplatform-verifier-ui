@@ -18,7 +18,7 @@ package eu.europa.ec.euidi.verifier.presentation.ui.settings.model
 
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemDataUi
 
-sealed class SettingsItemUi {
+internal sealed class SettingsItemUi {
     data class CategoryHeader(
         val title: String,
         val description: String? = null,

@@ -33,7 +33,7 @@ import eu.europa.ec.euidi.verifier.presentation.theme.lightColors
 
 @Composable
 @Preview
-fun ContainerView(
+internal fun ContainerView(
     isDarkTheme: Boolean = isSystemInDarkTheme()
 ) {
 

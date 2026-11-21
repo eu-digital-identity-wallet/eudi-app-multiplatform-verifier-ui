@@ -26,7 +26,7 @@ import eu.europa.ec.euidi.verifier.core.provider.UuidProvider
 import eu.europa.ec.euidi.verifier.core.provider.UuidProviderImpl
 import org.koin.dsl.module
 
-val coreModule = module {
+internal val coreModule = module {
     single<DataStoreController> { DataStoreControllerImpl(get<DataStore<Preferences>>()) }
     single<UuidProvider> { UuidProviderImpl() }
     single<ResourceProvider> { ResourceProviderImpl() }

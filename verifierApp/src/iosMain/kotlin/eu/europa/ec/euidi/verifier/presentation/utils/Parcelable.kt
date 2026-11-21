@@ -16,4 +16,4 @@
 
 package eu.europa.ec.euidi.verifier.presentation.utils
 
-actual interface CommonParcelable
+internal actual interface CommonParcelable

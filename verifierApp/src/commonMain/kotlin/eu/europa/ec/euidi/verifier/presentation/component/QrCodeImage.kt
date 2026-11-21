@@ -48,7 +48,7 @@ import qrgenerator.qrkitpainter.rememberQrKitPainter
  * @param aspectRatio         width:height ratio of the QR (default 1f for square).
  */
 @Composable
-fun QrCodeImage(
+internal fun QrCodeImage(
     qrCode: String,
     modifier: Modifier = Modifier,
     contentDescription: String = stringResource(Res.string.content_description_qr_code_image),

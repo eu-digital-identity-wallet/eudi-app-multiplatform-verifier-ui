@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 private const val BOTTOM_SCREEN_PADDING = SPACING_MEDIUM
 private const val HORIZONTAL_SCREEN_PADDING = SPACING_LARGE
 
-enum class TopSpacing {
+internal enum class TopSpacing {
     WithToolbar, WithoutToolbar
 }
 

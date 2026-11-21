@@ -66,7 +66,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun MenuScreen(
+internal fun MenuScreen(
     navController: NavController,
     viewModel: MenuViewModel = koinViewModel()
 ) {

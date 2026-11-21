@@ -35,7 +35,7 @@ import eu.europa.ec.euidi.verifier.presentation.component.preview.ThemeModePrevi
 import eu.europa.ec.euidi.verifier.presentation.component.utils.SIZE_SMALL
 
 @Composable
-fun WrapCard(
+internal fun WrapCard(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     onClick: (() -> Unit)? = null,

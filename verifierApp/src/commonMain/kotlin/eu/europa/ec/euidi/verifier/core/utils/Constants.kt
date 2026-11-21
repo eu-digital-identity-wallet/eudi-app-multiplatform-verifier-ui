@@ -16,7 +16,7 @@
 
 package eu.europa.ec.euidi.verifier.core.utils
 
-object Constants {
+internal object Constants {
     object Generic {
         const val MDOC_PREFIX = "mdoc:"
     }

@@ -31,7 +31,7 @@ import eu.europa.ec.euidi.verifier.presentation.ui.settings.model.SettingsTypeUi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
-sealed interface SettingsViewModelContract {
+internal sealed interface SettingsViewModelContract {
     data class State(
         val isLoading: Boolean,
         val screenTitle: String = "",
@@ -67,7 +67,7 @@ sealed interface SettingsViewModelContract {
     }
 }
 
-class SettingsViewModel(
+internal class SettingsViewModel(
     private val interactor: SettingsInteractor,
 ) : MviViewModel<Event, State, Effect>() {
 

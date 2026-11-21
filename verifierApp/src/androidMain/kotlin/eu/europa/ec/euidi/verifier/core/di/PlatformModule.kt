@@ -27,7 +27,7 @@ import eu.europa.ec.euidi.verifier.core.controller.TransferController
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
-actual fun platformModule() = module {
+internal actual fun platformModule() = module {
     single<DataStore<Preferences>> {
         createDataStore {
             androidContext().filesDir.resolve(DATASTORE_FILENAME).absolutePath

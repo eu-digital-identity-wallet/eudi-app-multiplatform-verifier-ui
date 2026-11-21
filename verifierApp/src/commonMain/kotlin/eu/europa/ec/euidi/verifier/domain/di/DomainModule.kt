@@ -41,7 +41,7 @@ import eu.europa.ec.euidi.verifier.domain.interactor.TransferStatusInteractor
 import eu.europa.ec.euidi.verifier.domain.interactor.TransferStatusInteractorImpl
 import org.koin.dsl.module
 
-val domainModule = module {
+internal val domainModule = module {
 
     single<ConfigProvider> { ConfigProviderImpl(get<PlatformController>()) }
 

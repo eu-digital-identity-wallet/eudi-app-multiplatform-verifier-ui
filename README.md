@@ -50,7 +50,7 @@ The codebase is one shared module plus two thin platform shells:
 | Module | Role |
 |---|---|
 | `verifierApp` | Kotlin Multiplatform module holding **all** business logic and the Compose Multiplatform UI (Android + iOS). |
-| `androidVerifierApp` | Android application shell — `ContainerActivity`, manifest, launcher icons, product flavors and signing. |
+| `androidVerifierApp` | Android application shell — `VerifierApplication`, the manifest that launches the shared `ContainerActivity`, launcher icons, product flavors and signing. |
 | `iosVerifierApp` | iOS application shell — a SwiftUI `ComposeView` hosting the shared `ContainerViewController`. |
 
 ## How to use the application
@@ -235,7 +235,7 @@ The UI lives entirely in the shared `verifierApp` module and is themed centrally
 | Fonts & type scale | [Type.kt](verifierApp/src/commonMain/kotlin/eu/europa/ec/euidi/verifier/presentation/theme/Type.kt) + [composeResources/font/](verifierApp/src/commonMain/composeResources/font) |
 | In-app logos & icons | [composeResources/drawable/](verifierApp/src/commonMain/composeResources/drawable) (`ic_logo_*.xml`), registered in [AppIcons.kt](verifierApp/src/commonMain/kotlin/eu/europa/ec/euidi/verifier/presentation/component/AppIcons.kt) |
 | Spacing / size tokens | [Constants.kt](verifierApp/src/commonMain/kotlin/eu/europa/ec/euidi/verifier/presentation/component/utils/Constants.kt) |
-| Android launcher icon | [mipmap-anydpi/](androidVerifierApp/src/main/res/mipmap-anydpi/ic_launcher.xml), [ic_launcher_foreground.xml](androidVerifierApp/src/main/res/drawable/ic_launcher_foreground.xml), [ic_launcher_background.xml](androidVerifierApp/src/main/res/values/ic_launcher_background.xml) |
+| Android launcher icon | [mipmap-anydpi/](androidVerifierApp/src/main/res/mipmap-anydpi/ic_launcher.xml), [ic_launcher_foreground.xml](androidVerifierApp/src/main/res/drawable/ic_launcher_foreground.xml), [ic_launcher_monochrome.xml](androidVerifierApp/src/main/res/drawable/ic_launcher_monochrome.xml) (the themed icon), [ic_launcher_background.xml](androidVerifierApp/src/main/res/values/ic_launcher_background.xml) |
 | iOS launcher icon / accent color | [AppIcon.appiconset](iosVerifierApp/iosVerifierApp/Resources/Assets.xcassets/AppIcon.appiconset/appIcon.png), [AccentColor.colorset](iosVerifierApp/iosVerifierApp/Resources/Assets.xcassets/AccentColor.colorset/Contents.json) |
 | App name / label | [androidVerifierApp/build.gradle.kts](androidVerifierApp/build.gradle.kts) (`appLabel` per flavor); iOS `PRODUCT_NAME` in the Xcode project |
 | In-app titles & text | [strings.xml](verifierApp/src/commonMain/composeResources/values/strings.xml) |

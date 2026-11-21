@@ -23,7 +23,7 @@ import platform.Foundation.NSURL
 import platform.UIKit.UIApplication
 import platform.UIKit.UIApplicationOpenSettingsURLString
 
-class IosPlatformController : PlatformController {
+internal class IosPlatformController : PlatformController {
 
     override val buildType: BuildType
         get() = infoString("Build Type")?.let { BuildType.from(it) } ?: BuildType.DEBUG

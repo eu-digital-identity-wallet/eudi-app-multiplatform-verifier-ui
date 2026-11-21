@@ -16,7 +16,7 @@
 
 package eu.europa.ec.euidi.verifier.domain.config.model
 
-enum class Logger(val level: Int) {
+internal enum class Logger(val level: Int) {
     OFF(0),
     LEVEL_ERROR(1),
     LEVEL_INFO(2),

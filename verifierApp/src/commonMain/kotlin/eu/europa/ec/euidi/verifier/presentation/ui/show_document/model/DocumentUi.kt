@@ -42,7 +42,7 @@ import kotlinx.datetime.toLocalDateTime
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
-data class DocumentUi(
+internal data class DocumentUi(
     val id: String,
     val docType: String,
     val uiClaims: List<ListItemDataUi>,
@@ -50,7 +50,7 @@ data class DocumentUi(
 )
 
 @CommonParcelize
-data class DocumentValidityUi(
+internal data class DocumentValidityUi(
     val isDeviceSignatureValid: Boolean,
     val isIssuerSignatureValid: Boolean,
     val isDataIntegrityIntact: Boolean,
@@ -59,7 +59,7 @@ data class DocumentValidityUi(
     val validUntil: String?,
 ) : CommonParcelable
 
-fun DocumentValidityDomain.toUi(): DocumentValidityUi {
+internal fun DocumentValidityDomain.toUi(): DocumentValidityUi {
     return DocumentValidityUi(
         isDeviceSignatureValid = isDeviceSignatureValid ?: false,
         isIssuerSignatureValid = isIssuerSignatureValid ?: false,
@@ -70,7 +70,7 @@ fun DocumentValidityDomain.toUi(): DocumentValidityUi {
     )
 }
 
-fun DocumentValidityUi.toListItems(
+internal fun DocumentValidityUi.toListItems(
     resourceProvider: ResourceProvider,
     uuidProvider: UuidProvider,
 ): List<ListItemDataUi> {

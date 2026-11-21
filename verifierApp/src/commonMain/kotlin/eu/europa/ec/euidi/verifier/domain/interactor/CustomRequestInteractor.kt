@@ -32,7 +32,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-interface CustomRequestInteractor {
+internal interface CustomRequestInteractor {
 
     suspend fun getScreenTitle(attestationType: AttestationType): String
 
@@ -51,7 +51,7 @@ interface CustomRequestInteractor {
     ): HandleItemSelectionPartialState
 }
 
-class CustomRequestInteractorImpl(
+internal class CustomRequestInteractorImpl(
     private val configProvider: ConfigProvider,
     private val resourceProvider: ResourceProvider,
     private val dispatcher: CoroutineDispatcher = Dispatchers.Default
@@ -120,7 +120,7 @@ class CustomRequestInteractorImpl(
     }
 }
 
-sealed class HandleItemSelectionPartialState {
+internal sealed class HandleItemSelectionPartialState {
     data class Updated(
         val items: List<ListItemDataUi>,
         val hasSelectedItems: Boolean,

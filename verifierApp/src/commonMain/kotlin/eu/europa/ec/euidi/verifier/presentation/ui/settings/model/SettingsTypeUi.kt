@@ -47,7 +47,7 @@ import org.jetbrains.compose.resources.StringResource
  * @property selectedDescriptionRes The string resource ID for the setting's description when it is selected.
  * @property unselectedDescriptionRes The string resource ID for the setting's description when it is not selected.
  */
-sealed class SettingsTypeUi(
+internal sealed class SettingsTypeUi(
     val prefKey: PrefKey,
     val titleRes: StringResource,
     val selectedDescriptionRes: StringResource,

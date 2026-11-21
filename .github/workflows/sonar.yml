@@ -17,8 +17,6 @@ jobs:
 
     env:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      DOJO_TOKEN: ${{ secrets.DOJO_TOKEN }}
-      DOJO_URL: ${{ secrets.DOJO_URL }}
 
     steps:
       - name: Checkout repository
@@ -41,7 +39,6 @@ jobs:
       - name: Set project metadata
         run: |
           echo "PROJECT_KEY=${{ github.repository_owner }}_$(basename ${{ github.repository }})" >> $GITHUB_ENV
-          echo "SCAN_DATE=$(TZ='EET' date '+%Y-%m-%d')" >> $GITHUB_ENV
 
       - name: Clean Gradle build
         run: ./gradlew clean
@@ -74,37 +71,3 @@ jobs:
             -Dsonar.exclusions=${{ env.SONAR_EXCLUSIONS }}
             -Dsonar.coverage.jacoco.xmlReportPaths=build/reports/kover/report.xml
             -Dsonar.scanner.skipJreProvisioning=true
-
-      - name: Set up Node (main branch only)
-        if: github.repository_owner == 'eu-digital-identity-wallet' && github.ref_name == 'main'
-        uses: actions/setup-node@v6
-        with:
-          node-version: 18
-
-      - name: Generate and Upload Sonar Report to DefectDojo
-        if: github.repository_owner == 'eu-digital-identity-wallet' && github.ref_name == 'main'
-        run: |
-          npm cache clean --force
-          npm install -g sonar-report@3.0.10
-
-          sonar-report \
-            --sonarurl="https://sonarcloud.io" \
-            --sonarorganization="${{ github.repository_owner }}" \
-            --branch="${{ github.ref_name }}" \
-            --sonartoken="${{ secrets.SONAR_TOKEN }}" \
-            --output sonarreport.html \
-            --application="${{ env.PROJECT_KEY }}" \
-            --sonarcomponent="${{ env.PROJECT_KEY }}"
-
-          curl -X POST "$DOJO_URL/api/v2/reimport-scan/" \
-            -H "Authorization: Token $DOJO_TOKEN" \
-            -F "active=true" \
-            -F "scan_type=SonarQube Scan detailed" \
-            -F "minimum_severity=Info" \
-            -F "skip_duplicates=true" \
-            -F "close_old_findings=true" \
-            -F "file=@sonarreport.html" \
-            -F "scan_date=${{ env.SCAN_DATE }}" \
-            -F "auto_create_context=True" \
-            -F "product_name=${{ github.repository }}-${{ github.ref_name }}" \
-            -F "engagement_name=Static Application Security Testing - ${{ github.repository }}-${{ github.ref_name }}"

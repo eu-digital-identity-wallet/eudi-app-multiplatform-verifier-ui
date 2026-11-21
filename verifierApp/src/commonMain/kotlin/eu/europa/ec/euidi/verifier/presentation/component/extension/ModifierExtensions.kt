@@ -41,7 +41,7 @@ private data class ClickState(
 )
 
 @OptIn(ExperimentalTime::class)
-fun Modifier.throttledClickable(
+internal fun Modifier.throttledClickable(
     enabled: Boolean = true,
     onClickLabel: String? = null,
     role: Role? = null,
@@ -115,7 +115,7 @@ fun Modifier.throttledClickable(
  *
  * @param onClick will be called when user clicks on the element
  */
-inline fun Modifier.clickableNoRipple(
+internal inline fun Modifier.clickableNoRipple(
     enabled: Boolean = true,
     crossinline onClick: () -> Unit
 ): Modifier = composed {

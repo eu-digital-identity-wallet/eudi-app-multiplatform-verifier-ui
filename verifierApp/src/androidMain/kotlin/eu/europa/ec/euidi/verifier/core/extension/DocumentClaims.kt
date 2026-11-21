@@ -27,7 +27,7 @@ import eu.europa.ec.euidi.verifier.presentation.utils.parseKeyValueUi
  * Flattens all claims across namespaces into a single map.
  * Note that: If multiple namespaces contain the same claim key, later ones overwrite earlier ones.
  */
-fun DocumentClaims.flattenedClaims(resourceProvider: ResourceProvider): Map<ClaimItem, ClaimValue> {
+internal fun DocumentClaims.flattenedClaims(resourceProvider: ResourceProvider): Map<ClaimItem, ClaimValue> {
     return this.claims.flatMap { (_, claimsMap) ->
         claimsMap.map { (claimKey, claimValue) ->
             val formattedClaimValue = buildString {
@@ -48,7 +48,7 @@ fun DocumentClaims.flattenedClaims(resourceProvider: ResourceProvider): Map<Clai
 /**
  * Groups claims by their namespace to avoid collisions when claim keys repeat across namespaces.
  */
-fun DocumentClaims.groupedClaimsByNamespace(
+internal fun DocumentClaims.groupedClaimsByNamespace(
     resourceProvider: ResourceProvider
 ): Map<Namespace, Map<ClaimItem, ClaimValue>> {
     return this.claims.mapValues { (_, claimsMap) ->

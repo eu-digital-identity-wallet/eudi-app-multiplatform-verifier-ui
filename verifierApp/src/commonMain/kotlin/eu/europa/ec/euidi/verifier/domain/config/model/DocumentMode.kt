@@ -16,7 +16,7 @@
 
 package eu.europa.ec.euidi.verifier.domain.config.model
 
-enum class DocumentMode(val displayName: String) {
+internal enum class DocumentMode(val displayName: String) {
     FULL(displayName = "Full"),
     CUSTOM(displayName = "Custom")
 }

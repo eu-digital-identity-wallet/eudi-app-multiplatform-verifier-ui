@@ -23,7 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
-object VSpacer {
+internal object VSpacer {
 
     @Composable
     fun Custom(space: Int) = Spacer(modifier = Modifier.height(space.dp))
@@ -48,7 +48,7 @@ object VSpacer {
 
 }
 
-object HSpacer {
+internal object HSpacer {
 
     @Composable
     fun Custom(space: Int) = Spacer(modifier = Modifier.width(space.dp))

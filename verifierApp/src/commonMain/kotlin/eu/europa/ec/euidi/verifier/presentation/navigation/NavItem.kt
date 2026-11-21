@@ -19,7 +19,7 @@ package eu.europa.ec.euidi.verifier.presentation.navigation
 import kotlinx.serialization.Serializable
 
 @Serializable
-sealed interface NavItem {
+internal sealed interface NavItem {
 
     @Serializable
     data object Home : NavItem

@@ -37,7 +37,7 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 
-interface TransferStatusInteractor {
+internal interface TransferStatusInteractor {
 
     suspend fun transformToReceivedDocumentsUi(
         requestedDocuments: List<RequestedDocumentUi>,
@@ -59,7 +59,7 @@ interface TransferStatusInteractor {
     suspend fun stopConnection()
 }
 
-class TransferStatusInteractorImpl(
+internal class TransferStatusInteractorImpl(
     private val resourceProvider: ResourceProvider,
     private val uuidProvider: UuidProvider,
     private val transferController: TransferController,

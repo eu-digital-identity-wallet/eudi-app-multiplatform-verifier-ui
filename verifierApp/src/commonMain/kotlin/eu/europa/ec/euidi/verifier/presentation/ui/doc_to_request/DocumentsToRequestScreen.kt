@@ -68,7 +68,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun DocumentsToRequestScreen(
+internal fun DocumentsToRequestScreen(
     navController: NavController,
     viewModel: DocumentsToRequestViewModel = koinViewModel()
 ) {
@@ -202,7 +202,7 @@ private fun Content(
 }
 
 @Composable
-fun SupportedDocumentItem(
+internal fun SupportedDocumentItem(
     supportedDoc: SupportedDocumentUi,
     requestedDocuments: List<RequestedDocumentUi>,
     onEvent: (DocToRequestContract.Event) -> Unit,
@@ -225,7 +225,7 @@ fun SupportedDocumentItem(
 }
 
 @Composable
-fun SupportedDocumentContentCard(
+internal fun SupportedDocumentContentCard(
     supportedDoc: SupportedDocumentUi,
     requestedDocuments: List<RequestedDocumentUi>,
     onEvent: (DocToRequestContract.Event) -> Unit,

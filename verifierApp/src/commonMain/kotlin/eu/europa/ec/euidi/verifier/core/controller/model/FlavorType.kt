@@ -16,7 +16,7 @@
 
 package eu.europa.ec.euidi.verifier.core.controller.model
 
-enum class FlavorType {
+internal enum class FlavorType {
     Dev, Public;
 
     companion object {

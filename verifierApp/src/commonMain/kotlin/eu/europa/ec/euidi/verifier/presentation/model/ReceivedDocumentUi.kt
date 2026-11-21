@@ -22,15 +22,15 @@ import eu.europa.ec.euidi.verifier.presentation.ui.show_document.model.DocumentV
 import eu.europa.ec.euidi.verifier.presentation.utils.CommonParcelable
 import eu.europa.ec.euidi.verifier.presentation.utils.CommonParcelize
 
-typealias ClaimValue = String
+internal typealias ClaimValue = String
 
 @CommonParcelize
-data class ReceivedDocsHolder(
+internal data class ReceivedDocsHolder(
     val items: List<ReceivedDocumentUi>
 ) : CommonParcelable
 
 @CommonParcelize
-data class ReceivedDocumentUi(
+internal data class ReceivedDocumentUi(
     val id: String,
     val documentType: AttestationType,
     val claims: Map<ClaimItem, ClaimValue> = emptyMap(),

@@ -30,7 +30,7 @@ import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocsHolder
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
 import kotlinx.coroutines.launch
 
-sealed interface DocToRequestContract {
+internal sealed interface DocToRequestContract {
     data class State(
         val requestedDocuments: List<RequestedDocumentUi> = emptyList(),
         val allSupportedDocuments: List<SupportedDocumentUi> = emptyList(),
@@ -65,7 +65,7 @@ sealed interface DocToRequestContract {
     }
 }
 
-class DocumentsToRequestViewModel(
+internal class DocumentsToRequestViewModel(
     private val interactor: DocumentsToRequestInteractor,
 ) : MviViewModel<DocToRequestContract.Event, DocToRequestContract.State, DocToRequestContract.Effect>() {
 

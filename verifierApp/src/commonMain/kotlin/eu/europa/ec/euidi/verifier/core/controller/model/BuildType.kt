@@ -16,7 +16,7 @@
 
 package eu.europa.ec.euidi.verifier.core.controller.model
 
-enum class BuildType {
+internal enum class BuildType {
     DEBUG, RELEASE;
 
     companion object {

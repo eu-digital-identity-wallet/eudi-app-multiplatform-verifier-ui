@@ -32,7 +32,7 @@ import platform.Foundation.NSURL
 import platform.Foundation.NSUserDomainMask
 
 @OptIn(ExperimentalForeignApi::class)
-actual fun platformModule() = module {
+internal actual fun platformModule() = module {
     single<DataStore<Preferences>> {
         createDataStore {
             val documentDirectory: NSURL? = NSFileManager.defaultManager.URLForDirectory(

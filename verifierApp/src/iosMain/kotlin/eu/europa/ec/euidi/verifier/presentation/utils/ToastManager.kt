@@ -25,7 +25,7 @@ import platform.darwin.dispatch_after
 import platform.darwin.dispatch_get_main_queue
 import platform.darwin.dispatch_time
 
-actual open class ToastManager {
+internal actual open class ToastManager {
     actual fun showToast(message: String) {
 
         // Dismiss the keyboard if it's open

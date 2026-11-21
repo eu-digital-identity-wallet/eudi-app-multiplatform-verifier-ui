@@ -76,7 +76,7 @@ import eu.europa.ec.euidi.verifier.presentation.component.wrap.WrapSwitch
  * This could be an icon, checkbox, or other interactive element. See [ListItemTrailingContentDataUi]
  * for details on supported trailing content types.
  */
-data class ListItemDataUi(
+internal data class ListItemDataUi(
     val itemId: String,
     val mainContentData: ListItemMainContentDataUi,
     val overlineText: String? = null,
@@ -91,7 +91,7 @@ data class ListItemDataUi(
  * - [Text]: Simple text content.
  * - [Image]: An image represented as a Base64 encoded string.
  */
-sealed class ListItemMainContentDataUi {
+internal sealed class ListItemMainContentDataUi {
     data class Text(val text: String) : ListItemMainContentDataUi()
     data class Image(val base64Image: String) : ListItemMainContentDataUi()
 }
@@ -109,7 +109,7 @@ sealed class ListItemMainContentDataUi {
  * @property size The size (width and height) of the leading content in dp. This determines
  *                 the visual dimensions of the icon, image, etc.
  */
-sealed class ListItemLeadingContentDataUi {
+internal sealed class ListItemLeadingContentDataUi {
     abstract val size: Int
 
     data class Icon(
@@ -138,7 +138,7 @@ sealed class ListItemLeadingContentDataUi {
  *  - [Switch]: Represents a switch to be displayed as trailing content.
  *  - [TextWithIcon]: Represents text and an icon to be displayed as trailing content.
  */
-sealed class ListItemTrailingContentDataUi {
+internal sealed class ListItemTrailingContentDataUi {
     data class Icon(val iconData: IconDataUi, val tint: Color? = null) :
         ListItemTrailingContentDataUi()
 
@@ -160,7 +160,7 @@ sealed class ListItemTrailingContentDataUi {
  * @property ENTIRE_ROW  The entire row of the [ListItem] is clickable.
  * @property TRAILING_CONTENT The trailing content (e.g., an icon or checkbox) of the [ListItem] is clickable.
  */
-enum class ClickableArea {
+internal enum class ClickableArea {
     ENTIRE_ROW, TRAILING_CONTENT,
 }
 
@@ -195,7 +195,7 @@ enum class ClickableArea {
  * @param hideSensitiveContent A boolean flag indicating whether to hide sensitive content by blurring it. Defaults to false.
  * @param mainContentVerticalPadding An optional value specifying the vertical padding */
 @Composable
-fun ListItem(
+internal fun ListItem(
     item: ListItemDataUi,
     onItemClick: ((item: ListItemDataUi) -> Unit)?,
     modifier: Modifier = Modifier,

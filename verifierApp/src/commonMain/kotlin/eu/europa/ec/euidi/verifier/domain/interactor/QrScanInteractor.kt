@@ -27,14 +27,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
 
-interface QrScanInteractor {
+internal interface QrScanInteractor {
     suspend fun getScreenTitle(): String
     fun qrCodeIsValid(qrCode: String): Boolean
     suspend fun getInvalidQrCodeMessage(): String
     suspend fun getMissingDocumentsMessage(): String
 }
 
-class QrScanInteractorImpl(
+internal class QrScanInteractorImpl(
     private val resourceProvider: ResourceProvider,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : QrScanInteractor {

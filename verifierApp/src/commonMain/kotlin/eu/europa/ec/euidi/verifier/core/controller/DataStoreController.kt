@@ -31,7 +31,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import okio.Path.Companion.toPath
 
-enum class PrefKey(val identifier: String) {
+internal enum class PrefKey(val identifier: String) {
     RETAIN_DATA("retain_data"),
     USE_L2CAP("use_l2cap"),
     CLEAR_BLE_CACHE("clear_ble_cache"),
@@ -53,7 +53,7 @@ private val retrievalMethodPrefs = listOf(
     PrefKey.BLE_PERIPHERAL_SERVER,
 )
 
-interface DataStoreController {
+internal interface DataStoreController {
     suspend fun putBoolean(key: PrefKey, value: Boolean)
     suspend fun putInt(key: PrefKey, value: Int)
     suspend fun putString(key: PrefKey, value: String)
@@ -75,7 +75,7 @@ interface DataStoreController {
     fun getRetrievalMethodPrefs(): List<PrefKey>
 }
 
-class DataStoreControllerImpl(
+internal class DataStoreControllerImpl(
     val dataStore: DataStore<Preferences>
 ) : DataStoreController {
     override suspend fun putBoolean(key: PrefKey, value: Boolean) =

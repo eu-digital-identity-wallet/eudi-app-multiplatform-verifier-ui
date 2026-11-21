@@ -35,13 +35,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
 
-interface MenuInteractor {
+internal interface MenuInteractor {
     suspend fun getScreenTitle(): String
     suspend fun getMenuItemsUi(): List<MenuItemUi>
     fun getAppVersion(): String
 }
 
-class MenuInteractorImpl(
+internal class MenuInteractorImpl(
     private val uuidProvider: UuidProvider,
     private val resourceProvider: ResourceProvider,
     private val configProvider: ConfigProvider,

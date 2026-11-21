@@ -59,7 +59,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun CustomRequestScreen(
+internal fun CustomRequestScreen(
     navController: NavController,
     viewModel: CustomRequestViewModel = koinViewModel()
 ) {

@@ -18,7 +18,7 @@ package eu.europa.ec.euidi.verifier.presentation.ui.menu.model
 
 import eu.europa.ec.euidi.verifier.presentation.component.ListItemDataUi
 
-data class MenuItemUi(
+internal data class MenuItemUi(
     val type: MenuTypeUi,
     val data: ListItemDataUi,
 )

@@ -21,11 +21,11 @@ import eu.europa.ec.euidi.verifier.presentation.model.ClaimValue
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
-data class ReceivedDocumentsDomain(
+internal data class ReceivedDocumentsDomain(
     val documents: List<ReceivedDocumentDomain>
 )
 
-data class ReceivedDocumentDomain(
+internal data class ReceivedDocumentDomain(
     val isTrusted: Boolean,
     val docType: String,
     val claims: Map<ClaimItem, ClaimValue>,
@@ -33,7 +33,7 @@ data class ReceivedDocumentDomain(
 )
 
 @OptIn(ExperimentalTime::class)
-data class DocumentValidityDomain(
+internal data class DocumentValidityDomain(
     val isDeviceSignatureValid: Boolean?,
     val isIssuerSignatureValid: Boolean?,
     val isDataIntegrityIntact: Boolean?,

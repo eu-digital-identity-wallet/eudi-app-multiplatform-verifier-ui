@@ -21,7 +21,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import eu.europa.ec.euidi.verifier.presentation.navigation.NavItem
 
-fun NavGraphBuilder.customRequestScreen(navController: NavController) {
+internal fun NavGraphBuilder.customRequestScreen(navController: NavController) {
     composable<NavItem.CustomRequest> {
         CustomRequestScreen(
             navController = navController

@@ -55,7 +55,7 @@ import org.jetbrains.compose.resources.stringResource
  * @param enabled Whether the icon should be displayed as enabled or disabled. This affects the alpha value of the tint color.
  */
 @Composable
-fun WrapIcon(
+internal fun WrapIcon(
     iconData: IconDataUi,
     modifier: Modifier = Modifier,
     customTint: Color? = null,
@@ -99,7 +99,7 @@ fun WrapIcon(
  * IMPORTANT NOTE: This icon button has an overall minimum touch target size of 48 x 48dp, to meet accessibility guidelines.
  */
 @Composable
-fun WrapIconButton(
+internal fun WrapIconButton(
     modifier: Modifier = Modifier,
     iconData: IconDataUi,
     customTint: Color? = null,

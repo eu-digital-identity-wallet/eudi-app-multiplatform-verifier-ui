@@ -29,7 +29,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
 
-interface ShowDocumentsInteractor {
+internal interface ShowDocumentsInteractor {
     suspend fun transformToUiItems(
         items: List<ReceivedDocumentUi>
     ): List<DocumentUi>
@@ -37,7 +37,7 @@ interface ShowDocumentsInteractor {
     suspend fun getScreenTitle(): String
 }
 
-class ShowDocumentsInteractorImpl(
+internal class ShowDocumentsInteractorImpl(
     private val resourceProvider: ResourceProvider,
     private val uuidProvider: UuidProvider,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO

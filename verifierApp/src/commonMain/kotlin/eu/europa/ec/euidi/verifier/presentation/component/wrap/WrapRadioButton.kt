@@ -31,14 +31,14 @@ import androidx.compose.ui.unit.Dp
 import eu.europa.ec.euidi.verifier.presentation.component.preview.PreviewTheme
 import eu.europa.ec.euidi.verifier.presentation.component.preview.ThemeModePreviews
 
-data class RadioButtonDataUi(
+internal data class RadioButtonDataUi(
     val isSelected: Boolean,
     val enabled: Boolean = true,
     val onCheckedChange: (() -> Unit)? = null,
 )
 
 @Composable
-fun WrapRadioButton(
+internal fun WrapRadioButton(
     radioButtonData: RadioButtonDataUi,
     modifier: Modifier = Modifier,
 ) {

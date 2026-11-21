@@ -21,7 +21,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import eu.europa.ec.euidi.verifier.presentation.navigation.NavItem
 
-fun NavGraphBuilder.homeScreen(navController: NavController) {
+internal fun NavGraphBuilder.homeScreen(navController: NavController) {
     composable<NavItem.Home> {
         HomeScreen(navController)
     }

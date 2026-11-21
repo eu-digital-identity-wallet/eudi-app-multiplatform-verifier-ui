@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import eu.europa.ec.euidi.verifier.presentation.component.utils.SPACING_SMALL
 import eu.europa.ec.euidi.verifier.presentation.theme.divider
 
-sealed interface StickyBottomType {
+internal sealed interface StickyBottomType {
     data class OneButton(
         val config: ButtonConfig
     ) : StickyBottomType
@@ -44,13 +44,13 @@ sealed interface StickyBottomType {
     ) : StickyBottomType
 }
 
-data class StickyBottomConfig(
+internal data class StickyBottomConfig(
     val type: StickyBottomType,
     val showDivider: Boolean = false,
 )
 
 @Composable
-fun WrapStickyBottomContent(
+internal fun WrapStickyBottomContent(
     stickyBottomModifier: Modifier = Modifier,
     stickyBottomConfig: StickyBottomConfig,
 ) {

@@ -22,7 +22,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 /**
  * Provides different strings in order to test view's behavior based on string length
  * */
-class TextLengthPreviewProvider : PreviewParameterProvider<String> {
+internal class TextLengthPreviewProvider : PreviewParameterProvider<String> {
     override val values: Sequence<String>
         get() = sequenceOf(
             "Short Text",

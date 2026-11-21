@@ -24,7 +24,7 @@ import eu.europa.ec.euidi.verifier.presentation.navigation.noAnimation
 import eu.europa.ec.euidi.verifier.presentation.navigation.slideInFromEnd
 import eu.europa.ec.euidi.verifier.presentation.navigation.slideOutToEnd
 
-fun NavGraphBuilder.qrScanScreen(navController: NavController) {
+internal fun NavGraphBuilder.qrScanScreen(navController: NavController) {
     composable<NavItem.QrScan>(
         enterTransition = slideInFromEnd(),
         exitTransition = noAnimation(),

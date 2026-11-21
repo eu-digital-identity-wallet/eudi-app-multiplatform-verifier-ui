@@ -30,7 +30,7 @@ import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocsHolder
 import eu.europa.ec.euidi.verifier.presentation.model.RequestedDocumentUi
 import kotlinx.coroutines.launch
 
-sealed interface CustomRequestContract {
+internal sealed interface CustomRequestContract {
     data class State(
         val screenTitle: String = "",
         val requestedDoc: RequestedDocumentUi? = null,
@@ -62,7 +62,7 @@ sealed interface CustomRequestContract {
     }
 }
 
-class CustomRequestViewModel(
+internal class CustomRequestViewModel(
     private val interactor: CustomRequestInteractor,
 ) : MviViewModel<CustomRequestContract.Event, CustomRequestContract.State, CustomRequestContract.Effect>() {
     override fun createInitialState(): CustomRequestContract.State = CustomRequestContract.State()

@@ -32,7 +32,7 @@ import eu.europa.ec.euidi.verifier.presentation.ui.home.HomeViewModelContract.Ev
 import eu.europa.ec.euidi.verifier.presentation.ui.home.HomeViewModelContract.State
 import kotlinx.coroutines.launch
 
-sealed interface HomeViewModelContract {
+internal sealed interface HomeViewModelContract {
     data class State(
         val isLoading: Boolean = true,
         val error: ContentErrorConfig? = null,
@@ -70,7 +70,7 @@ sealed interface HomeViewModelContract {
     }
 }
 
-class HomeViewModel(
+internal class HomeViewModel(
     private val interactor: HomeInteractor,
 ) : MviViewModel<Event, State, Effect>() {
 

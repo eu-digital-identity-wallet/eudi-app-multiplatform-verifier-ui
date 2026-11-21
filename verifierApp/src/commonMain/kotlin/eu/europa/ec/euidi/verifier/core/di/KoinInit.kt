@@ -21,7 +21,7 @@ import eu.europa.ec.euidi.verifier.presentation.di.presentationModule
 import org.koin.core.context.startKoin
 import org.koin.dsl.KoinAppDeclaration
 
-fun initKoin(appDeclaration: KoinAppDeclaration = {}) = startKoin {
+internal fun initKoin(appDeclaration: KoinAppDeclaration = {}) = startKoin {
     appDeclaration()
     modules(
         listOf(
@@ -33,4 +33,5 @@ fun initKoin(appDeclaration: KoinAppDeclaration = {}) = startKoin {
     )
 }
 
-fun initKoin() = initKoin {} // called by iOS
+/** Starts Koin with no platform configuration, for the iOS entry point (`ContainerViewController`). */
+internal fun initKoin() = initKoin {}

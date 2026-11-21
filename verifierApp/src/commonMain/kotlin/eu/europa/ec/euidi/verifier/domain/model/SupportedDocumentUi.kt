@@ -19,7 +19,7 @@ package eu.europa.ec.euidi.verifier.domain.model
 import eu.europa.ec.euidi.verifier.domain.config.model.AttestationType
 import eu.europa.ec.euidi.verifier.domain.config.model.DocumentMode
 
-data class SupportedDocumentUi(
+internal data class SupportedDocumentUi(
     val id: String,
     val documentType: AttestationType,
     val modes: List<DocumentMode> = emptyList()

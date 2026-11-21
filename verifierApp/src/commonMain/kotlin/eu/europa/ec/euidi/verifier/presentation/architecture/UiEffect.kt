@@ -16,5 +16,5 @@
 
 package eu.europa.ec.euidi.verifier.presentation.architecture
 
-interface UiEffect {
+internal interface UiEffect {
 }

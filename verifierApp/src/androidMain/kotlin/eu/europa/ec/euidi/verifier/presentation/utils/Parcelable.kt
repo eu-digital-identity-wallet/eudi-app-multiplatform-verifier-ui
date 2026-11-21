@@ -19,5 +19,5 @@ package eu.europa.ec.euidi.verifier.presentation.utils
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
-actual typealias CommonParcelable = Parcelable
-actual typealias CommonParcelize = Parcelize
+internal actual typealias CommonParcelable = Parcelable
+internal actual typealias CommonParcelize = Parcelize

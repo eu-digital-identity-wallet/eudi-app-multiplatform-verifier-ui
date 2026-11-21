@@ -26,7 +26,7 @@ import org.jetbrains.compose.resources.StringResource
  * @param contentDescriptionId The [StringResource] of its content description.
  */
 @Immutable
-data class IconDataUi(
+internal data class IconDataUi(
     val resourceId: DrawableResource,
     val contentDescriptionId: StringResource,
 )

@@ -23,14 +23,14 @@ import kotlinx.coroutines.runBlocking
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
 
-interface ResourceProvider {
+internal interface ResourceProvider {
     fun getSharedString(resource: StringResource): String
     fun getSharedString(resource: StringResource, vararg formatArgs: Any): String
     fun genericErrorMessage(): String
     fun genericNetworkErrorMessage(): String
 }
 
-class ResourceProviderImpl : ResourceProvider {
+internal class ResourceProviderImpl : ResourceProvider {
 
     override fun getSharedString(resource: StringResource): String =
         runBlocking {
