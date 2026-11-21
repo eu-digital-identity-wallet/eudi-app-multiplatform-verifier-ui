@@ -55,15 +55,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:replace="android:name">
-        <!-- The verifier is designed for portrait only, as on iOS. Android 16 and later ignore
-             the fixed orientation on large screens. -->
         <activity
             android:name=".presentation.ui.ContainerActivity"
             android:exported="true"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize"
-            tools:ignore="DiscouragedApi,LockedOrientationActivity">
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
