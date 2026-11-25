@@ -50,16 +50,19 @@ class DocumentsToRequestViewModelTest : MviViewModelTest() {
     }
 
     @Test
-    fun `Init loads supported documents and applies the requested ones`() =
+    fun `Given requested documents When Init is received Then the supported and requested documents are loaded and the button is enabled`() =
         runTest(testDispatcher) {
+            // Given
             val interactor = mock<DocumentsToRequestInteractor> {
                 everySuspend { getSupportedDocuments() } returns supportedDocs
                 everySuspend { checkDocumentMode(listOf(pidDoc)) } returns listOf(pidDoc)
             }
             val viewModel = DocumentsToRequestViewModel(interactor)
 
+            // When
             viewModel.setEvent(Event.Init(requestedDocs = RequestedDocsHolder(items = listOf(pidDoc))))
 
+            // Then
             val state = viewModel.uiState.value
             assertEquals(supportedDocs, state.allSupportedDocuments)
             assertEquals(supportedDocs, state.filteredDocuments)
@@ -68,31 +71,38 @@ class DocumentsToRequestViewModelTest : MviViewModelTest() {
         }
 
     @Test
-    fun `Init with no requested docs yields an empty selection`() = runTest(testDispatcher) {
+    fun `Given a view model When Init is received without requested documents Then the selection is empty and the button is disabled`() = runTest(testDispatcher) {
+        // Given
         val viewModel = DocumentsToRequestViewModel(interactor())
 
+        // When
         viewModel.setEvent(Event.Init(requestedDocs = null))
 
+        // Then
         val state = viewModel.uiState.value
         assertTrue(state.requestedDocuments.isEmpty())
         assertFalse(state.isButtonEnabled)
     }
 
     @Test
-    fun `Init reuses already-loaded supported documents on a second call`() =
+    fun `Given a view model When Init is received twice Then the supported documents are loaded once`() =
         runTest(testDispatcher) {
+            // Given
             val interactor = interactor()
             val viewModel = DocumentsToRequestViewModel(interactor)
 
+            // When
             viewModel.setEvent(Event.Init(requestedDocs = null))
             viewModel.setEvent(Event.Init(requestedDocs = null))
 
+            // Then
             verifySuspend(exactly(1)) { interactor.getSupportedDocuments() }
         }
 
     @Test
-    fun `OnDocOptionSelected Updated stores the docs and enables the button`() =
+    fun `Given an interactor that returns an updated selection When a document option is selected Then the documents are stored and the button is enabled`() =
         runTest(testDispatcher) {
+            // Given
             val interactor = mock<DocumentsToRequestInteractor> {
                 everySuspend { getSupportedDocuments() } returns supportedDocs
                 everySuspend {
@@ -101,18 +111,21 @@ class DocumentsToRequestViewModelTest : MviViewModelTest() {
             }
             val viewModel = DocumentsToRequestViewModel(interactor)
 
+            // When
             viewModel.setEvent(
                 Event.OnDocOptionSelected("PID_DOC", AttestationType.Pid, DocumentMode.FULL)
             )
 
+            // Then
             val state = viewModel.uiState.value
             assertEquals(listOf(pidDoc), state.requestedDocuments)
             assertTrue(state.isButtonEnabled)
         }
 
     @Test
-    fun `OnDocOptionSelected NavigateToCustomRequest stores docs and emits the effect`() =
+    fun `Given an interactor that requests a custom request with no remaining documents When a document option is selected Then the effect is emitted and the requested documents are empty`() =
         runTest(testDispatcher) {
+            // Given
             val customDoc = TestData.pidCustomRequestedDocument
             val interactor = mock<DocumentsToRequestInteractor> {
                 everySuspend { getSupportedDocuments() } returns supportedDocs
@@ -123,9 +136,12 @@ class DocumentsToRequestViewModelTest : MviViewModelTest() {
             val viewModel = DocumentsToRequestViewModel(interactor)
 
             viewModel.effect.test {
+                // When
                 viewModel.setEvent(
                     Event.OnDocOptionSelected("PID_DOC", AttestationType.Pid, DocumentMode.CUSTOM)
                 )
+
+                // Then
                 assertEquals(
                     Effect.Navigation.NavigateToCustomRequestScreen(customDoc),
                     awaitItem()
@@ -136,19 +152,24 @@ class DocumentsToRequestViewModelTest : MviViewModelTest() {
         }
 
     @Test
-    fun `OnBackClick navigates to the home screen with no docs`() = runTest(testDispatcher) {
+    fun `Given a view model When OnBackClick is received Then it navigates to the home screen with no documents`() = runTest(testDispatcher) {
+        // Given
         val viewModel = DocumentsToRequestViewModel(interactor())
 
         viewModel.effect.test {
+            // When
             viewModel.setEvent(Event.OnBackClick)
+
+            // Then
             assertEquals(Effect.Navigation.NavigateToHomeScreen(), awaitItem())
             cancelAndIgnoreRemainingEvents()
         }
     }
 
     @Test
-    fun `OnDoneClick navigates to the home screen with the requested docs`() =
+    fun `Given initialised requested documents When OnDoneClick is received Then it navigates to the home screen with the requested documents`() =
         runTest(testDispatcher) {
+            // Given
             val interactor = mock<DocumentsToRequestInteractor> {
                 everySuspend { getSupportedDocuments() } returns supportedDocs
                 everySuspend { checkDocumentMode(listOf(pidDoc)) } returns listOf(pidDoc)
@@ -157,7 +178,10 @@ class DocumentsToRequestViewModelTest : MviViewModelTest() {
             viewModel.setEvent(Event.Init(requestedDocs = RequestedDocsHolder(items = listOf(pidDoc))))
 
             viewModel.effect.test {
+                // When
                 viewModel.setEvent(Event.OnDoneClick)
+
+                // Then
                 assertEquals(
                     Effect.Navigation.NavigateToHomeScreen(requestedDocuments = listOf(pidDoc)),
                     awaitItem()
@@ -166,18 +190,24 @@ class DocumentsToRequestViewModelTest : MviViewModelTest() {
             }
         }
 
+    /**
+     * Init populates allSupportedDocuments.
+     */
     @Test
-    fun `OnSearchQueryChanged updates the search term and filtered documents`() =
+    fun `Given loaded supported documents When the search query changes Then the search term and the filtered documents are updated`() =
         runTest(testDispatcher) {
+            // Given
             val interactor = mock<DocumentsToRequestInteractor> {
                 everySuspend { getSupportedDocuments() } returns supportedDocs
                 every { searchDocuments("PID", supportedDocs) } returns flowOf(supportedDocs)
             }
             val viewModel = DocumentsToRequestViewModel(interactor)
-            viewModel.setEvent(Event.Init(requestedDocs = null)) // populates allSupportedDocuments
+            viewModel.setEvent(Event.Init(requestedDocs = null))
 
+            // When
             viewModel.setEvent(Event.OnSearchQueryChanged("PID"))
 
+            // Then
             val state = viewModel.uiState.value
             assertEquals("PID", state.searchTerm)
             assertEquals(supportedDocs, state.filteredDocuments)

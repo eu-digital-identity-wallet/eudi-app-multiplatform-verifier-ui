@@ -59,9 +59,15 @@ class DocumentsToRequestInteractorTest {
 
     // region getSupportedDocuments
 
+    /**
+     * One SupportedDocumentUi is expected per attestation type. Its id comes from
+     * getDisplayName and is only checked to be non-blank. The modes come from
+     * ConfigProvider.getDocumentModes.
+     */
     @Test
-    fun `getSupportedDocuments maps config to ui model with modes`() =
+    fun `Given supported documents for PID and MDL When they are requested Then one UI model per type with its modes is returned`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val supportedDocs = SupportedDocuments(
                 documents = mapOf(
                     AttestationType.Pid to listOf(TestData.familyNameClaim),
@@ -71,19 +77,18 @@ class DocumentsToRequestInteractorTest {
 
             val interactor = createInteractor(supportedDocs)
 
+            // When
             val result = interactor.getSupportedDocuments()
 
-            // We expect one SupportedDocumentUi per attestation type
+            // Then
             assertEquals(2, result.size)
 
             val pidDoc = result.first { it.documentType == AttestationType.Pid }
             val mdlDoc = result.first { it.documentType == AttestationType.Mdl }
 
-            // id comes from getDisplayName; we don't assert exact value, only that it is not blank
             assertTrue(pidDoc.id.isNotBlank())
             assertTrue(mdlDoc.id.isNotBlank())
 
-            // Modes come from ConfigProvider.getDocumentModes
             assertEquals(listOf(DocumentMode.FULL, DocumentMode.CUSTOM), pidDoc.modes)
             assertEquals(listOf(DocumentMode.FULL), mdlDoc.modes)
         }
@@ -93,8 +98,9 @@ class DocumentsToRequestInteractorTest {
     // region getDocumentClaims
 
     @Test
-    fun `getDocumentClaims returns configured claims for attestation type`() =
+    fun `Given configured claims for PID When the document claims are requested for PID Then the configured claims are returned`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val pidClaims = TestData.pidClaims
             val supportedDocs = SupportedDocuments(
                 documents = mapOf(
@@ -104,14 +110,17 @@ class DocumentsToRequestInteractorTest {
 
             val interactor = createInteractor(supportedDocs)
 
+            // When
             val result = interactor.getDocumentClaims(AttestationType.Pid)
 
+            // Then
             assertEquals(pidClaims, result)
         }
 
     @Test
-    fun `getDocumentClaims returns empty list when attestation not configured`() =
+    fun `Given claims configured for PID only When the document claims are requested for MDL Then an empty list is returned`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val supportedDocs = SupportedDocuments(
                 documents = mapOf(
                     AttestationType.Pid to listOf(TestData.familyNameClaim)
@@ -120,8 +129,10 @@ class DocumentsToRequestInteractorTest {
 
             val interactor = createInteractor(supportedDocs)
 
+            // When
             val result = interactor.getDocumentClaims(AttestationType.Mdl)
 
+            // Then
             assertTrue(result.isEmpty())
         }
 
@@ -130,13 +141,15 @@ class DocumentsToRequestInteractorTest {
     // region handleDocumentOptionSelection
 
     @Test
-    fun `handleDocumentOptionSelection removes document when already selected with same mode`() =
+    fun `Given a selected FULL PID document When the FULL PID option is selected Then the document is removed`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val interactor = createInteractor()
             val currentDocs = listOf(
                 TestData.pidFullRequestedDocument
             )
 
+            // When
             val result = interactor.handleDocumentOptionSelection(
                 currentDocs = currentDocs,
                 docId = "PID_DOC",
@@ -144,17 +157,24 @@ class DocumentsToRequestInteractorTest {
                 mode = DocumentMode.FULL
             ) as DocSelectionResult.Updated
 
+            // Then
             assertTrue(result.docs.isEmpty())
         }
 
+    /**
+     * The FULL document is removed from the list. The custom document is created with empty
+     * claims and the CUSTOM mode.
+     */
     @Test
-    fun `handleDocumentOptionSelection custom mode removes full and navigates to custom`() =
+    fun `Given a selected FULL PID document When the CUSTOM PID option is selected Then the FULL document is removed and a custom request is opened`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val interactor = createInteractor()
             val currentDocs = listOf(
                 TestData.pidFullRequestedDocument
             )
 
+            // When
             val result = interactor.handleDocumentOptionSelection(
                 currentDocs = currentDocs,
                 docId = "PID_DOC",
@@ -162,10 +182,9 @@ class DocumentsToRequestInteractorTest {
                 mode = DocumentMode.CUSTOM
             ) as DocSelectionResult.NavigateToCustomRequest
 
-            // FULL should be removed from docs list
+            // Then
             assertTrue(result.docs.isEmpty())
 
-            // customDoc should be created with empty claims and CUSTOM mode
             assertEquals("PID_DOC", result.customDoc.id)
             assertEquals(AttestationType.Pid, result.customDoc.documentType)
             assertEquals(DocumentMode.CUSTOM, result.customDoc.mode)
@@ -173,11 +192,13 @@ class DocumentsToRequestInteractorTest {
         }
 
     @Test
-    fun `handleDocumentOptionSelection custom mode navigates without removing when full not present`() =
+    fun `Given no selected documents When the CUSTOM PID option is selected Then it navigates to the custom request without removing anything`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val interactor = createInteractor()
             val currentDocs = emptyList<RequestedDocumentUi>()
 
+            // When
             val result = interactor.handleDocumentOptionSelection(
                 currentDocs = currentDocs,
                 docId = "PID_DOC",
@@ -185,13 +206,15 @@ class DocumentsToRequestInteractorTest {
                 mode = DocumentMode.CUSTOM
             ) as DocSelectionResult.NavigateToCustomRequest
 
+            // Then
             assertTrue(result.docs.isEmpty())
             assertEquals(DocumentMode.CUSTOM, result.customDoc.mode)
         }
 
     @Test
-    fun `handleDocumentOptionSelection full mode adds new doc with all claims when none selected`() =
+    fun `Given PID claims and no selected documents When the FULL PID option is selected Then a FULL document with all claims is added`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val pidClaims = TestData.pidClaims
             val supportedDocs = SupportedDocuments(
                 documents = mapOf(AttestationType.Pid to pidClaims)
@@ -200,6 +223,7 @@ class DocumentsToRequestInteractorTest {
             val interactor = createInteractor(supportedDocs)
             val currentDocs = emptyList<RequestedDocumentUi>()
 
+            // When
             val result = interactor.handleDocumentOptionSelection(
                 currentDocs = currentDocs,
                 docId = "PID_DOC",
@@ -207,6 +231,7 @@ class DocumentsToRequestInteractorTest {
                 mode = DocumentMode.FULL
             ) as DocSelectionResult.Updated
 
+            // Then
             assertEquals(1, result.docs.size)
             val doc = result.docs.single()
             assertEquals(DocumentMode.FULL, doc.mode)
@@ -214,9 +239,14 @@ class DocumentsToRequestInteractorTest {
             assertEquals(pidClaims, doc.claims)
         }
 
+    /**
+     * The selected CUSTOM document holds only a subset of the claims. It is replaced by a FULL
+     * document with all claims.
+     */
     @Test
-    fun `handleDocumentOptionSelection full mode replaces existing custom doc for same type`() =
+    fun `Given a selected CUSTOM PID document When the FULL PID option is selected Then it is replaced by a FULL document with all claims`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val pidClaims = TestData.pidClaims
             val supportedDocs = SupportedDocuments(
                 documents = mapOf(AttestationType.Pid to pidClaims)
@@ -229,10 +259,11 @@ class DocumentsToRequestInteractorTest {
                     id = "PID_DOC",
                     documentType = AttestationType.Pid,
                     mode = DocumentMode.CUSTOM,
-                    claims = listOf(TestData.familyNameClaim) // subset
+                    claims = listOf(TestData.familyNameClaim)
                 )
             )
 
+            // When
             val result = interactor.handleDocumentOptionSelection(
                 currentDocs = currentDocs,
                 docId = "PID_DOC",
@@ -240,16 +271,20 @@ class DocumentsToRequestInteractorTest {
                 mode = DocumentMode.FULL
             ) as DocSelectionResult.Updated
 
-            // Custom doc should be replaced with a FULL doc with all claims
+            // Then
             assertEquals(1, result.docs.size)
             val doc = result.docs.single()
             assertEquals(DocumentMode.FULL, doc.mode)
             assertEquals(pidClaims, doc.claims)
         }
 
+    /**
+     * We should still have the MDL doc plus the new PID FULL doc
+     */
     @Test
-    fun `handleDocumentOptionSelection full mode keeps other document types`() =
+    fun `Given a selected MDL document When the FULL PID option is selected Then the MDL document is kept and the PID document is added`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val pidClaims = listOf(TestData.familyNameClaim)
             val supportedDocs = SupportedDocuments(
                 documents = mapOf(AttestationType.Pid to pidClaims)
@@ -261,6 +296,7 @@ class DocumentsToRequestInteractorTest {
                 TestData.mdlFullRequestedDocument
             )
 
+            // When
             val result = interactor.handleDocumentOptionSelection(
                 currentDocs = currentDocs,
                 docId = "PID_DOC",
@@ -268,15 +304,19 @@ class DocumentsToRequestInteractorTest {
                 mode = DocumentMode.FULL
             ) as DocSelectionResult.Updated
 
-            // We should still have the MDL doc plus the new PID FULL doc
+            // Then
             assertEquals(2, result.docs.size)
             assertTrue(result.docs.any { it.documentType == AttestationType.Mdl })
             assertTrue(result.docs.any { it.documentType == AttestationType.Pid })
         }
 
+    /**
+     * Only the PID/FULL doc is removed; the PID/CUSTOM and MDL/FULL docs remain.
+     */
     @Test
-    fun `handleDocumentOptionSelection removes only the matching type and mode when already selected`() =
+    fun `Given PID FULL and PID CUSTOM documents and an MDL FULL document When the FULL PID option is selected Then only the PID FULL document is removed`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val interactor = createInteractor()
             val currentDocs = listOf(
                 TestData.pidFullRequestedDocument,
@@ -289,6 +329,7 @@ class DocumentsToRequestInteractorTest {
                 TestData.mdlFullRequestedDocument
             )
 
+            // When
             val result = interactor.handleDocumentOptionSelection(
                 currentDocs = currentDocs,
                 docId = "PID_DOC",
@@ -296,7 +337,7 @@ class DocumentsToRequestInteractorTest {
                 mode = DocumentMode.FULL
             ) as DocSelectionResult.Updated
 
-            // Only the PID/FULL doc is removed; the PID/CUSTOM and MDL/FULL docs remain.
+            // Then
             assertEquals(2, result.docs.size)
             assertTrue(
                 result.docs.any {
@@ -306,14 +347,19 @@ class DocumentsToRequestInteractorTest {
             assertTrue(result.docs.any { it.documentType == AttestationType.Mdl })
         }
 
+    /**
+     * No doc shares the id, so nothing is removed before navigating.
+     */
     @Test
-    fun `handleDocumentOptionSelection custom mode keeps unrelated docs when navigating`() =
+    fun `Given a selected MDL document When the CUSTOM PID option is selected Then the MDL document is kept and it navigates to the custom request`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val interactor = createInteractor()
             val currentDocs = listOf(
                 TestData.mdlFullRequestedDocument
             )
 
+            // When
             val result = interactor.handleDocumentOptionSelection(
                 currentDocs = currentDocs,
                 docId = "PID_DOC",
@@ -321,14 +367,19 @@ class DocumentsToRequestInteractorTest {
                 mode = DocumentMode.CUSTOM
             ) as DocSelectionResult.NavigateToCustomRequest
 
-            // No doc shares the id, so nothing is removed before navigating.
+            // Then
             assertEquals(currentDocs, result.docs)
             assertEquals(DocumentMode.CUSTOM, result.customDoc.mode)
         }
 
+    /**
+     * No existing PID doc has a *different* mode, so none are filtered out; the new doc is
+     * appended.
+     */
     @Test
-    fun `handleDocumentOptionSelection full mode appends when same type and mode exist under another id`() =
+    fun `Given a FULL PID document under another id When the FULL PID option is selected Then the new document is appended`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val pidClaims = listOf(TestData.familyNameClaim)
             val supportedDocs = SupportedDocuments(
                 documents = mapOf(AttestationType.Pid to pidClaims)
@@ -344,6 +395,7 @@ class DocumentsToRequestInteractorTest {
                 )
             )
 
+            // When
             val result = interactor.handleDocumentOptionSelection(
                 currentDocs = currentDocs,
                 docId = "PID_DOC",
@@ -351,7 +403,7 @@ class DocumentsToRequestInteractorTest {
                 mode = DocumentMode.FULL
             ) as DocSelectionResult.Updated
 
-            // No existing PID doc has a *different* mode, so none are filtered out; the new doc is appended.
+            // Then
             assertEquals(2, result.docs.size)
             assertTrue(
                 result.docs.all {
@@ -365,78 +417,96 @@ class DocumentsToRequestInteractorTest {
     // region searchDocuments
 
     @Test
-    fun `searchDocuments filters by document display name`() =
+    fun `Given searchable documents When searching for PID Then only the PID document is returned`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val docs = TestData.searchableSupportedDocuments
 
             val interactor = createInteractor()
 
+            // When
             val result = interactor.searchDocuments(
                 query = "PID",
                 documents = docs
             ).first()
 
+            // Then
             assertEquals(1, result.size)
             assertEquals(AttestationType.Pid, result.single().documentType)
         }
 
     @Test
-    fun `searchDocuments ignores case sensitivity when searching by display name`() =
+    fun `Given searchable documents When searching for pid in lower case Then only the PID document is returned`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val docs = TestData.searchableSupportedDocuments
 
             val interactor = createInteractor()
+
+            // When
             val result = interactor.searchDocuments(
                 query = "pid",
                 documents = docs
             ).first()
 
+            // Then
             assertEquals(1, result.size)
             assertEquals(AttestationType.Pid, result.single().documentType)
         }
 
     @Test
-    fun `searchDocuments filters by document mode display name`() =
+    fun `Given searchable documents When searching for a mode display name Then only the document with that mode is returned`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val docs = TestData.searchableSupportedDocuments
 
             val interactor = createInteractor()
 
+            // When
             val result = interactor.searchDocuments(
                 query = "Custom",
                 documents = docs
             ).first()
 
+            // Then
             assertEquals(1, result.size)
             assertEquals(AttestationType.Mdl, result.single().documentType)
         }
 
     @Test
-    fun `searchDocuments filters by document mode display name ignoring case sensitivity`() =
+    fun `Given searchable documents When searching for a mode display name in lower case Then only the document with that mode is returned`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val docs = TestData.searchableSupportedDocuments
 
             val interactor = createInteractor()
+
+            // When
             val result = interactor.searchDocuments(
                 query = "custom",
                 documents = docs
             ).first()
 
+            // Then
             assertEquals(1, result.size)
             assertEquals(AttestationType.Mdl, result.single().documentType)
         }
 
     @Test
-    fun `searchDocuments returns empty list when no matches`() =
+    fun `Given searchable documents When searching for an unknown term Then an empty list is returned`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val docs = TestData.searchableSupportedDocuments
 
             val interactor = createInteractor()
+
+            // When
             val result = interactor.searchDocuments(
                 query = "UNKNOWN",
                 documents = docs
             ).first()
 
+            // Then
             assertTrue(result.isEmpty())
         }
 
@@ -444,9 +514,13 @@ class DocumentsToRequestInteractorTest {
 
     // region checkDocumentMode
 
+    /**
+     * All claims are selected.
+     */
     @Test
-    fun `checkDocumentMode sets mode to FULL when all claims are selected`() =
+    fun `Given a CUSTOM document with all claims selected When the document mode is checked Then the mode becomes FULL`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val pidClaims = TestData.pidClaims
             val supportedDocs = SupportedDocuments(
                 documents = mapOf(AttestationType.Pid to pidClaims)
@@ -459,20 +533,26 @@ class DocumentsToRequestInteractorTest {
                     id = "PID_DOC",
                     documentType = AttestationType.Pid,
                     mode = DocumentMode.CUSTOM,
-                    claims = pidClaims // all claims
+                    claims = pidClaims
                 )
             )
 
+            // When
             val result = interactor.checkDocumentMode(requestedDocs)
 
+            // Then
             assertEquals(1, result.size)
             val updated = result.single()
             assertEquals(DocumentMode.FULL, updated.mode)
         }
 
+    /**
+     * Only some of the claims are selected (partial).
+     */
     @Test
-    fun `checkDocumentMode keeps mode when not all claims are selected`() =
+    fun `Given a CUSTOM document with some claims selected When the document mode is checked Then the mode is kept`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val pidClaims = TestData.pidClaims
             val supportedDocs = SupportedDocuments(
                 documents = mapOf(AttestationType.Pid to pidClaims)
@@ -485,21 +565,26 @@ class DocumentsToRequestInteractorTest {
                     id = "PID_DOC",
                     documentType = AttestationType.Pid,
                     mode = DocumentMode.CUSTOM,
-                    claims = listOf(TestData.familyNameClaim) // partial
+                    claims = listOf(TestData.familyNameClaim)
                 )
             )
 
+            // When
             val result = interactor.checkDocumentMode(requestedDocs)
 
+            // Then
             val updated = result.single()
             assertEquals(DocumentMode.CUSTOM, updated.mode)
         }
 
+    /**
+     * Empty supported documents -> expected claim count resolves to 0 via the elvis fallback,
+     * so a doc with claims never matches and the mode is kept.
+     */
     @Test
-    fun `checkDocumentMode keeps mode when document type is not configured`() =
+    fun `Given a document type that is not configured When the document mode is checked Then the mode is kept`() =
         runTest(StandardTestDispatcher()) {
-            // Empty supported documents -> expected claim count resolves to 0 via the elvis fallback,
-            // so a doc with claims never matches and the mode is kept.
+            // Given
             val interactor = createInteractor()
 
             val requestedDocs = listOf(
@@ -511,8 +596,10 @@ class DocumentsToRequestInteractorTest {
                 )
             )
 
+            // When
             val result = interactor.checkDocumentMode(requestedDocs)
 
+            // Then
             assertEquals(DocumentMode.CUSTOM, result.single().mode)
         }
 

@@ -26,27 +26,34 @@ import kotlin.test.assertEquals
 
 class FlowExtensionsTest {
 
+    /**
+     * Uses the default dispatcher (Dispatchers.IO) on purpose.
+     */
     @Test
-    fun `safeAsync passes values through when no error occurs`() = runTest {
-        // Uses the default dispatcher (Dispatchers.IO) on purpose.
+    fun `Given a flow without errors When safeAsync is applied Then all values pass through`() = runTest {
+        // When
         val result = flowOf(1, 2, 3)
             .safeAsync { -1 }
             .toList()
 
+        // Then
         assertEquals(listOf(1, 2, 3), result)
     }
 
     @Test
-    fun `safeAsync emits the fallback value when the flow throws`() = runTest {
+    fun `Given a flow that throws after one value When safeAsync is applied Then the fallback value is emitted last`() = runTest {
+        // Given
         val failing = flow {
             emit(1)
             throw RuntimeException("boom")
         }
 
+        // When
         val result = failing
             .safeAsync(dispatcher = Dispatchers.Unconfined) { -1 }
             .toList()
 
+        // Then
         assertEquals(listOf(1, -1), result)
     }
 }

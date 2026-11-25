@@ -64,26 +64,36 @@ class MenuInteractorTest {
     //region getScreenTitle
 
     @Test
-    fun `getScreenTitle returns localized title`() = runTest(StandardTestDispatcher()) {
+    fun `Given an interactor When the screen title is requested Then the localized title is returned`() = runTest(StandardTestDispatcher()) {
+        // Given
         val interactor = createInteractor()
 
-        assertEquals("Menu title", interactor.getScreenTitle())
+        // When
+        val result = interactor.getScreenTitle()
+
+        // Then
+        assertEquals("Menu title", result)
     }
 
     //endregion
 
     //region getMenuItemsUi
 
+    /**
+     * Checks the home item, then the settings item.
+     */
     @Test
-    fun `getMenuItemsUi returns home and settings items in order`() =
+    fun `Given an interactor When the menu items are requested Then the home and settings items are returned in order`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val interactor = createInteractor()
 
+            // When
             val items = interactor.getMenuItemsUi()
 
+            // Then
             assertEquals(2, items.size)
 
-            // Home item
             val home = items[0]
             assertEquals(MenuTypeUi.HOME, home.type)
             assertEquals("uuid-0", home.data.itemId)
@@ -100,7 +110,6 @@ class MenuInteractorTest {
             assertIs<ListItemTrailingContentDataUi.Icon>(homeTrailing)
             assertEquals(AppIcons.ChevronRight, homeTrailing.iconData)
 
-            // Settings item
             val settings = items[1]
             assertEquals(MenuTypeUi.SETTINGS, settings.type)
             assertEquals("uuid-1", settings.data.itemId)
@@ -123,12 +132,17 @@ class MenuInteractorTest {
     //region getAppVersion
 
     @Test
-    fun `getAppVersion delegates to configProvider`() = runTest(StandardTestDispatcher()) {
+    fun `Given an interactor with a configured version When the app version is requested Then the configured version is returned`() = runTest(StandardTestDispatcher()) {
+        // Given
         val interactor = createInteractor(
             configProvider = configProvider(version = "9.9.9-Dev")
         )
 
-        assertEquals("9.9.9-Dev", interactor.getAppVersion())
+        // When
+        val result = interactor.getAppVersion()
+
+        // Then
+        assertEquals("9.9.9-Dev", result)
     }
 
     //endregion

@@ -66,11 +66,14 @@ class TransferStatusViewModelTest : MviViewModelTest() {
     //region Init
 
     @Test
-    fun `Init loads the requested document types`() = runTest(testDispatcher) {
+    fun `Given a view model When Init is received Then the requested document types are loaded`() = runTest(testDispatcher) {
+        // Given
         val viewModel = viewModel()
 
+        // When
         viewModel.setEvent(Event.Init(docs = docs))
 
+        // Then
         val state = viewModel.uiState.value
         assertEquals("Requesting: Full PID", state.requestedDocTypes)
         assertEquals(docs, state.requestedDocs)
@@ -82,12 +85,16 @@ class TransferStatusViewModelTest : MviViewModelTest() {
     //region permissions
 
     @Test
-    fun `RequestPermissions marks progress and emits the request effect`() =
+    fun `Given a view model When RequestPermissions is received Then the request effect is emitted and progress is marked`() =
         runTest(testDispatcher) {
+            // Given
             val viewModel = viewModel()
 
             viewModel.effect.test {
+                // When
                 viewModel.setEvent(Event.RequestPermissions)
+
+                // Then
                 assertEquals(Effect.RequestPermissions, awaitItem())
                 cancelAndIgnoreRemainingEvents()
             }
@@ -95,27 +102,38 @@ class TransferStatusViewModelTest : MviViewModelTest() {
         }
 
     @Test
-    fun `RequestPermissions is ignored while a request is already in progress`() =
+    fun `Given a view model When RequestPermissions is received twice Then the second one is ignored while the first is in progress`() =
         runTest(testDispatcher) {
+            // Given
             val viewModel = viewModel()
 
             viewModel.effect.test {
+                // When
                 viewModel.setEvent(Event.RequestPermissions)
+
+                // Then
                 assertEquals(Effect.RequestPermissions, awaitItem())
 
+                // When
                 viewModel.setEvent(Event.RequestPermissions)
+
+                // Then
                 expectNoEvents()
                 cancelAndIgnoreRemainingEvents()
             }
         }
 
     @Test
-    fun `PermissionReceived granted before engagement emits PermissionsGranted`() =
+    fun `Given a view model before engagement When permissions are granted Then PermissionsGranted is emitted and the request is no longer in progress`() =
         runTest(testDispatcher) {
+            // Given
             val viewModel = viewModel()
 
             viewModel.effect.test {
+                // When
                 viewModel.setEvent(Event.PermissionReceived(denied = false))
+
+                // Then
                 assertEquals(Effect.PermissionsGranted, awaitItem())
                 cancelAndIgnoreRemainingEvents()
             }
@@ -124,15 +142,22 @@ class TransferStatusViewModelTest : MviViewModelTest() {
             assertFalse(state.permissionsRequestInProgress)
         }
 
+    /**
+     * StartProximity sets engagementStarted = true.
+     */
     @Test
-    fun `PermissionReceived denied during engagement emits PermissionsRevoked`() =
+    fun `Given an engagement in progress When permissions are denied Then PermissionsRevoked is emitted and permissions are cleared`() =
         runTest(testDispatcher) {
+            // Given
             val viewModel = viewModel(interactor = transferInteractor(statusFlow = flowOf()))
             viewModel.setEvent(Event.Init(docs = docs))
-            viewModel.setEvent(Event.StartProximity) // engagementStarted = true
+            viewModel.setEvent(Event.StartProximity)
 
             viewModel.effect.test {
+                // When
                 viewModel.setEvent(Event.PermissionReceived(denied = true))
+
+                // Then
                 assertEquals(Effect.PermissionsRevoked, awaitItem())
                 cancelAndIgnoreRemainingEvents()
             }
@@ -140,27 +165,38 @@ class TransferStatusViewModelTest : MviViewModelTest() {
         }
 
     @Test
-    fun `PermissionReceived denied before engagement emits no effect`() =
+    fun `Given a view model before engagement When permissions are denied Then no effect is emitted and permissions stay cleared`() =
         runTest(testDispatcher) {
+            // Given
             val viewModel = viewModel()
 
             viewModel.effect.test {
+                // When
                 viewModel.setEvent(Event.PermissionReceived(denied = true))
+
+                // Then
                 expectNoEvents()
                 cancelAndIgnoreRemainingEvents()
             }
             assertEquals(false, viewModel.uiState.value.hasPermissions)
         }
 
+    /**
+     * StartProximity sets engagementStarted = true.
+     */
     @Test
-    fun `PermissionReceived granted during engagement emits no effect`() =
+    fun `Given an engagement in progress When permissions are granted Then no effect is emitted and permissions are set`() =
         runTest(testDispatcher) {
+            // Given
             val viewModel = viewModel(interactor = transferInteractor(statusFlow = flowOf()))
             viewModel.setEvent(Event.Init(docs = docs))
-            viewModel.setEvent(Event.StartProximity) // engagementStarted = true
+            viewModel.setEvent(Event.StartProximity)
 
             viewModel.effect.test {
+                // When
                 viewModel.setEvent(Event.PermissionReceived(denied = false))
+
+                // Then
                 expectNoEvents()
                 cancelAndIgnoreRemainingEvents()
             }
@@ -168,11 +204,15 @@ class TransferStatusViewModelTest : MviViewModelTest() {
         }
 
     @Test
-    fun `OpenAppSettings emits the open-settings effect`() = runTest(testDispatcher) {
+    fun `Given a view model When OpenAppSettings is received Then the open-settings effect is emitted`() = runTest(testDispatcher) {
+        // Given
         val viewModel = viewModel()
 
         viewModel.effect.test {
+            // When
             viewModel.setEvent(Event.OpenAppSettings)
+
+            // Then
             assertEquals(Effect.OpenAppSettings, awaitItem())
             cancelAndIgnoreRemainingEvents()
         }
@@ -183,8 +223,9 @@ class TransferStatusViewModelTest : MviViewModelTest() {
     //region proximity / connection status
 
     @Test
-    fun `StartProximity prepares the connection and starts engagement and maps non-terminal statuses`() =
+    fun `Given an initialised view model with non-terminal statuses When StartProximity is received Then the connection is prepared and engagement starts and the status is mapped`() =
         runTest(testDispatcher) {
+            // Given
             val interactor = transferInteractor(
                 statusFlow = flowOf(
                     TransferStatus.Connected,
@@ -196,8 +237,10 @@ class TransferStatusViewModelTest : MviViewModelTest() {
             val viewModel = viewModel(interactor = interactor)
             viewModel.setEvent(Event.Init(docs = docs))
 
+            // When
             viewModel.setEvent(Event.StartProximity)
 
+            // Then
             assertTrue(viewModel.uiState.value.engagementStarted)
             assertEquals("status", viewModel.uiState.value.connectionStatus)
             verifySuspend(exactly(1)) { interactor.prepareConnection() }
@@ -205,34 +248,43 @@ class TransferStatusViewModelTest : MviViewModelTest() {
         }
 
     @Test
-    fun `An Error status navigates back`() = runTest(testDispatcher) {
+    fun `Given a connection that reports an error When StartProximity is received Then it navigates back`() = runTest(testDispatcher) {
+        // Given
         val interactor = transferInteractor(statusFlow = flowOf(TransferStatus.Error("boom")))
         val viewModel = viewModel(interactor = interactor)
         viewModel.setEvent(Event.Init(docs = docs))
 
         viewModel.effect.test {
+            // When
             viewModel.setEvent(Event.StartProximity)
+
+            // Then
             assertEquals(Effect.Navigation.GoBack, awaitItem())
             cancelAndIgnoreRemainingEvents()
         }
     }
 
     @Test
-    fun `A Disconnected status navigates back`() = runTest(testDispatcher) {
+    fun `Given a connection that reports a disconnect When StartProximity is received Then it navigates back`() = runTest(testDispatcher) {
+        // Given
         val interactor = transferInteractor(statusFlow = flowOf(TransferStatus.Disconnected))
         val viewModel = viewModel(interactor = interactor)
         viewModel.setEvent(Event.Init(docs = docs))
 
         viewModel.effect.test {
+            // When
             viewModel.setEvent(Event.StartProximity)
+
+            // Then
             assertEquals(Effect.Navigation.GoBack, awaitItem())
             cancelAndIgnoreRemainingEvents()
         }
     }
 
     @Test
-    fun `An OnResponseReceived status navigates to the show-documents screen`() =
+    fun `Given a connection that reports a received response When StartProximity is received Then it navigates to the show-documents screen`() =
         runTest(testDispatcher) {
+            // Given
             val receivedUi = listOf(TestData.pidReceivedDocument)
             val interactor = mock<TransferStatusInteractor>(MockMode.autoUnit) {
                 everySuspend { getRequestData(any()) } returns "Requesting: Full PID"
@@ -247,7 +299,10 @@ class TransferStatusViewModelTest : MviViewModelTest() {
             viewModel.setEvent(Event.Init(docs = docs))
 
             viewModel.effect.test {
+                // When
                 viewModel.setEvent(Event.StartProximity)
+
+                // Then
                 assertEquals(
                     Effect.Navigation.NavigateToShowDocumentsScreen(receivedDocuments = receivedUi),
                     awaitItem()
@@ -257,13 +312,16 @@ class TransferStatusViewModelTest : MviViewModelTest() {
         }
 
     @Test
-    fun `StopProximity stops the connection and resets engagement state`() =
+    fun `Given a view model When StopProximity is received Then the connection is stopped and the engagement state is reset`() =
         runTest(testDispatcher) {
+            // Given
             val interactor = transferInteractor()
             val viewModel = viewModel(interactor = interactor)
 
+            // When
             viewModel.setEvent(Event.StopProximity)
 
+            // Then
             val state = viewModel.uiState.value
             assertFalse(state.engagementStarted)
             assertFalse(state.isLoading)
@@ -275,12 +333,16 @@ class TransferStatusViewModelTest : MviViewModelTest() {
     //region back / cancel
 
     @Test
-    fun `OnCancelClick stops the connection and navigates back`() = runTest(testDispatcher) {
+    fun `Given a view model When OnCancelClick is received Then it navigates back and the connection is stopped`() = runTest(testDispatcher) {
+        // Given
         val interactor = transferInteractor()
         val viewModel = viewModel(interactor = interactor)
 
         viewModel.effect.test {
+            // When
             viewModel.setEvent(Event.OnCancelClick)
+
+            // Then
             assertEquals(Effect.Navigation.GoBack, awaitItem())
             cancelAndIgnoreRemainingEvents()
         }
@@ -288,11 +350,15 @@ class TransferStatusViewModelTest : MviViewModelTest() {
     }
 
     @Test
-    fun `OnBackClick navigates back`() = runTest(testDispatcher) {
+    fun `Given a view model When OnBackClick is received Then it navigates back`() = runTest(testDispatcher) {
+        // Given
         val viewModel = viewModel()
 
         viewModel.effect.test {
+            // When
             viewModel.setEvent(Event.OnBackClick)
+
+            // Then
             assertEquals(Effect.Navigation.GoBack, awaitItem())
             cancelAndIgnoreRemainingEvents()
         }

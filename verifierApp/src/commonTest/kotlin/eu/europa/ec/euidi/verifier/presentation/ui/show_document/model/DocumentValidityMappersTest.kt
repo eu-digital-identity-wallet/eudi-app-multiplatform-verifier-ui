@@ -41,8 +41,12 @@ class DocumentValidityMappersTest {
 
     //region toUi
 
+    /**
+     * Formatted as "dd MMM yyyy" (in the system time zone).
+     */
     @Test
-    fun `toUi maps the booleans and formats the instants`() {
+    fun `Given a validity domain with values and instants When it is mapped to UI Then the booleans are kept and the instants are formatted`() {
+        // Given
         val instant = Instant.parse("2025-12-10T12:00:00Z")
         val domain = DocumentValidityDomain(
             isDeviceSignatureValid = true,
@@ -53,12 +57,13 @@ class DocumentValidityMappersTest {
             validUntil = instant,
         )
 
+        // When
         val ui = domain.toUi()
 
+        // Then
         assertEquals(true, ui.isDeviceSignatureValid)
         assertEquals(false, ui.isIssuerSignatureValid)
         assertEquals(true, ui.isDataIntegrityIntact)
-        // Formatted as "dd MMM yyyy" (in the system time zone).
         val dateRegex = Regex("""\d{2} \w{3} \d{4}""")
         assertTrue(ui.signed?.matches(dateRegex) == true, "Unexpected date format: ${ui.signed}")
         assertEquals(ui.signed, ui.validFrom)
@@ -66,7 +71,8 @@ class DocumentValidityMappersTest {
     }
 
     @Test
-    fun `toUi defaults null booleans to false and keeps null instants null`() {
+    fun `Given a validity domain with nulls When it is mapped to UI Then booleans default to false and instants stay null`() {
+        // Given
         val domain = DocumentValidityDomain(
             isDeviceSignatureValid = null,
             isIssuerSignatureValid = null,
@@ -76,8 +82,10 @@ class DocumentValidityMappersTest {
             validUntil = null,
         )
 
+        // When
         val ui = domain.toUi()
 
+        // Then
         assertEquals(false, ui.isDeviceSignatureValid)
         assertEquals(false, ui.isIssuerSignatureValid)
         assertEquals(false, ui.isDataIntegrityIntact)
@@ -90,28 +98,35 @@ class DocumentValidityMappersTest {
 
     //region toListItems
 
+    /**
+     * validFrom is null and dropped, so the result holds the three boolean items plus signed
+     * and validUntil, five in all.
+     */
     @Test
-    fun `toListItems builds three boolean items plus the non-null string items`() {
+    fun `Given a validity UI with one null date When it is mapped to list items Then three boolean items and the non-null dates are returned`() {
+        // Given
         val ui = DocumentValidityUi(
             isDeviceSignatureValid = true,
             isIssuerSignatureValid = false,
             isDataIntegrityIntact = true,
             signed = "10 Dec 2025",
-            validFrom = null,         // omitted
+            validFrom = null,
             validUntil = "31 Dec 2025",
         )
 
+        // When
         val items = ui.toListItems(
             resourceProvider = resourceProvider(),
             uuidProvider = sequentialUuidProvider(),
         )
 
-        // 3 boolean items + signed + validUntil (validFrom is null and dropped) = 5
+        // Then
         assertEquals(5, items.size)
     }
 
     @Test
-    fun `toListItems drops all optional string items when they are null`() {
+    fun `Given a validity UI with all dates null When it is mapped to list items Then only the three boolean items are returned`() {
+        // Given
         val ui = DocumentValidityUi(
             isDeviceSignatureValid = false,
             isIssuerSignatureValid = false,
@@ -121,11 +136,13 @@ class DocumentValidityMappersTest {
             validUntil = null,
         )
 
+        // When
         val items = ui.toListItems(
             resourceProvider = resourceProvider(),
             uuidProvider = sequentialUuidProvider(),
         )
 
+        // Then
         assertEquals(3, items.size)
     }
 

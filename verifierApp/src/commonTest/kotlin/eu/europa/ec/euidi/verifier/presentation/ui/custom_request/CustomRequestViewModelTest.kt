@@ -69,12 +69,15 @@ class CustomRequestViewModelTest : MviViewModelTest() {
     }
 
     @Test
-    fun `Init with a doc loads the title and items and enables the primary button`() =
+    fun `Given a view model When Init is received with a document Then the title and the items are loaded and the primary button is enabled`() =
         runTest(testDispatcher) {
+            // Given
             val viewModel = CustomRequestViewModel(customRequestInteractor())
 
+            // When
             viewModel.setEvent(Event.Init(doc = doc))
 
+            // Then
             val state = viewModel.uiState.value
             assertEquals("Custom PID", state.screenTitle)
             assertEquals(doc, state.requestedDoc)
@@ -83,20 +86,27 @@ class CustomRequestViewModelTest : MviViewModelTest() {
         }
 
     @Test
-    fun `Init with no doc keeps the initial state`() = runTest(testDispatcher) {
+    fun `Given a view model When Init is received without a document Then the initial state is kept`() = runTest(testDispatcher) {
+        // Given
         val viewModel = CustomRequestViewModel(customRequestInteractor())
 
+        // When
         viewModel.setEvent(Event.Init(doc = null))
 
+        // Then
         assertEquals(State(), viewModel.uiState.value)
     }
 
     @Test
-    fun `OnCancelClick goes back with no documents`() = runTest(testDispatcher) {
+    fun `Given a view model When OnCancelClick is received Then it goes back with no documents`() = runTest(testDispatcher) {
+        // Given
         val viewModel = CustomRequestViewModel(customRequestInteractor())
 
         viewModel.effect.test {
+            // When
             viewModel.setEvent(Event.OnCancelClick)
+
+            // Then
             assertEquals(
                 Effect.Navigation.GoBack(RequestedDocsHolder(items = emptyList())),
                 awaitItem()
@@ -106,7 +116,8 @@ class CustomRequestViewModelTest : MviViewModelTest() {
     }
 
     @Test
-    fun `OnDoneClick goes back with the selected claims`() = runTest(testDispatcher) {
+    fun `Given an initialised view model When OnDoneClick is received Then it goes back with the selected claims`() = runTest(testDispatcher) {
+        // Given
         val selectedClaims = listOf(TestData.familyNameClaim)
         val interactor = mock<CustomRequestInteractor> {
             every { getDocumentClaims(AttestationType.Pid) } returns claims
@@ -118,7 +129,10 @@ class CustomRequestViewModelTest : MviViewModelTest() {
         viewModel.setEvent(Event.Init(doc = doc))
 
         viewModel.effect.test {
+            // When
             viewModel.setEvent(Event.OnDoneClick)
+
+            // Then
             val effect = awaitItem() as Effect.Navigation.GoBack
             val returnedDoc = effect.requestedDocuments.items.single()
             assertEquals(doc.id, returnedDoc.id)
@@ -128,18 +142,23 @@ class CustomRequestViewModelTest : MviViewModelTest() {
     }
 
     @Test
-    fun `OnDoneClick without a requested doc does nothing`() = runTest(testDispatcher) {
+    fun `Given a view model without a document When OnDoneClick is received Then nothing is emitted`() = runTest(testDispatcher) {
+        // Given
         val viewModel = CustomRequestViewModel(customRequestInteractor())
 
         viewModel.effect.test {
+            // When
             viewModel.setEvent(Event.OnDoneClick)
+
+            // Then
             expectNoEvents()
             cancelAndIgnoreRemainingEvents()
         }
     }
 
     @Test
-    fun `OnItemClicked applies the interactor selection result`() = runTest(testDispatcher) {
+    fun `Given an interactor that returns a toggled selection When an item is clicked Then the items are updated and the primary button is disabled`() = runTest(testDispatcher) {
+        // Given
         val toggledItems = listOf(checkboxItem("family_name", checked = false), nonCheckboxItem)
         val interactor = mock<CustomRequestInteractor> {
             every { getDocumentClaims(AttestationType.Pid) } returns claims
@@ -155,36 +174,45 @@ class CustomRequestViewModelTest : MviViewModelTest() {
         val viewModel = CustomRequestViewModel(interactor)
         viewModel.setEvent(Event.Init(doc = doc))
 
+        // When
         viewModel.setEvent(Event.OnItemClicked("family_name"))
 
+        // Then
         val state = viewModel.uiState.value
         assertEquals(toggledItems, state.items)
         assertFalse(state.primaryButtonEnabled)
     }
 
+    /**
+     * The non-checkbox item is preserved unchanged.
+     */
     @Test
-    fun `OnSelectAllClick unchecks every checkbox item and leaves others untouched`() =
+    fun `Given an initialised view model When select all is unchecked Then every checkbox item is unchecked and other items are untouched`() =
         runTest(testDispatcher) {
+            // Given
             val viewModel = CustomRequestViewModel(customRequestInteractor())
             viewModel.setEvent(Event.Init(doc = doc))
 
+            // When
             viewModel.setEvent(Event.OnSelectAllClick(isChecked = false))
 
+            // Then
             val state = viewModel.uiState.value
             val checkbox = state.items
                 .first { it.itemId == "family_name" }
                 .trailingContentData as ListItemTrailingContentDataUi.Checkbox
             assertFalse(checkbox.checkboxData.isChecked)
-            // The non-checkbox item is preserved unchanged.
             assertEquals(nonCheckboxItem, state.items.first { it.itemId == "header" })
             assertFalse(state.primaryButtonEnabled)
         }
 
     @Test
-    fun `areAllItemsChecked is true only when every checkbox item is checked`() {
+    fun `Given states with all and with some checkboxes checked When areAllItemsChecked is read Then it is true only when every checkbox item is checked`() {
+        // Given
         val allChecked = State(items = listOf(checkboxItem("a", checked = true), nonCheckboxItem))
         val someUnchecked = State(items = listOf(checkboxItem("a", checked = false)))
 
+        // Then
         assertTrue(allChecked.areAllItemsChecked)
         assertFalse(someUnchecked.areAllItemsChecked)
     }

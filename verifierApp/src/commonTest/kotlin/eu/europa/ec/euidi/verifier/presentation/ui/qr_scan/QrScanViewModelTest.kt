@@ -49,11 +49,14 @@ class QrScanViewModelTest : MviViewModelTest() {
     //region Init
 
     @Test
-    fun `Init with docs sets title and requested docs`() = runTest(testDispatcher) {
+    fun `Given a view model When Init is received with documents Then the title and the requested documents are set`() = runTest(testDispatcher) {
+        // Given
         val viewModel = QrScanViewModel(qrScanInteractor())
 
+        // When
         viewModel.setEvent(Event.Init(docs = docs))
 
+        // Then
         val state = viewModel.uiState.value
         assertEquals("Scan QR", state.screenTitle)
         assertEquals(docs, state.requestedDocs)
@@ -63,12 +66,15 @@ class QrScanViewModelTest : MviViewModelTest() {
     }
 
     @Test
-    fun `Init with no docs finishes scanning and shows the missing-documents error`() =
+    fun `Given a view model When Init is received without documents Then scanning finishes with the missing-documents error`() =
         runTest(testDispatcher) {
+            // Given
             val viewModel = QrScanViewModel(qrScanInteractor())
 
+            // When
             viewModel.setEvent(Event.Init(docs = null))
 
+            // Then
             val state = viewModel.uiState.value
             assertTrue(state.finishedScanning)
             assertEquals("Missing documents", state.error?.errorSubTitle)
@@ -79,13 +85,17 @@ class QrScanViewModelTest : MviViewModelTest() {
     //region scanning
 
     @Test
-    fun `OnQrScanned with a valid code navigates to the transfer status screen`() =
+    fun `Given a started scan When a valid code is scanned Then it navigates to the transfer status screen and scanning finishes`() =
         runTest(testDispatcher) {
+            // Given
             val viewModel = QrScanViewModel(qrScanInteractor(qrValid = true))
             viewModel.setEvent(Event.Init(docs = docs))
 
             viewModel.effect.test {
+                // When
                 viewModel.setEvent(Event.OnQrScanned("mdoc:abc"))
+
+                // Then
                 assertEquals(
                     Effect.Navigation.NavigateToTransferStatusScreen(
                         requestedDocs = RequestedDocsHolder(items = docs),
@@ -99,27 +109,35 @@ class QrScanViewModelTest : MviViewModelTest() {
         }
 
     @Test
-    fun `OnQrScanned with an invalid code shows the invalid-code error`() =
+    fun `Given a started scan When an invalid code is scanned Then the invalid-code error is shown and scanning finishes`() =
         runTest(testDispatcher) {
+            // Given
             val viewModel = QrScanViewModel(qrScanInteractor(qrValid = false))
             viewModel.setEvent(Event.Init(docs = docs))
 
+            // When
             viewModel.setEvent(Event.OnQrScanned("bad"))
 
+            // Then
             val state = viewModel.uiState.value
             assertEquals("Invalid QR", state.error?.errorSubTitle)
             assertTrue(state.finishedScanning)
         }
 
+    /**
+     * Init without documents finishes the scan with the missing-documents error; a later scan
+     * leaves that error in place.
+     */
     @Test
-    fun `OnQrScanned is ignored once scanning has finished`() = runTest(testDispatcher) {
+    fun `Given a finished scan When another code is scanned Then it is ignored and the error is unchanged`() = runTest(testDispatcher) {
+        // Given
         val viewModel = QrScanViewModel(qrScanInteractor())
-        // Init with no docs sets finishedScanning = true and the missing-documents error.
         viewModel.setEvent(Event.Init(docs = null))
 
+        // When
         viewModel.setEvent(Event.OnQrScanned("mdoc:abc"))
 
-        // Unchanged: still the missing-documents error, no navigation.
+        // Then
         assertEquals("Missing documents", viewModel.uiState.value.error?.errorSubTitle)
     }
 
@@ -127,30 +145,41 @@ class QrScanViewModelTest : MviViewModelTest() {
 
     //region errors
 
+    /**
+     * The Init event with no docs sets an error.
+     */
     @Test
-    fun `DismissError clears the error`() = runTest(testDispatcher) {
+    fun `Given a view model showing an error When DismissError is received Then the error is cleared`() = runTest(testDispatcher) {
+        // Given
         val viewModel = QrScanViewModel(qrScanInteractor())
-        viewModel.setEvent(Event.Init(docs = null)) // sets an error
+        viewModel.setEvent(Event.Init(docs = null))
 
+        // When
         viewModel.setEvent(Event.DismissError)
 
+        // Then
         assertNull(viewModel.uiState.value.error)
     }
 
     @Test
-    fun `OnQrScanFailed sets an error whose cancel action pops and clears it`() =
+    fun `Given a view model When a scan fails and the error is cancelled Then the error is set and then cleared and Pop is emitted`() =
         runTest(testDispatcher) {
+            // Given
             val viewModel = QrScanViewModel(qrScanInteractor())
 
             viewModel.effect.test {
+                // When
                 viewModel.setEvent(Event.OnQrScanFailed("boom"))
 
+                // Then
                 val error = viewModel.uiState.value.error
                 assertEquals("boom", error?.errorSubTitle)
                 assertTrue(viewModel.uiState.value.finishedScanning)
 
+                // When
                 error?.onCancel?.invoke()
 
+                // Then
                 assertNull(viewModel.uiState.value.error)
                 assertEquals(Effect.Navigation.Pop, awaitItem())
                 cancelAndIgnoreRemainingEvents()
@@ -158,21 +187,28 @@ class QrScanViewModelTest : MviViewModelTest() {
         }
 
     @Test
-    fun `OnQrScanFailed is ignored when an error is already shown`() = runTest(testDispatcher) {
+    fun `Given a view model When two scan failures are received Then only the first error is kept`() = runTest(testDispatcher) {
+        // Given
         val viewModel = QrScanViewModel(qrScanInteractor())
 
+        // When
         viewModel.setEvent(Event.OnQrScanFailed("first"))
         viewModel.setEvent(Event.OnQrScanFailed("second"))
 
+        // Then
         assertEquals("first", viewModel.uiState.value.error?.errorSubTitle)
     }
 
     @Test
-    fun `OnBackClicked emits Pop`() = runTest(testDispatcher) {
+    fun `Given a view model When OnBackClicked is received Then Pop is emitted`() = runTest(testDispatcher) {
+        // Given
         val viewModel = QrScanViewModel(qrScanInteractor())
 
         viewModel.effect.test {
+            // When
             viewModel.setEvent(Event.OnBackClicked)
+
+            // Then
             assertEquals(Effect.Navigation.Pop, awaitItem())
             cancelAndIgnoreRemainingEvents()
         }

@@ -91,27 +91,38 @@ class SettingsInteractorTest {
     //region getScreenTitle
 
     @Test
-    fun `getScreenTitle returns localized title`() = runTest(StandardTestDispatcher()) {
+    fun `Given an interactor When the screen title is requested Then the localized title is returned`() = runTest(StandardTestDispatcher()) {
+        // Given
         val interactor = createInteractor()
 
-        assertEquals("Settings title", interactor.getScreenTitle())
+        // When
+        val result = interactor.getScreenTitle()
+
+        // Then
+        assertEquals("Settings title", result)
     }
 
     //endregion
 
     //region getSettingsItemsUi
 
+    /**
+     * Expects eight items: three headers, one general, two retrieval-option and two
+     * retrieval-method items. With nothing stored, the general switch is off and the
+     * retrieval-method switches are on; only the retrieval-methods header has a description.
+     */
     @Test
-    fun `getSettingsItemsUi builds three sections with defaults`() =
+    fun `Given an interactor with no stored values When the settings items are requested Then three sections are built with the defaults`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val interactor = createInteractor(dataStoreController = dataStore())
 
+            // When
             val items = interactor.getSettingsItemsUi()
 
-            // 3 category headers + (1 general + 2 retrieval options + 2 retrieval methods) items.
+            // Then
             assertEquals(8, items.size)
 
-            // General section
             val generalHeader = items[0] as SettingsItemUi.CategoryHeader
             assertEquals("General", generalHeader.title)
             assertNull(generalHeader.description)
@@ -123,7 +134,6 @@ class SettingsInteractorTest {
                 "Retain data",
                 (retainItem.data.mainContentData as ListItemMainContentDataUi.Text).text
             )
-            // No stored value and not a retrieval method -> defaults to unchecked.
             assertFalse(
                 (retainItem.data.trailingContentData as ListItemTrailingContentDataUi.Switch)
                     .switchData.isChecked
@@ -131,7 +141,6 @@ class SettingsInteractorTest {
             assertEquals("Retain data OFF", retainItem.data.supportingText)
             assertTrue(retainItem.isLastInSection)
 
-            // Retrieval options section
             val optionsHeader = items[2] as SettingsItemUi.CategoryHeader
             assertEquals("Retrieval options", optionsHeader.title)
             assertNull(optionsHeader.description)
@@ -144,14 +153,12 @@ class SettingsInteractorTest {
             assertEquals(SettingsTypeUi.ClearBleCache, clearBleItem.type)
             assertTrue(clearBleItem.isLastInSection)
 
-            // Retrieval methods section (carries a header description)
             val methodsHeader = items[5] as SettingsItemUi.CategoryHeader
             assertEquals("Retrieval methods", methodsHeader.title)
             assertEquals("Retrieval methods description", methodsHeader.description)
 
             val centralItem = items[6] as SettingsItemUi.CategoryItem
             assertEquals(SettingsTypeUi.BleCentralClient, centralItem.type)
-            // Retrieval methods default to checked.
             assertTrue(
                 (centralItem.data.trailingContentData as ListItemTrailingContentDataUi.Switch)
                     .switchData.isChecked
@@ -164,9 +171,13 @@ class SettingsInteractorTest {
             assertTrue(peripheralItem.isLastInSection)
         }
 
+    /**
+     * Stored false overrides the retrieval-method default of true.
+     */
     @Test
-    fun `getSettingsItemsUi reflects stored values and selected descriptions`() =
+    fun `Given stored values When the settings items are requested Then the stored values and the selected descriptions are reflected`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val interactor = createInteractor(
                 dataStoreController = dataStore(
                     stored = mapOf(
@@ -176,8 +187,10 @@ class SettingsInteractorTest {
                 )
             )
 
+            // When
             val items = interactor.getSettingsItemsUi()
 
+            // Then
             val retainItem = items[1] as SettingsItemUi.CategoryItem
             assertTrue(
                 (retainItem.data.trailingContentData as ListItemTrailingContentDataUi.Switch)
@@ -186,7 +199,6 @@ class SettingsInteractorTest {
             assertEquals("Retain data ON", retainItem.data.supportingText)
 
             val centralItem = items[6] as SettingsItemUi.CategoryItem
-            // Stored false overrides the retrieval-method default of true.
             assertFalse(
                 (centralItem.data.trailingContentData as ListItemTrailingContentDataUi.Switch)
                     .switchData.isChecked
@@ -199,33 +211,43 @@ class SettingsInteractorTest {
     //region togglePrefBoolean
 
     @Test
-    fun `togglePrefBoolean toggles a general preference`() = runTest(StandardTestDispatcher()) {
+    fun `Given an interactor with no stored values When a general preference is toggled Then it is stored as enabled`() = runTest(StandardTestDispatcher()) {
+        // Given
         val dataStoreController = dataStore()
         val interactor = createInteractor(dataStoreController = dataStoreController)
 
+        // When
         interactor.togglePrefBoolean(PrefKey.RETAIN_DATA)
 
+        // Then
         verifySuspend(exactly(1)) { dataStoreController.putBoolean(PrefKey.RETAIN_DATA, true) }
     }
 
     @Test
-    fun `togglePrefBoolean enabling a retrieval method stores the new value`() =
+    fun `Given a disabled retrieval method When it is toggled Then the enabled value is stored`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val dataStoreController = dataStore(
                 stored = mapOf(PrefKey.BLE_CENTRAL_CLIENT to false)
             )
             val interactor = createInteractor(dataStoreController = dataStoreController)
 
+            // When
             interactor.togglePrefBoolean(PrefKey.BLE_CENTRAL_CLIENT)
 
+            // Then
             verifySuspend(exactly(1)) {
                 dataStoreController.putBoolean(PrefKey.BLE_CENTRAL_CLIENT, true)
             }
         }
 
+    /**
+     * Attempting to disable the only active retrieval method must be a no-op.
+     */
     @Test
-    fun `togglePrefBoolean keeps the last active retrieval method enabled`() =
+    fun `Given only one active retrieval method When it is toggled Then nothing is stored`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val dataStoreController = dataStore(
                 stored = mapOf(
                     PrefKey.BLE_CENTRAL_CLIENT to true,
@@ -234,15 +256,17 @@ class SettingsInteractorTest {
             )
             val interactor = createInteractor(dataStoreController = dataStoreController)
 
-            // Attempting to disable the only active retrieval method must be a no-op.
+            // When
             interactor.togglePrefBoolean(PrefKey.BLE_CENTRAL_CLIENT)
 
+            // Then
             verifySuspend(exactly(0)) { dataStoreController.putBoolean(any(), any()) }
         }
 
     @Test
-    fun `togglePrefBoolean disables a retrieval method when another stays active`() =
+    fun `Given two active retrieval methods When one is toggled Then it is stored as disabled`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val dataStoreController = dataStore(
                 stored = mapOf(
                     PrefKey.BLE_CENTRAL_CLIENT to true,
@@ -251,8 +275,10 @@ class SettingsInteractorTest {
             )
             val interactor = createInteractor(dataStoreController = dataStoreController)
 
+            // When
             interactor.togglePrefBoolean(PrefKey.BLE_CENTRAL_CLIENT)
 
+            // Then
             verifySuspend(exactly(1)) {
                 dataStoreController.putBoolean(PrefKey.BLE_CENTRAL_CLIENT, false)
             }

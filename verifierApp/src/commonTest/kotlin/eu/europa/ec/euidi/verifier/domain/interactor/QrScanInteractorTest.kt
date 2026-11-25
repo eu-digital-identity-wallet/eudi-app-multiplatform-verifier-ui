@@ -53,10 +53,15 @@ class QrScanInteractorTest {
     //region getScreenTitle
 
     @Test
-    fun `getScreenTitle returns localized title`() = runTest(StandardTestDispatcher()) {
+    fun `Given an interactor When the screen title is requested Then the localized title is returned`() = runTest(StandardTestDispatcher()) {
+        // Given
         val interactor = createInteractor()
 
-        assertEquals("QR scan title", interactor.getScreenTitle())
+        // When
+        val result = interactor.getScreenTitle()
+
+        // Then
+        assertEquals("QR scan title", result)
     }
 
     //endregion
@@ -64,31 +69,51 @@ class QrScanInteractorTest {
     //region qrCodeIsValid
 
     @Test
-    fun `qrCodeIsValid returns true for mdoc prefix`() = runTest(StandardTestDispatcher()) {
+    fun `Given an interactor When a QR code with the mdoc prefix is validated Then it is valid`() = runTest(StandardTestDispatcher()) {
+        // Given
         val interactor = createInteractor()
 
-        assertTrue(interactor.qrCodeIsValid("mdoc:abc123"))
+        // When
+        val result = interactor.qrCodeIsValid("mdoc:abc123")
+
+        // Then
+        assertTrue(result)
     }
 
     @Test
-    fun `qrCodeIsValid is case insensitive for the prefix`() = runTest(StandardTestDispatcher()) {
+    fun `Given an interactor When a QR code with an upper case mdoc prefix is validated Then it is valid`() = runTest(StandardTestDispatcher()) {
+        // Given
         val interactor = createInteractor()
 
-        assertTrue(interactor.qrCodeIsValid("MDOC:abc123"))
+        // When
+        val result = interactor.qrCodeIsValid("MDOC:abc123")
+
+        // Then
+        assertTrue(result)
     }
 
     @Test
-    fun `qrCodeIsValid returns false for a non-mdoc prefix`() = runTest(StandardTestDispatcher()) {
+    fun `Given an interactor When a QR code with another prefix is validated Then it is invalid`() = runTest(StandardTestDispatcher()) {
+        // Given
         val interactor = createInteractor()
 
-        assertFalse(interactor.qrCodeIsValid("https://example.com"))
+        // When
+        val result = interactor.qrCodeIsValid("https://example.com")
+
+        // Then
+        assertFalse(result)
     }
 
     @Test
-    fun `qrCodeIsValid returns false for an empty string`() = runTest(StandardTestDispatcher()) {
+    fun `Given an interactor When an empty string is validated Then it is invalid`() = runTest(StandardTestDispatcher()) {
+        // Given
         val interactor = createInteractor()
 
-        assertFalse(interactor.qrCodeIsValid(""))
+        // When
+        val result = interactor.qrCodeIsValid("")
+
+        // Then
+        assertFalse(result)
     }
 
     //endregion
@@ -96,18 +121,28 @@ class QrScanInteractorTest {
     //region messages
 
     @Test
-    fun `getInvalidQrCodeMessage returns localized message`() = runTest(StandardTestDispatcher()) {
+    fun `Given an interactor When the invalid QR code message is requested Then the localized message is returned`() = runTest(StandardTestDispatcher()) {
+        // Given
         val interactor = createInteractor()
 
-        assertEquals("Invalid QR code", interactor.getInvalidQrCodeMessage())
+        // When
+        val result = interactor.getInvalidQrCodeMessage()
+
+        // Then
+        assertEquals("Invalid QR code", result)
     }
 
     @Test
-    fun `getMissingDocumentsMessage returns localized message`() =
+    fun `Given an interactor When the missing documents message is requested Then the localized message is returned`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val interactor = createInteractor()
 
-            assertEquals("Missing documents", interactor.getMissingDocumentsMessage())
+            // When
+            val result = interactor.getMissingDocumentsMessage()
+
+            // Then
+            assertEquals("Missing documents", result)
         }
 
     //endregion

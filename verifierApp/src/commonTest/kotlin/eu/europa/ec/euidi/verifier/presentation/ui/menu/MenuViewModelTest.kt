@@ -54,11 +54,14 @@ class MenuViewModelTest : MviViewModelTest() {
     }
 
     @Test
-    fun `Init loads the title and menu items and the app version`() = runTest(testDispatcher) {
+    fun `Given a view model When Init is received Then the title and the menu items and the app version are shown and loading is off`() = runTest(testDispatcher) {
+        // Given
         val viewModel = MenuViewModel(menuInteractor())
 
+        // When
         viewModel.setEvent(Event.Init)
 
+        // Then
         val state = viewModel.uiState.value
         assertEquals("Menu", state.screenTitle)
         assertEquals(menuItems, state.menuItems)
@@ -67,22 +70,30 @@ class MenuViewModelTest : MviViewModelTest() {
     }
 
     @Test
-    fun `OnBackClicked emits Pop`() = runTest(testDispatcher) {
+    fun `Given a view model When OnBackClicked is received Then Pop is emitted`() = runTest(testDispatcher) {
+        // Given
         val viewModel = MenuViewModel(menuInteractor())
 
         viewModel.effect.test {
+            // When
             viewModel.setEvent(Event.OnBackClicked)
+
+            // Then
             assertEquals(Effect.Navigation.Pop, awaitItem())
             cancelAndIgnoreRemainingEvents()
         }
     }
 
     @Test
-    fun `MenuItemClicked HOME pops to the home screen`() = runTest(testDispatcher) {
+    fun `Given a view model When the HOME item is clicked Then it pops to the home screen`() = runTest(testDispatcher) {
+        // Given
         val viewModel = MenuViewModel(menuInteractor())
 
         viewModel.effect.test {
+            // When
             viewModel.setEvent(Event.MenuItemClicked(MenuTypeUi.HOME))
+
+            // Then
             assertEquals(
                 Effect.Navigation.PopTo(route = NavItem.Home, inclusive = false),
                 awaitItem()
@@ -92,11 +103,15 @@ class MenuViewModelTest : MviViewModelTest() {
     }
 
     @Test
-    fun `MenuItemClicked SETTINGS pushes the settings screen`() = runTest(testDispatcher) {
+    fun `Given a view model When the SETTINGS item is clicked Then it pushes the settings screen`() = runTest(testDispatcher) {
+        // Given
         val viewModel = MenuViewModel(menuInteractor())
 
         viewModel.effect.test {
+            // When
             viewModel.setEvent(Event.MenuItemClicked(MenuTypeUi.SETTINGS))
+
+            // Then
             assertEquals(
                 Effect.Navigation.PushScreen(
                     route = NavItem.Settings,

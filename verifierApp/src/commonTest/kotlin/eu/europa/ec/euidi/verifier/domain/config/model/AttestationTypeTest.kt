@@ -28,7 +28,8 @@ class AttestationTypeTest {
     private val resourceProvider = documentTypeResourceProvider()
 
     @Test
-    fun `namespace and docType are exposed for each attestation type`() {
+    fun `Given each attestation type When namespace and docType are read Then the expected values are exposed`() {
+        // Then
         assertEquals("eu.europa.ec.eudi.pid.1", AttestationType.Pid.namespace)
         assertEquals("eu.europa.ec.eudi.pid.1", AttestationType.Pid.docType)
 
@@ -40,14 +41,16 @@ class AttestationTypeTest {
     }
 
     @Test
-    fun `getDisplayName maps each type to its localized label`() {
+    fun `Given each attestation type When getDisplayName is called Then the localized label is returned`() {
+        // Then
         assertEquals("PID", AttestationType.Pid.getDisplayName(resourceProvider))
         assertEquals("MDL", AttestationType.Mdl.getDisplayName(resourceProvider))
         assertEquals("Employee ID", AttestationType.EmployeeId.getDisplayName(resourceProvider))
     }
 
     @Test
-    fun `getAttestationTypeFromDocType resolves each known docType`() {
+    fun `Given each known docType When getAttestationTypeFromDocType is called Then the matching attestation type is returned`() {
+        // Then
         assertEquals(
             AttestationType.Pid,
             getAttestationTypeFromDocType(AttestationType.Pid.docType)
@@ -63,7 +66,8 @@ class AttestationTypeTest {
     }
 
     @Test
-    fun `getAttestationTypeFromDocType throws for an unknown docType`() {
+    fun `Given an unknown docType When getAttestationTypeFromDocType is called Then IllegalArgumentException is thrown`() {
+        // Then
         assertFailsWith<IllegalArgumentException> {
             getAttestationTypeFromDocType("unknown.doctype")
         }
