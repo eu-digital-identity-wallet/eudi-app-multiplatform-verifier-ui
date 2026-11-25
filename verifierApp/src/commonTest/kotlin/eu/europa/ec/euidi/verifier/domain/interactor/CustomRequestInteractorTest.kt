@@ -77,15 +77,20 @@ class CustomRequestInteractorTest {
 
     // region getScreenTitle
 
+    /**
+     * The resource provider mock maps PID -> "PID" and the title's vararg overload
+     * -> "CustomRequestTitle(PID)".
+     */
     @Test
-    fun `getScreenTitle combines screen title and attestation display name`() =
+    fun `Given an interactor When the screen title for PID is requested Then it combines the title and the attestation display name`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val interactor = createInteractor()
 
+            // When
             val result = interactor.getScreenTitle(AttestationType.Pid)
 
-            // The resource provider mock maps PID -> "PID" and the title's vararg overload
-            // -> "CustomRequestTitle(PID)".
+            // Then
             assertEquals("CustomRequestTitle(PID)", result)
         }
 
@@ -94,8 +99,9 @@ class CustomRequestInteractorTest {
     // region getDocumentClaims
 
     @Test
-    fun `getDocumentClaims returns configured claims for attestation type`() =
+    fun `Given configured claims for PID When the document claims are requested for PID Then the configured claims are returned`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val claimsForPid = listOf(
                 ClaimItem("family_name"),
                 ClaimItem("given_name")
@@ -107,14 +113,17 @@ class CustomRequestInteractorTest {
             )
             val interactor = createInteractor(supportedDocuments = supported)
 
+            // When
             val result = interactor.getDocumentClaims(AttestationType.Pid)
 
+            // Then
             assertEquals(claimsForPid, result)
         }
 
     @Test
-    fun `getDocumentClaims returns empty list when attestation not configured`() =
+    fun `Given claims configured for PID only When the document claims are requested for MDL Then an empty list is returned`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val supported = SupportedDocuments(
                 documents = mapOf(
                     AttestationType.Pid to listOf(ClaimItem("family_name"))
@@ -122,8 +131,10 @@ class CustomRequestInteractorTest {
             )
             val interactor = createInteractor(supportedDocuments = supported)
 
+            // When
             val result = interactor.getDocumentClaims(AttestationType.Mdl)
 
+            // Then
             assertTrue(result.isEmpty())
         }
 
@@ -132,8 +143,9 @@ class CustomRequestInteractorTest {
     // region transformToClaimItems
 
     @Test
-    fun `transformToClaimItems returns only items with checked checkbox`() =
+    fun `Given checked and unchecked items and items without a checkbox When they are transformed to claim items Then only the checked item is returned`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val interactor = createInteractor()
 
             val checked = listItemWithCheckbox(id = "checked", isChecked = true)
@@ -142,32 +154,40 @@ class CustomRequestInteractorTest {
 
             val input = listOf(checked, unchecked, noCheckbox)
 
+            // When
             val result = interactor.transformToClaimItems(input)
 
+            // Then
             assertEquals(listOf("checked"), result.map { it.label })
         }
 
     @Test
-    fun `transformToClaimItems excludes items with unchecked checkbox`() =
+    fun `Given an unchecked item When it is transformed to claim items Then an empty list is returned`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val interactor = createInteractor()
 
             val unchecked = listItemWithCheckbox(id = "unchecked", isChecked = false)
 
+            // When
             val result = interactor.transformToClaimItems(listOf(unchecked))
 
+            // Then
             assertTrue(result.isEmpty())
         }
 
     @Test
-    fun `transformToClaimItems excludes items without checkbox`() =
+    fun `Given an item without a checkbox When it is transformed to claim items Then an empty list is returned`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val interactor = createInteractor()
 
             val noCheckbox = listItemWithoutCheckbox(id = "no_checkbox")
 
+            // When
             val result = interactor.transformToClaimItems(listOf(noCheckbox))
 
+            // Then
             assertTrue(result.isEmpty())
         }
 
@@ -175,10 +195,14 @@ class CustomRequestInteractorTest {
 
     //region transformToUiItems
 
+    /**
+     * Each claim yields one UI item whose id is the claim label. Its main content is a text
+     * node with non-empty text and its trailing content is a checked checkbox.
+     */
     @Test
-    fun `transformToUiItems maps each claim to a checked checkbox ui item with same id`() =
+    fun `Given two claims When they are transformed to UI items Then each is a checked checkbox item with the claim label as id`() =
         runTest(StandardTestDispatcher()) {
-            // GIVEN
+            // Given
             val claims = listOf(
                 ClaimItem(label = "family_name"),
                 ClaimItem(label = "age")
@@ -188,30 +212,26 @@ class CustomRequestInteractorTest {
                 supportedDocuments = SupportedDocuments(emptyMap())
             )
 
-            // WHEN
+            // When
             val result = interactor.transformToUiItems(
                 documentType = AttestationType.Pid,
                 claims = claims
             )
 
-            // THEN
-            // 1) One UI item per claim
+            // Then
             assertEquals(claims.size, result.size)
 
             result.forEachIndexed { index, uiItem ->
                 val claim = claims[index]
 
-                // 2) itemId maps from claim.label
                 assertEquals(claim.label, uiItem.itemId)
 
-                // 3) mainContent is a Text node with some non-empty text
                 val main = uiItem.mainContentData as ListItemMainContentDataUi.Text
                 assertTrue(
                     main.text.isNotEmpty(),
                     "Expected non-empty main text for ${claim.label}"
                 )
 
-                // 4) trailingContent is a Checkbox and it's checked
                 val trailing = uiItem.trailingContentData
                 assertTrue(
                     trailing is ListItemTrailingContentDataUi.Checkbox,
@@ -225,9 +245,13 @@ class CustomRequestInteractorTest {
 
     // region handleItemSelection
 
+    /**
+     * Selecting id_1 toggles its checkbox to checked, so hasSelectedItems becomes true.
+     */
     @Test
-    fun `handleItemSelection toggles checkbox and updates hasSelectedItems`() =
+    fun `Given two unchecked items When the first is selected Then it is checked and hasSelectedItems is true`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val interactor = createInteractor()
 
             val item1 = listItemWithCheckbox(id = "id_1", isChecked = false)
@@ -235,25 +259,26 @@ class CustomRequestInteractorTest {
 
             val initialItems = listOf(item1, item2)
 
+            // When
             val result = interactor.handleItemSelection(
                 items = initialItems,
                 identifier = "id_1"
             ) as HandleItemSelectionPartialState.Updated
 
-            // id_1 should be toggled to true
+            // Then
             val updatedItem1 =
                 result.items.first { it.itemId == "id_1" }.trailingContentData as
                         ListItemTrailingContentDataUi.Checkbox
 
             assertTrue(updatedItem1.checkboxData.isChecked)
 
-            // hasSelectedItems should be true because at least one checkbox is now checked
             assertTrue(result.hasSelectedItems)
         }
 
     @Test
-    fun `handleItemSelection allows unchecking the last checked item`() =
+    fun `Given one checked and one unchecked item When the checked item is selected Then it is unchecked and hasSelectedItems is false`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val interactor = createInteractor()
 
             val item1 = listItemWithCheckbox(id = "id_1", isChecked = true)
@@ -261,11 +286,13 @@ class CustomRequestInteractorTest {
 
             val initialItems = listOf(item1, item2)
 
+            // When
             val result = interactor.handleItemSelection(
                 items = initialItems,
                 identifier = "id_1"
             ) as HandleItemSelectionPartialState.Updated
 
+            // Then
             val updatedItem1 =
                 result.items.first { it.itemId == "id_1" }.trailingContentData as
                         ListItemTrailingContentDataUi.Checkbox
@@ -274,19 +301,24 @@ class CustomRequestInteractorTest {
             assertFalse(result.hasSelectedItems)
         }
 
+    /**
+     * The id matches but the item has no checkbox, so it is returned unchanged.
+     */
     @Test
-    fun `handleItemSelection leaves a matched item without a checkbox unchanged`() =
+    fun `Given a matched item without a checkbox When it is selected Then it is returned unchanged`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val interactor = createInteractor()
 
             val noCheckbox = listItemWithoutCheckbox(id = "id_1")
 
+            // When
             val result = interactor.handleItemSelection(
                 items = listOf(noCheckbox),
                 identifier = "id_1"
             ) as HandleItemSelectionPartialState.Updated
 
-            // The id matches but the item has no checkbox, so it is returned unchanged.
+            // Then
             assertEquals(noCheckbox, result.items.single())
             assertFalse(result.hasSelectedItems)
         }

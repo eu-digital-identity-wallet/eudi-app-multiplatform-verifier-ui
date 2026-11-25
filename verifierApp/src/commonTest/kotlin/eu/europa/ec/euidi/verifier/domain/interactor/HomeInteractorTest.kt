@@ -69,10 +69,15 @@ class HomeInteractorTest {
     //region getScreenTitle
 
     @Test
-    fun `getScreenTitle returns localized title`() = runTest(StandardTestDispatcher()) {
+    fun `Given an interactor When the screen title is requested Then the localized title is returned`() = runTest(StandardTestDispatcher()) {
+        // Given
         val interactor = createInteractor()
 
-        assertEquals("Home Screen title", interactor.getScreenTitle())
+        // When
+        val result = interactor.getScreenTitle()
+
+        // Then
+        assertEquals("Home Screen title", result)
     }
 
     //endregion
@@ -80,12 +85,15 @@ class HomeInteractorTest {
     //region getDefaultMainButtonData
 
     @Test
-    fun `getDefaultMainButtonData uses uuidProvider default text and chevron icon`() =
+    fun `Given an interactor When the default main button data is requested twice Then it has the default text and the chevron icon and sequential ids`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val interactor = createInteractor()
 
+            // When
             val item = interactor.getDefaultMainButtonData()
 
+            // Then
             assertEquals("uuid-0", item.itemId)
 
             val main = item.mainContentData
@@ -96,7 +104,10 @@ class HomeInteractorTest {
             assertIs<ListItemTrailingContentDataUi.Icon>(trailing)
             assertEquals(AppIcons.ChevronRight, trailing.iconData)
 
+            // When
             val secondItem = interactor.getDefaultMainButtonData()
+
+            // Then
             assertEquals("uuid-1", secondItem.itemId)
         }
 
@@ -105,8 +116,9 @@ class HomeInteractorTest {
     //region formatMainButtonData
 
     @Test
-    fun `formatMainButtonData formats single requested document`() =
+    fun `Given a base item and one requested document When the main button data is formatted Then the document name is shown with the chevron icon`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val interactor = createInteractor()
 
             val baseItem = ListItemDataUi(
@@ -121,11 +133,13 @@ class HomeInteractorTest {
 
             val requestedDocs = listOf(TestData.pidFullRequestedDocument)
 
+            // When
             val updated = interactor.formatMainButtonData(
                 requestedDocs = requestedDocs,
                 existingMainButtonData = baseItem
             )
 
+            // Then
             assertEquals(baseItem.itemId, updated.itemId)
 
             val updatedMain = updated.mainContentData
@@ -138,8 +152,9 @@ class HomeInteractorTest {
         }
 
     @Test
-    fun `formatMainButtonData joins multiple requested documents with separator`() =
+    fun `Given a base item and two requested documents When the main button data is formatted Then the names are joined with the separator`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val interactor = createInteractor()
 
             val baseItem = ListItemDataUi(
@@ -157,11 +172,13 @@ class HomeInteractorTest {
                 TestData.mdlCustomRequestedDocument,
             )
 
+            // When
             val updated = interactor.formatMainButtonData(
                 requestedDocs = requestedDocs,
                 existingMainButtonData = baseItem
             )
 
+            // Then
             val updatedMain = updated.mainContentData as ListItemMainContentDataUi.Text
             assertEquals("Full PID ; Custom MDL", updatedMain.text)
         }
@@ -171,12 +188,15 @@ class HomeInteractorTest {
     //region closeApp
 
     @Test
-    fun `closeApp delegates to PlatformController`() = runTest(StandardTestDispatcher()) {
+    fun `Given an interactor When closeApp is called Then the platform controller closes the app and does not open the settings`() = runTest(StandardTestDispatcher()) {
+        // Given
         val platformController = mock<PlatformController>(MockMode.autoUnit)
         val interactor = createInteractor(platformController = platformController)
 
+        // When
         interactor.closeApp()
 
+        // Then
         verify(exactly(1)) { platformController.closeApp() }
         verify(exactly(0)) { platformController.openAppSettings() }
     }

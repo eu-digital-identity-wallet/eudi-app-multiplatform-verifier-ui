@@ -62,10 +62,15 @@ class ShowDocumentsInteractorTest {
     //region getScreenTitle
 
     @Test
-    fun `getScreenTitle returns localized title`() = runTest(StandardTestDispatcher()) {
+    fun `Given an interactor When the screen title is requested Then the localized title is returned`() = runTest(StandardTestDispatcher()) {
+        // Given
         val interactor = createInteractor()
 
-        assertEquals("Show documents title", interactor.getScreenTitle())
+        // When
+        val result = interactor.getScreenTitle()
+
+        // Then
+        assertEquals("Show documents title", result)
     }
 
     //endregion
@@ -73,16 +78,26 @@ class ShowDocumentsInteractorTest {
     //region transformToUiItems
 
     @Test
-    fun `transformToUiItems returns empty list for empty input`() =
+    fun `Given an interactor When an empty list is transformed Then an empty list is returned`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val interactor = createInteractor()
 
-            assertTrue(interactor.transformToUiItems(emptyList()).isEmpty())
+            // When
+            val result = interactor.transformToUiItems(emptyList())
+
+            // Then
+            assertTrue(result.isEmpty())
         }
 
+    /**
+     * One UI claim per claim entry, with an id provided by the uuid provider.
+     * 3 boolean validity items + 3 non-null string validity items.
+     */
     @Test
-    fun `transformToUiItems maps a received document to a DocumentUi`() =
+    fun `Given an interactor and a received document When it is transformed Then one DocumentUi with its claim and validity items is returned`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val interactor = createInteractor()
 
             val document = ReceivedDocumentUi(
@@ -99,22 +114,22 @@ class ShowDocumentsInteractorTest {
                 )
             )
 
+            // When
             val result = interactor.transformToUiItems(listOf(document))
 
+            // Then
             assertEquals(1, result.size)
             val documentUi = result.single()
 
             assertEquals("doc-1", documentUi.id)
             assertEquals(AttestationType.Pid.docType, documentUi.docType)
 
-            // One UI claim per claim entry, with an id provided by the uuid provider.
             assertEquals(1, documentUi.uiClaims.size)
             assertEquals("uuid-0", documentUi.uiClaims.single().itemId)
             val claimMain = documentUi.uiClaims.single().mainContentData
             assertTrue(claimMain is ListItemMainContentDataUi.Text)
             assertEquals("John", claimMain.text)
 
-            // 3 boolean validity items + 3 non-null string validity items.
             assertEquals(6, documentUi.validityInfo.size)
         }
 

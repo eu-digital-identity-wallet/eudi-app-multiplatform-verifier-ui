@@ -84,8 +84,9 @@ class TransferStatusInteractorTest {
     //region transformToReceivedDocumentsUi
 
     @Test
-    fun `transformToReceivedDocumentsUi maps domain documents to ui models`() =
+    fun `Given a received document When it is transformed to UI models Then one UI document with its claims and validity is returned`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val interactor = createInteractor()
 
             val received = listOf(
@@ -104,11 +105,13 @@ class TransferStatusInteractorTest {
                 )
             )
 
+            // When
             val result = interactor.transformToReceivedDocumentsUi(
                 requestedDocuments = emptyList(),
                 receivedDocuments = received
             )
 
+            // Then
             assertEquals(1, result.size)
             val doc = result.single()
             assertEquals("uuid-0", doc.id)
@@ -118,15 +121,18 @@ class TransferStatusInteractorTest {
         }
 
     @Test
-    fun `transformToReceivedDocumentsUi returns empty list for empty input`() =
+    fun `Given no received documents When they are transformed to UI models Then an empty list is returned`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val interactor = createInteractor()
 
+            // When
             val result = interactor.transformToReceivedDocumentsUi(
                 requestedDocuments = emptyList(),
                 receivedDocuments = emptyList()
             )
 
+            // Then
             assertTrue(result.isEmpty())
         }
 
@@ -135,8 +141,9 @@ class TransferStatusInteractorTest {
     //region prepareConnection
 
     @Test
-    fun `prepareConnection initializes verifier and transfer manager with stored settings`() =
+    fun `Given stored settings and configured certificates When the connection is prepared Then the verifier and the transfer manager are initialised with them`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val transferController = transferController()
             val interactor = createInteractor(
                 transferController = transferController,
@@ -154,8 +161,10 @@ class TransferStatusInteractorTest {
                 )
             )
 
+            // When
             interactor.prepareConnection()
 
+            // Then
             verify(exactly(1)) {
                 transferController.initializeVerifier(
                     listOf("CERT_A", "CERT_B"),
@@ -172,18 +181,23 @@ class TransferStatusInteractorTest {
             }
         }
 
+    /**
+     * Defaults baked into the interactor (BLE modes on, L2CAP/clear-cache off).
+     */
     @Test
-    fun `prepareConnection uses defaults when settings are not stored`() =
+    fun `Given no stored settings When the connection is prepared Then the transfer manager is initialised with the defaults`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val transferController = transferController()
             val interactor = createInteractor(
                 transferController = transferController,
                 dataStoreController = dataStore()
             )
 
+            // When
             interactor.prepareConnection()
 
-            // Defaults baked into the interactor (BLE modes on, L2CAP/clear-cache off).
+            // Then
             verify(exactly(1)) {
                 transferController.initializeTransferManager(
                     bleCentralClientMode = true,
@@ -199,13 +213,16 @@ class TransferStatusInteractorTest {
     //region startEngagement
 
     @Test
-    fun `startEngagement delegates the qr code to the transfer controller`() =
+    fun `Given an interactor When engagement starts with a QR code Then the transfer controller receives the code`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val transferController = transferController()
             val interactor = createInteractor(transferController = transferController)
 
+            // When
             interactor.startEngagement("mdoc:engagement")
 
+            // Then
             verify(exactly(1)) { transferController.startEngagement("mdoc:engagement") }
         }
 
@@ -214,8 +231,9 @@ class TransferStatusInteractorTest {
     //region getConnectionStatus
 
     @Test
-    fun `getConnectionStatus sends the request with retainData from settings`() =
+    fun `Given a stored retainData setting When the connection status is requested Then the request is sent with retainData and the status is returned`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val transferController =
                 transferController(statusFlow = flowOf(TransferStatus.RequestSent))
             val interactor = createInteractor(
@@ -225,8 +243,10 @@ class TransferStatusInteractorTest {
 
             val docs = listOf(TestData.pidFullRequestedDocument)
 
+            // When
             val status = interactor.getConnectionStatus(docs).first()
 
+            // Then
             assertEquals(TransferStatus.RequestSent, status)
             verify(exactly(1)) { transferController.sendRequest(docs, true) }
         }
@@ -236,8 +256,9 @@ class TransferStatusInteractorTest {
     //region getRequestData
 
     @Test
-    fun `getRequestData prefixes the label and joins document types`() =
+    fun `Given two requested documents When the request data is requested Then the label is prefixed and the document types are joined`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val interactor = createInteractor()
 
             val docs = listOf(
@@ -245,18 +266,23 @@ class TransferStatusInteractorTest {
                 TestData.mdlCustomRequestedDocument,
             )
 
+            // When
             val result = interactor.getRequestData(docs)
 
+            // Then
             assertEquals("Requesting: Full PID; Custom MDL", result)
         }
 
     @Test
-    fun `getRequestData returns just the label when there are no documents`() =
+    fun `Given no requested documents When the request data is requested Then only the label is returned`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val interactor = createInteractor()
 
+            // When
             val result = interactor.getRequestData(emptyList())
 
+            // Then
             assertEquals("Requesting: ", result)
         }
 
@@ -265,13 +291,16 @@ class TransferStatusInteractorTest {
     //region stopConnection
 
     @Test
-    fun `stopConnection delegates to the transfer controller`() =
+    fun `Given an interactor When the connection is stopped Then the transfer controller stops it`() =
         runTest(StandardTestDispatcher()) {
+            // Given
             val transferController = transferController()
             val interactor = createInteractor(transferController = transferController)
 
+            // When
             interactor.stopConnection()
 
+            // Then
             verify(exactly(1)) { transferController.stopConnection() }
         }
 

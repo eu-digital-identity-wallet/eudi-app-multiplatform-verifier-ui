@@ -27,34 +27,45 @@ class Base64ExtensionsTest {
     // region encodeToBase64String
 
     @Test
-    fun `encode and decode round-trips with url-safe padded default`() {
+    fun `Given bytes When they are encoded and decoded with the defaults Then the original bytes are returned`() {
+        // Given
         val bytes = "Hello, EUDI!".encodeToByteArray()
 
+        // When
         val encoded = bytes.encodeToBase64String()
         val decoded = encoded.decodeBase64ToBytesOrNull()
 
+        // Then
         assertContentEquals(bytes, decoded)
     }
 
     @Test
-    fun `encode without padding omits the trailing padding characters`() {
+    fun `Given bytes that need padding When they are encoded with and without padding Then only the padded string ends with an equals sign`() {
+        // Given
         val bytes = byteArrayOf(1, 2, 3, 4, 5)
 
+        // When
         val padded = bytes.encodeToBase64String(withPadding = true)
         val unpadded = bytes.encodeToBase64String(withPadding = false)
 
+        // Then
         assertTrue(padded.endsWith("="))
         assertTrue(!unpadded.contains("="))
     }
 
+    /**
+     * 0xFB, 0xFF encodes to characters that differ between the standard and url-safe alphabets.
+     */
     @Test
-    fun `encode with the standard non url-safe alphabet is decodable`() {
-        // 0xFB, 0xFF encodes to characters that differ between the standard and url-safe alphabets.
+    fun `Given bytes that encode differently per alphabet When encoded with the standard and url-safe alphabets Then each uses its own characters and the url-safe string decodes`() {
+        // Given
         val bytes = byteArrayOf(0xFB.toByte(), 0xFF.toByte())
 
+        // When
         val standard = bytes.encodeToBase64String(urlSafe = false)
         val urlSafe = bytes.encodeToBase64String(urlSafe = true)
 
+        // Then
         assertTrue(standard.any { it == '+' || it == '/' })
         assertTrue(urlSafe.any { it == '-' || it == '_' })
         assertContentEquals(bytes, urlSafe.decodeBase64ToBytesOrNull())
@@ -65,36 +76,53 @@ class Base64ExtensionsTest {
     // region decode
 
     @Test
-    fun `decode strips a data-uri prefix before decoding`() {
+    fun `Given a data-uri prefixed string When it is decoded Then the prefix is stripped and the bytes are returned`() {
+        // Given
         val bytes = "abc".encodeToByteArray()
         val dataUri = "data:text/plain;base64," + bytes.encodeToBase64String()
 
-        assertContentEquals(bytes, dataUri.decodeBase64ToBytesOrNull())
+        // When
+        val result = dataUri.decodeBase64ToBytesOrNull()
+
+        // Then
+        assertContentEquals(bytes, result)
     }
 
     @Test
-    fun `decode returns null for blank input`() {
+    fun `Given an empty string and an empty data-uri payload When they are decoded Then null is returned`() {
+        // Then
         assertNull("".decodeBase64ToBytesOrNull())
         assertNull("data:text/plain;base64,".decodeBase64ToBytesOrNull())
     }
 
     @Test
-    fun `decode returns null for malformed base64`() {
-        assertNull("!!!".decodeBase64ToBytesOrNull())
+    fun `Given malformed base64 When it is decoded Then null is returned`() {
+        // When
+        val result = "!!!".decodeBase64ToBytesOrNull()
+
+        // Then
+        assertNull(result)
     }
 
     @Test
-    fun `decodeBase64ToUtf8OrNull round-trips a string`() {
+    fun `Given a string with an accented character When it is encoded and decoded Then the same string is returned`() {
+        // Given
         val original = "héllo"
 
+        // When
         val encoded = original.encodeToByteArray().encodeToBase64String()
 
+        // Then
         assertEquals(original, encoded.decodeBase64ToUtf8OrNull())
     }
 
     @Test
-    fun `decodeBase64ToUtf8OrNull returns null for malformed base64`() {
-        assertNull("!!!".decodeBase64ToUtf8OrNull())
+    fun `Given malformed base64 When it is decoded to UTF-8 Then null is returned`() {
+        // When
+        val result = "!!!".decodeBase64ToUtf8OrNull()
+
+        // Then
+        assertNull(result)
     }
 
     // endregion

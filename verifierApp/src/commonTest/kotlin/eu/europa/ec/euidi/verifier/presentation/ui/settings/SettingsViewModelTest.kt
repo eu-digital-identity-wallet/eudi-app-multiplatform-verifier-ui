@@ -55,11 +55,14 @@ class SettingsViewModelTest : MviViewModelTest() {
     }
 
     @Test
-    fun `Init loads title and settings items`() = runTest(testDispatcher) {
+    fun `Given a view model When Init is received Then the title and the settings items are shown and loading is off`() = runTest(testDispatcher) {
+        // Given
         val viewModel = SettingsViewModel(settingsInteractor())
 
+        // When
         viewModel.setEvent(Event.Init)
 
+        // Then
         val state = viewModel.uiState.value
         assertEquals("Settings", state.screenTitle)
         assertEquals(settingsItems, state.settingsItems)
@@ -67,22 +70,30 @@ class SettingsViewModelTest : MviViewModelTest() {
     }
 
     @Test
-    fun `OnBackClicked emits Pop`() = runTest(testDispatcher) {
+    fun `Given a view model When OnBackClicked is received Then Pop is emitted`() = runTest(testDispatcher) {
+        // Given
         val viewModel = SettingsViewModel(settingsInteractor())
 
         viewModel.effect.test {
+            // When
             viewModel.setEvent(Event.OnBackClicked)
+
+            // Then
             assertEquals(Effect.Navigation.Pop, awaitItem())
             cancelAndIgnoreRemainingEvents()
         }
     }
 
     @Test
-    fun `OnStickyButtonClicked pops to the home screen`() = runTest(testDispatcher) {
+    fun `Given a view model When OnStickyButtonClicked is received Then it pops to the home screen`() = runTest(testDispatcher) {
+        // Given
         val viewModel = SettingsViewModel(settingsInteractor())
 
         viewModel.effect.test {
+            // When
             viewModel.setEvent(Event.OnStickyButtonClicked)
+
+            // Then
             assertEquals(
                 Effect.Navigation.PopTo(route = NavItem.Home, inclusive = false),
                 awaitItem()
@@ -92,21 +103,27 @@ class SettingsViewModelTest : MviViewModelTest() {
     }
 
     @Test
-    fun `SettingsItemClicked toggles the preference and refreshes the items`() =
+    fun `Given a view model When a settings item is clicked Then the preference is toggled once and the items are refreshed`() =
         runTest(testDispatcher) {
+            // Given
             val interactor = settingsInteractor(items = refreshedItems)
             val viewModel = SettingsViewModel(interactor)
 
+            // When
             viewModel.setEvent(Event.SettingsItemClicked(SettingsTypeUi.RetainData))
 
+            // Then
             verifySuspend(exactly(1)) { interactor.togglePrefBoolean(PrefKey.RETAIN_DATA) }
             assertEquals(refreshedItems, viewModel.uiState.value.settingsItems)
         }
 
+    /**
+     * PushScreen is part of the navigation contract consumed by SettingsScreen's exhaustive
+     * when, even though the ViewModel itself only emits Pop / PopTo.
+     */
     @Test
-    fun `PushScreen navigation effect exposes its route and its popUpTo target and inclusive flag`() {
-        // PushScreen is part of the navigation contract consumed by SettingsScreen's exhaustive
-        // when, even though the ViewModel itself only emits Pop / PopTo.
+    fun `Given PushScreen effects with equal arguments When compared and read Then route and popUpTo and inclusive are exposed and the effects are equal`() {
+        // Given
         val effect = Effect.Navigation.PushScreen(
             route = NavItem.Settings,
             popUpTo = NavItem.Menu,
@@ -118,6 +135,7 @@ class SettingsViewModelTest : MviViewModelTest() {
             inclusive = true,
         )
 
+        // Then
         assertEquals(NavItem.Settings, effect.route)
         assertEquals(NavItem.Menu, effect.popUpTo)
         assertTrue(effect.inclusive)

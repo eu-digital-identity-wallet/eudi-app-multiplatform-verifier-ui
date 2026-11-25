@@ -49,11 +49,14 @@ class ShowDocumentsViewModelTest : MviViewModelTest() {
     }
 
     @Test
-    fun `Init loads title and transformed items`() = runTest(testDispatcher) {
+    fun `Given a view model When Init is received Then the title and the transformed items are shown and loading is off`() = runTest(testDispatcher) {
+        // Given
         val viewModel = ShowDocumentsViewModel(showDocumentsInteractor())
 
+        // When
         viewModel.setEvent(Event.Init(items = receivedDocs))
 
+        // Then
         val state = viewModel.uiState.value
         assertEquals("Documents", state.screenTitle)
         assertEquals(listOf(documentUi), state.items)
@@ -61,11 +64,15 @@ class ShowDocumentsViewModelTest : MviViewModelTest() {
     }
 
     @Test
-    fun `OnDoneClick pops to the home screen`() = runTest(testDispatcher) {
+    fun `Given a view model When OnDoneClick is received Then it pops to the home screen`() = runTest(testDispatcher) {
+        // Given
         val viewModel = ShowDocumentsViewModel(showDocumentsInteractor())
 
         viewModel.effect.test {
+            // When
             viewModel.setEvent(Event.OnDoneClick)
+
+            // Then
             assertEquals(
                 Effect.Navigation.PopTo(route = NavItem.Home, inclusive = false),
                 awaitItem()
@@ -75,11 +82,15 @@ class ShowDocumentsViewModelTest : MviViewModelTest() {
     }
 
     @Test
-    fun `OnBackClick pops to the home screen`() = runTest(testDispatcher) {
+    fun `Given a view model When OnBackClick is received Then it pops to the home screen`() = runTest(testDispatcher) {
+        // Given
         val viewModel = ShowDocumentsViewModel(showDocumentsInteractor())
 
         viewModel.effect.test {
+            // When
             viewModel.setEvent(Event.OnBackClick)
+
+            // Then
             assertEquals(
                 Effect.Navigation.PopTo(route = NavItem.Home, inclusive = false),
                 awaitItem()

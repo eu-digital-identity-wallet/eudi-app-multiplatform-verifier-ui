@@ -55,11 +55,14 @@ class HomeViewModelTest : MviViewModelTest() {
     //region OnResume
 
     @Test
-    fun `OnResume with no docs loads title and default main button`() = runTest(testDispatcher) {
+    fun `Given a view model When OnResume is received without documents Then the title and the default main button are loaded`() = runTest(testDispatcher) {
+        // Given
         val viewModel = HomeViewModel(homeInteractor())
 
+        // When
         viewModel.setEvent(Event.OnResume(docs = null))
 
+        // Then
         val state = viewModel.uiState.value
         assertEquals("Home", state.screenTitle)
         assertEquals(buttonData, state.mainButtonData)
@@ -69,8 +72,9 @@ class HomeViewModelTest : MviViewModelTest() {
     }
 
     @Test
-    fun `OnResume with docs formats the main button and enables the sticky button`() =
+    fun `Given requested documents When OnResume is received Then the main button is formatted and the sticky button is enabled`() =
         runTest(testDispatcher) {
+            // Given
             val docs = listOf(TestData.pidFullRequestedDocument)
             val formattedButton = buttonData.copy(
                 mainContentData = ListItemMainContentDataUi.Text("Full PID")
@@ -82,8 +86,10 @@ class HomeViewModelTest : MviViewModelTest() {
             }
             val viewModel = HomeViewModel(interactor)
 
+            // When
             viewModel.setEvent(Event.OnResume(docs = docs))
 
+            // Then
             val state = viewModel.uiState.value
             assertEquals(docs, state.requestedDocs)
             assertTrue(state.isStickyButtonEnabled)
@@ -91,9 +97,13 @@ class HomeViewModelTest : MviViewModelTest() {
             assertFalse(state.isLoading)
         }
 
+    /**
+     * First resume loads the default button; second resume must reuse it (no re-fetch).
+     */
     @Test
-    fun `OnResume twice reuses the already-loaded main button without re-fetching`() =
+    fun `Given a view model When it is resumed twice Then the default main button is fetched once and the second resume formats it`() =
         runTest(testDispatcher) {
+            // Given
             val docs = listOf(TestData.pidFullRequestedDocument)
             val formattedButton = buttonData.copy(
                 mainContentData = ListItemMainContentDataUi.Text("Full PID")
@@ -105,10 +115,11 @@ class HomeViewModelTest : MviViewModelTest() {
             }
             val viewModel = HomeViewModel(interactor)
 
-            // First resume loads the default button; second resume must reuse it (no re-fetch).
+            // When
             viewModel.setEvent(Event.OnResume(docs = null))
             viewModel.setEvent(Event.OnResume(docs = docs))
 
+            // Then
             assertEquals(formattedButton, viewModel.uiState.value.mainButtonData)
             verify(exactly(1)) { interactor.getScreenTitle() }
             verify(exactly(1)) { interactor.getDefaultMainButtonData() }
@@ -119,11 +130,14 @@ class HomeViewModelTest : MviViewModelTest() {
     //region DismissError
 
     @Test
-    fun `DismissError clears the error`() = runTest(testDispatcher) {
+    fun `Given a view model When DismissError is received Then there is no error`() = runTest(testDispatcher) {
+        // Given
         val viewModel = HomeViewModel(homeInteractor())
 
+        // When
         viewModel.setEvent(Event.DismissError)
 
+        // Then
         assertNull(viewModel.uiState.value.error)
     }
 
@@ -132,12 +146,15 @@ class HomeViewModelTest : MviViewModelTest() {
     //region OnBackClicked
 
     @Test
-    fun `OnBackClicked delegates to the interactor to close the app`() = runTest(testDispatcher) {
+    fun `Given a view model When OnBackClicked is received Then the interactor closes the app`() = runTest(testDispatcher) {
+        // Given
         val interactor = homeInteractor()
         val viewModel = HomeViewModel(interactor)
 
+        // When
         viewModel.setEvent(Event.OnBackClicked)
 
+        // Then
         verify(exactly(1)) { interactor.closeApp() }
     }
 
@@ -146,13 +163,16 @@ class HomeViewModelTest : MviViewModelTest() {
     //region navigation effects
 
     @Test
-    fun `OnStickyButtonClicked emits navigation to QR scan with the requested docs`() =
+    fun `Given a view model When OnStickyButtonClicked is received Then it navigates to QR scan with the requested documents`() =
         runTest(testDispatcher) {
+            // Given
             val viewModel = HomeViewModel(homeInteractor())
 
             viewModel.effect.test {
+                // When
                 viewModel.setEvent(Event.OnStickyButtonClicked)
 
+                // Then
                 assertEquals(
                     Effect.Navigation.SaveDocsToBackstackAndGoTo(
                         screen = NavItem.QrScan,
@@ -165,25 +185,31 @@ class HomeViewModelTest : MviViewModelTest() {
         }
 
     @Test
-    fun `OnMenuClick emits navigation to the menu screen`() = runTest(testDispatcher) {
+    fun `Given a view model When OnMenuClick is received Then it navigates to the menu screen`() = runTest(testDispatcher) {
+        // Given
         val viewModel = HomeViewModel(homeInteractor())
 
         viewModel.effect.test {
+            // When
             viewModel.setEvent(Event.OnMenuClick)
 
+            // Then
             assertEquals(Effect.Navigation.PushScreen(NavItem.Menu), awaitItem())
             cancelAndIgnoreRemainingEvents()
         }
     }
 
     @Test
-    fun `OnTapToCreateRequest emits navigation to the documents-to-request screen`() =
+    fun `Given a view model When OnTapToCreateRequest is received Then it navigates to the documents-to-request screen`() =
         runTest(testDispatcher) {
+            // Given
             val viewModel = HomeViewModel(homeInteractor())
 
             viewModel.effect.test {
+                // When
                 viewModel.setEvent(Event.OnTapToCreateRequest)
 
+                // Then
                 assertEquals(
                     Effect.Navigation.SaveDocsToBackstackAndGoTo(
                         screen = NavItem.DocToRequest,

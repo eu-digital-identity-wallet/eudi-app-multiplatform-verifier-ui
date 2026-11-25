@@ -48,26 +48,31 @@ class UiTransformerTest {
     //region transformToUiItems
 
     @Test
-    fun `transformToUiItems returns an empty list for empty fields`() {
+    fun `Given no fields When they are transformed to UI items Then an empty list is returned`() {
+        // When
         val result = UiTransformer.transformToUiItems(
             fields = emptyList(),
             attestationType = AttestationType.Pid,
             resourceProvider = resourceProvider,
         )
 
+        // Then
         assertTrue(result.isEmpty())
     }
 
     @Test
-    fun `transformToUiItems maps each claim to a checked checkbox item`() {
+    fun `Given two claims When they are transformed to UI items Then each is a checked checkbox item`() {
+        // Given
         val claims = listOf(ClaimItem("given_name"), ClaimItem("family_name"))
 
+        // When
         val result = UiTransformer.transformToUiItems(
             fields = claims,
             attestationType = AttestationType.Pid,
             resourceProvider = resourceProvider,
         )
 
+        // Then
         assertEquals(2, result.size)
         result.forEachIndexed { index, item ->
             assertEquals(claims[index].label, item.itemId)
@@ -83,7 +88,8 @@ class UiTransformerTest {
     //region toListItemDataUi content types
 
     @Test
-    fun `toListItemDataUi renders a portrait claim as a user image with empty main text`() {
+    fun `Given a portrait claim When it is converted to a list item Then a user image with empty main text is rendered`() {
+        // When
         val item = document.toListItemDataUi(
             itemId = "id",
             claimKey = ClaimItem("portrait"),
@@ -91,6 +97,7 @@ class UiTransformerTest {
             resourceProvider = resourceProvider,
         )
 
+        // Then
         val main = item.mainContentData
         assertIs<ListItemMainContentDataUi.Text>(main)
         assertEquals("", main.text)
@@ -101,7 +108,8 @@ class UiTransformerTest {
     }
 
     @Test
-    fun `toListItemDataUi renders a signature claim as an image`() {
+    fun `Given a signature claim When it is converted to a list item Then an image is rendered`() {
+        // When
         val item = document.toListItemDataUi(
             itemId = "id",
             claimKey = ClaimItem("signature_usual_mark"),
@@ -109,6 +117,7 @@ class UiTransformerTest {
             resourceProvider = resourceProvider,
         )
 
+        // Then
         val main = item.mainContentData
         assertIs<ListItemMainContentDataUi.Image>(main)
         assertEquals("base64-signature", main.base64Image)
@@ -116,7 +125,8 @@ class UiTransformerTest {
     }
 
     @Test
-    fun `toListItemDataUi renders a regular claim as text`() {
+    fun `Given a regular claim When it is converted to a list item Then text is rendered`() {
+        // When
         val item = document.toListItemDataUi(
             itemId = "id",
             claimKey = ClaimItem("given_name"),
@@ -124,6 +134,7 @@ class UiTransformerTest {
             resourceProvider = resourceProvider,
         )
 
+        // Then
         val main = item.mainContentData
         assertIs<ListItemMainContentDataUi.Text>(main)
         assertEquals("John", main.text)
@@ -134,26 +145,32 @@ class UiTransformerTest {
 
     //region getClaimTranslation
 
+    /**
+     * "home" + "screen_title" -> resource key "home_screen_title", which exists.
+     */
     @Test
-    fun `getClaimTranslation resolves a matching string resource when one exists`() {
-        // "home" + "screen_title" -> resource key "home_screen_title", which exists.
+    fun `Given a claim whose string resource exists When its translation is resolved Then the resource text is returned`() {
+        // When
         val result = UiTransformer.getClaimTranslation(
             attestationType = "home",
             claimLabel = "screen_title",
             resourceProvider = resourceProvider,
         )
 
+        // Then
         assertEquals("label", result)
     }
 
     @Test
-    fun `getClaimTranslation falls back to the claim label when no resource matches`() {
+    fun `Given a claim without a matching string resource When its translation is resolved Then the claim label is returned`() {
+        // When
         val result = UiTransformer.getClaimTranslation(
             attestationType = "PID",
             claimLabel = "no_such_claim_key",
             resourceProvider = resourceProvider,
         )
 
+        // Then
         assertEquals("no_such_claim_key", result)
     }
 
@@ -162,7 +179,8 @@ class UiTransformerTest {
     //region key predicates
 
     @Test
-    fun `key predicates classify document keys`() {
+    fun `Given document keys When the key predicates are applied Then each key is classified correctly`() {
+        // Then
         assertTrue(UiTransformer.keyIsPortrait("portrait"))
         assertFalse(UiTransformer.keyIsPortrait("given_name"))
 

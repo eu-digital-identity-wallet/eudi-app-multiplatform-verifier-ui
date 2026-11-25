@@ -36,31 +36,50 @@ class ListItemDataExtensionsTest {
         ListItemTrailingContentDataUi.Checkbox(CheckboxDataUi(isChecked = checked))
 
     @Test
-    fun `hasAnyCheckedCheckbox is true when at least one checkbox is checked`() {
+    fun `Given a list with a checked checkbox When hasAnyCheckedCheckbox is called Then true is returned`() {
+        // Given
         val items = listOf(
             item("a", checkbox(checked = false)),
             item("b", checkbox(checked = true)),
         )
 
-        assertTrue(items.hasAnyCheckedCheckbox())
+        // When
+        val result = items.hasAnyCheckedCheckbox()
+
+        // Then
+        assertTrue(result)
     }
 
     @Test
-    fun `hasAnyCheckedCheckbox is false when all checkboxes are unchecked`() {
+    fun `Given a list with only unchecked checkboxes When hasAnyCheckedCheckbox is called Then false is returned`() {
+        // Given
         val items = listOf(item("a", checkbox(checked = false)))
 
-        assertFalse(items.hasAnyCheckedCheckbox())
+        // When
+        val result = items.hasAnyCheckedCheckbox()
+
+        // Then
+        assertFalse(result)
     }
 
     @Test
-    fun `hasAnyCheckedCheckbox is false when there are no checkbox items`() {
+    fun `Given a list without checkbox items When hasAnyCheckedCheckbox is called Then false is returned`() {
+        // Given
         val items = listOf(item("a"))
 
-        assertFalse(items.hasAnyCheckedCheckbox())
+        // When
+        val result = items.hasAnyCheckedCheckbox()
+
+        // Then
+        assertFalse(result)
     }
 
     @Test
-    fun `hasAnyCheckedCheckbox is false for an empty list`() {
-        assertFalse(emptyList<ListItemDataUi>().hasAnyCheckedCheckbox())
+    fun `Given an empty list When hasAnyCheckedCheckbox is called Then false is returned`() {
+        // When
+        val result = emptyList<ListItemDataUi>().hasAnyCheckedCheckbox()
+
+        // Then
+        assertFalse(result)
     }
 }

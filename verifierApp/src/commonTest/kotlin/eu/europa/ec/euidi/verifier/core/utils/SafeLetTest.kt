@@ -23,23 +23,29 @@ import kotlin.test.assertNull
 class SafeLetTest {
 
     @Test
-    fun `safeLet invokes the block when both arguments are non-null`() {
+    fun `Given two non-null arguments When safeLet is called Then the block result is returned`() {
+        // When
         val result = safeLet("a", 1) { p1, p2 -> "$p1$p2" }
 
+        // Then
         assertEquals("a1", result)
     }
 
     @Test
-    fun `safeLet returns null when the first argument is null`() {
+    fun `Given a null first argument When safeLet is called Then null is returned`() {
+        // Given
         val first: String? = null
 
+        // Then
         assertNull(safeLet(first, 1) { _, _ -> "block" })
     }
 
     @Test
-    fun `safeLet returns null when the second argument is null`() {
+    fun `Given a null second argument When safeLet is called Then null is returned`() {
+        // Given
         val second: Int? = null
 
+        // Then
         assertNull(safeLet("a", second) { _, _ -> "block" })
     }
 }
